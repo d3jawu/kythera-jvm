@@ -1,6 +1,6 @@
 package io.kwu.kythera.parser;
 
-public class Parser {
+public final class Parser {
     public Parser() {
 
     }

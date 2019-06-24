@@ -11,7 +11,7 @@ public class UnaryNode extends ExpressionNode {
         super(NodeKind.UNARY, target.type);
 
         if(op != Operator.NOT) {
-            throw new ParserException("Invalid operator: " + op.symbol);
+            throw new ParserException("Invalid operator: " + op.symbol + " cannot be used as a unary operator.");
         }
 
         this.operator = op;

@@ -1,12 +1,11 @@
 package io.kwu.kythera.parser;
 
-import javax.crypto.spec.OAEPParameterSpec;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.kwu.kythera.parser.TokenType.*;
 
-public class Tokenizer {
+public final class Tokenizer {
     final static String[] KEYWORDS = {
         "let",
         "new", // declaration

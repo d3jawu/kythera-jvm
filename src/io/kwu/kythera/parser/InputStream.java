@@ -5,7 +5,7 @@ package io.kwu.kythera.parser;
  * Ported almost verbatim from the JS implementation, can probably be
  * made more Java-idiomatic
  */
-public class InputStream {
+public final class InputStream {
     private String input;
 
     private int pos;

@@ -5,7 +5,6 @@ public enum NodeKind {
     BINARY,
     ASSIGN,
     LITERAL,
-    TYPE,
     IDENTIFIER,
     TYPEOF,
     NEW,
