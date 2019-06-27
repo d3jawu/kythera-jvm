@@ -10,9 +10,10 @@ public enum BaseType {
     BOOL("bool", true),
     TYPE("type", true), // type may not be scalar in the future
     STRUCT("struct", false),
-    TUPLE("tuple", false);
+    TUPLE("tuple", false),
     // LIST
     // MAP
+    FN("fn", false);
 
     public final String name;
     public final boolean scalar;

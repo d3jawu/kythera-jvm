@@ -8,6 +8,11 @@ import io.kwu.kythera.parser.NodeType;
 public abstract class ExpressionNode extends StatementNode {
     public NodeType type; // may need to be set after ExpressionNode is instantiated
 
+    ExpressionNode(NodeKind kind) {
+        super(kind);
+        this.type = null;
+    }
+
     ExpressionNode(NodeKind kind, NodeType type) {
         super(kind);
         this.type = type;

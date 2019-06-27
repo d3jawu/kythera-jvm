@@ -7,8 +7,10 @@ import java.util.Map;
 
 /**
  * Parser's internal representation of a type.
- * Distinct from a TypeLiteralNode (which comes from syntax), though
+ * Distinct from a TypeLiteralNode (which represents and comes from syntax), though
  * a NodeType can be constructed from a TypeLiteralNode.
+ *
+ * Analogous to a ParseNode with type "type" in kythera-js.
  */
 public class NodeType {
     public final BaseType baseType;
@@ -35,6 +37,4 @@ public class NodeType {
                     Map.entry(BaseType.TYPE, TYPE)
                     )
     );
-
-
 }
