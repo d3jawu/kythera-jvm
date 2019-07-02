@@ -24,14 +24,14 @@ public class BlockNode extends ExpressionNode {
 
         ExpressionNode lastNode = body[body.length - 1];
         if(lastNode.kind != NodeKind.RETURN) {
-            returns.add(body[body.length - 1]); // if no return, block evaluates to last expression value
+            returns.add(lastNode); // if no return, block evaluates to last expression value
         }
 
         for(ExpressionNode e : body) {
             if(returnType == null) {
                 returnType = e.type;
             } else if(!e.type.equals(returnType)){
-                throw new ParserException("Type mismatch: Block returned " + returnType.toString() + " but later returned " + e.type.toString());
+                throw new ParserException("Type mismatch: Block returned " + returnType.toString() + " but later also returned " + e.type.toString());
             }
         }
 

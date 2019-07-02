@@ -17,6 +17,8 @@ public class AssignNode extends ExpressionNode {
     public AssignNode(Operator op, ExpressionNode left, ExpressionNode right) throws ParserException {
         super(NodeKind.ASSIGN, right.type);
 
+        // TODO ensure that left node is an identifier or object member
+
         if (!Arrays.asList(new Operator[]{
                 EQUALS,
                 PLUS_EQUALS,
@@ -25,7 +27,7 @@ public class AssignNode extends ExpressionNode {
                 DIV_EQUALS,
                 MOD_EQUALS,
         }).contains(op)) {
-            throw new ParserException("Invalid operator: " + op.symbol + " is not a valid assignment operator.");
+            throw new ParserException("Invalid operator: '" + op.symbol + "' is not a valid assignment operator.");
         }
 
         this.left = left;
