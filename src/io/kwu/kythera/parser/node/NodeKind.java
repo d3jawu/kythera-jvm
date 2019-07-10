@@ -12,6 +12,7 @@ public enum NodeKind {
     WHILE,
     RETURN,
     // AS,
+    // TYPEOF,
     CALL,
     ACCESS,
     THIS,

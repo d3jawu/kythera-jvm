@@ -13,7 +13,7 @@ public class ScalarLiteralNode<V> extends LiteralNode {
     public ScalarLiteralNode(NodeType type, V value) throws ParserException {
         super(type);
 
-        if(!type.baseType.scalar) {
+        if (!type.baseType.scalar) {
             throw new ParserException(type.baseType.name + " is not a scalar type.");
         }
 

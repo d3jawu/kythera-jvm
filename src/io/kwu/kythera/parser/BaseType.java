@@ -6,10 +6,14 @@ package io.kwu.kythera.parser;
  * to fully describe and distinguish the type.
  */
 public enum BaseType {
+    BOOL("bool", true),
+    BYTE("byte", true),
+    SHORT("short", true),
     INT("int", true),
+    LONG("long", true),
     FLOAT("float", true),
     DOUBLE("double", true),
-    BOOL("bool", true),
+    CHAR("char", true),
     TYPE("type", true), // type may not be scalar in the future
     LIST("list", false),
     TUPLE("tuple", false),
