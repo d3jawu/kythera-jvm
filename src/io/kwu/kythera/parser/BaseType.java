@@ -6,6 +6,7 @@ package io.kwu.kythera.parser;
  * to fully describe and distinguish the type.
  */
 public enum BaseType {
+    UNIT("unit", true),
     BOOL("bool", true),
     BYTE("byte", true),
     SHORT("short", true),
@@ -14,12 +15,14 @@ public enum BaseType {
     FLOAT("float", true),
     DOUBLE("double", true),
     CHAR("char", true),
-    TYPE("type", true), // type may not be scalar in the future
     LIST("list", false),
     TUPLE("tuple", false),
     MAP("map", false),
+    STR("str", false),
     STRUCT("struct", false),
-    FN("fn", false);
+    FN("fn", false),
+    TYPE("type", true); // type may not be scalar in the future
+
 
     public final String name;
     public final boolean scalar;

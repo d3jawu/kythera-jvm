@@ -24,7 +24,6 @@ public final class Tokenizer {
         "int",
         "float",
         "str",
-        "null",
         "fn",
         "obj",
         "list",
