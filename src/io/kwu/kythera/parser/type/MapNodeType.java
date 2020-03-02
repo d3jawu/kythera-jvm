@@ -1,4 +1,4 @@
-package io.kwu.kythera.parser;
+package io.kwu.kythera.parser.type;
 
 public class MapNodeType extends NodeType {
     public final NodeType keyType;

@@ -1,4 +1,4 @@
-package io.kwu.kythera.parser;
+package io.kwu.kythera.parser.tokenizer;
 
 /**
  * An input stream that also keeps track of line and column position.

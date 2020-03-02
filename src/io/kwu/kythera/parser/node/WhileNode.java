@@ -1,6 +1,6 @@
 package io.kwu.kythera.parser.node;
 
-import io.kwu.kythera.parser.NodeType;
+import io.kwu.kythera.parser.type.NodeType;
 import io.kwu.kythera.parser.ParserException;
 
 public class WhileNode extends ExpressionNode {
@@ -16,7 +16,7 @@ public class WhileNode extends ExpressionNode {
         this.condition = condition;
         this.body = body;
 
+        // while evaluates to last statement run (?)
         this.type = body.body[body.body.length - 1].type;
-
     }
 }

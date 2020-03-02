@@ -1,9 +1,4 @@
-package io.kwu.kythera.parser;
-
-import io.kwu.kythera.parser.node.ExpressionNode;
-
-import java.util.ArrayList;
-import java.util.List;
+package io.kwu.kythera.parser.type;
 
 public class ListNodeType extends NodeType {
     public final NodeType entryType;

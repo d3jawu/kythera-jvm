@@ -1,7 +1,7 @@
 package io.kwu.kythera.parser.node;
 
-import io.kwu.kythera.parser.FnNodeType;
-import io.kwu.kythera.parser.NodeType;
+import io.kwu.kythera.parser.type.FnNodeType;
+import io.kwu.kythera.parser.type.NodeType;
 
 import java.util.ArrayList;
 import java.util.List;

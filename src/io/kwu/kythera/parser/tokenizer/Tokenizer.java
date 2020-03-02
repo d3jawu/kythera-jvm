@@ -1,14 +1,13 @@
-package io.kwu.kythera.parser;
+package io.kwu.kythera.parser.tokenizer;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static io.kwu.kythera.parser.TokenType.*;
+import static io.kwu.kythera.parser.tokenizer.TokenType.*;
 
 public final class Tokenizer {
     final static String[] KEYWORDS = {
         "let",
-        "new", // declaration
         "if",
         "else",
         "while",
@@ -20,26 +19,13 @@ public final class Tokenizer {
         "break",
         "return",
         "continue", // control flow
-        "bool",
-        "int",
-        "float",
-        "str",
-        "fn",
-        "obj",
-        "list",
-        "map",
-        "type", // types
-        "len",
-        "keysof", // structure introspection
+        "type",
         "typeof",
-        "as", // type handling
+        "as",
         "import",
         "export",
         "include",
-        "load", // packages
-        "this",
-        "true",
-        "false", // boolean literal
+        "load",
     };
 
     interface Condition {

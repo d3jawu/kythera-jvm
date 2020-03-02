@@ -1,7 +1,7 @@
 package io.kwu.kythera.parser.node;
 
-import io.kwu.kythera.parser.ListNodeType;
-import io.kwu.kythera.parser.NodeType;
+import io.kwu.kythera.parser.type.ListNodeType;
+import io.kwu.kythera.parser.type.NodeType;
 import io.kwu.kythera.parser.ParserException;
 
 import java.util.ArrayList;
@@ -26,7 +26,5 @@ public class ListLiteralNode extends LiteralNode {
         super(new ListNodeType(entryType));
 
         this.entries = entries;
-
-        
     }
 }

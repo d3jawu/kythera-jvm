@@ -1,4 +1,4 @@
-package io.kwu.kythera.parser;
+package io.kwu.kythera.parser.type;
 
 import io.kwu.kythera.parser.node.TypeLiteralNode;
 

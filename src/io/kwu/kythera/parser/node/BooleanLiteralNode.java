@@ -1,12 +1,15 @@
 package io.kwu.kythera.parser.node;
 
-import io.kwu.kythera.parser.BaseType;
-import io.kwu.kythera.parser.NodeType;
+import io.kwu.kythera.parser.type.NodeType;
 import io.kwu.kythera.parser.ParserException;
 
-public class BooleanLiteral {
+public class BooleanLiteralNode extends ExpressionNode {
     public static final ScalarLiteralNode<Boolean> TRUE;
     public static final ScalarLiteralNode<Boolean> FALSE;
+
+    BooleanLiteralNode(NodeKind kind, NodeType type) {
+        super(kind, type);
+    }
 
     static {
         ScalarLiteralNode<Boolean> t;

@@ -1,7 +1,7 @@
 package io.kwu.kythera.parser.node;
 
-import io.kwu.kythera.parser.BaseType;
-import io.kwu.kythera.parser.NodeType;
+import io.kwu.kythera.parser.type.BaseType;
+import io.kwu.kythera.parser.type.NodeType;
 
 /**
  * Comes from a type literal in syntax.

@@ -1,6 +1,8 @@
 package io.kwu.kythera.parser;
 
-// TODO are these all named after their symbols, or what they do?
+/** operators are named after their symbols, not their function (e.g. PLUS instead of ADD)
+ * because they could later be overloaded to do anything
+ */
 public enum Operator {
     // assignments
     EQUALS("=", 1),

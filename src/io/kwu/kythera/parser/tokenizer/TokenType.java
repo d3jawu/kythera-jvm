@@ -1,4 +1,4 @@
-package io.kwu.kythera.parser;
+package io.kwu.kythera.parser.tokenizer;
 
 public enum TokenType {
     PUNC,

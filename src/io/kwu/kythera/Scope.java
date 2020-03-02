@@ -1,6 +1,6 @@
 package io.kwu.kythera;
 
-import io.kwu.kythera.parser.NodeType;
+import io.kwu.kythera.parser.type.NodeType;
 
 import java.util.HashMap;
 

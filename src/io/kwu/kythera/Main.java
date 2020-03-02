@@ -1,6 +1,6 @@
 package io.kwu.kythera;
 
-import io.kwu.kythera.parser.InputStream;
+import io.kwu.kythera.parser.tokenizer.InputStream;
 
 public class Main {
 
