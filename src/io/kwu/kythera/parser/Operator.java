@@ -4,7 +4,7 @@ package io.kwu.kythera.parser;
  * because they could later be overloaded to do anything
  */
 public enum Operator {
-    // assignments
+    // assignments, see here: https://introcs.cs.princeton.edu/java/11precedence/
     EQUALS("=", 1),
     PLUS_EQUALS("+=", 1),
     MINUS_EQUALS("-=", 1),
@@ -37,7 +37,17 @@ public enum Operator {
     DIVIDE("/", 12),
     MODULUS("%", 12),
 
-    NOT("!", 14);
+    NOT("!", 14),
+
+    // access
+    DOT(".", 16),
+    OPEN_PAREN("(", 16),
+    CLOSE_PAREN(")", 16),
+    OPEN_BRACKET("[", 16),
+    CLOSE_BRACKET("]", 16),
+    // maybe the braces should have precedence 13 since they are used for object creation, not access?
+    OPEN_BRACE("{", 16),
+    CLOSE_BRACE("}", 16);
 
     public final String symbol;
     public final int precedence; // higher precedence evaluated first

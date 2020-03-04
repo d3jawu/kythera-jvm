@@ -78,7 +78,7 @@ public final class Tokenizer {
     }
 
     private Token tokenFromString() {
-        return new Token(STR, this.readEscaped('"'));
+        return new Token(this.readEscaped('"'), STR);
     }
 
     private Token tokenFromNumber() {
@@ -97,12 +97,12 @@ public final class Tokenizer {
             return Tokenizer.isDigit(c);
         });
 
-        return new Token(NUM, number);
+        return new Token(number, NUM);
     }
 
     private Token tokenFromIdent() {
         final String id = this.readWhile(Tokenizer::isIdent);
-        return new Token(Tokenizer.isKeyword(id) ? KW : VAR, id);
+        return new Token(id, Tokenizer.isKeyword(id) ? KW : VAR);
     }
 
     // dispatch read
@@ -145,11 +145,11 @@ public final class Tokenizer {
                 this.insertAutoSemi();
             }
             */
-            return new Token(PUNC, ""+p);
+            return new Token(""+p, PUNC);
         }
 
         if(Tokenizer.isOp(c)) {
-            return new Token(OP, this.readWhile(Tokenizer::isOp));
+            return new Token(this.readWhile(Tokenizer::isOp), OP);
         }
 
         // TODO make error handling more informative, use proper Exceptions, show line/col numbers
