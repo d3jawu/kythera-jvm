@@ -30,14 +30,14 @@ public class Scope {
     /**
      * Get type of variable
      */
-    public NodeType get(String name) {
+    public NodeType getTypeOf(String name) {
         if (this.symbols.containsKey(name)) {
             return this.symbols.get(name);
         } else {
             if(this.parent == null) {
                 throw new Error(name + " is not defined.");
             } else {
-                return this.parent.get(name);
+                return this.parent.getTypeOf(name);
             }
         }
     }
