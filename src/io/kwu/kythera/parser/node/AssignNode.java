@@ -1,9 +1,9 @@
 package io.kwu.kythera.parser.node;
 
-import io.kwu.kythera.parser.Operator;
+import io.kwu.kythera.parser.tokenizer.Operator;
 import io.kwu.kythera.parser.ParserException;
 
-import static io.kwu.kythera.parser.Operator.*;
+import static io.kwu.kythera.parser.tokenizer.Operator.*;
 
 import java.util.Arrays;
 

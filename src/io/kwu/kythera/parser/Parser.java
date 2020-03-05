@@ -1,5 +1,6 @@
 package io.kwu.kythera.parser;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -29,7 +30,11 @@ public final class Parser {
 
     public List<StatementNode> parse() throws ParserException {
         while (!this.tokenizer.eof()) {
-                this.program.add(this.parseExpression(true));
+            ExpressionNode exp = this.parseExpression(true);
+            if(exp == null) {
+                throw new ParserException("Expression evaluation failed.");
+            }
+            this.program.add(exp);
             if (this.confirmToken(";", TokenType.PUNC) == null) {
                 throw new ParserException("Missing semicolon.");
             }
@@ -62,9 +67,9 @@ public final class Parser {
                 return this.parseFunctionLiteral();
             }
 
-            if(this.confirmToken(Operator.NOT.symbol, TokenType.OP) != null) {
-                this.consumeToken(Operator.NOT.symbol, TokenType.OP);
-                return new UnaryNode(Operator.NOT, this.parseExpression(false));
+            if(this.confirmToken(Operator.BANG.symbol, TokenType.OP) != null) {
+                this.consumeToken(Operator.BANG.symbol, TokenType.OP);
+                return new UnaryNode(Operator.BANG, this.parseExpression(false));
             }
 
             // in Kythera-JS type literals were read in at this point; in the JVM implementation
@@ -90,14 +95,84 @@ public final class Parser {
 
                         try {
                             this.currentScope.create(identToken.value, value.type);
-
                             return new LetNode(identToken.value, value);
                         } catch (Exception e) {
                             this.inputStream.err(e.getMessage());
                             return null;
                         }
+                        break;
+                    case IF:
+                        ExpressionNode ifCondition = this.parseExpression(true);
+
+                        this.currentScope = new Scope(this.currentScope, null, Scope.ScopeType.CONTROL_FLOW);
+
+                        BlockNode ifBody = this.parseBlock();
+
+                        this.currentScope = this.currentScope.parent;
+
+                        IfNode result;
+
+                        if(this.confirmToken(Keyword.ELSE.toString(), TokenType.KW) != null) {
+                            BlockNode ifElse;
+
+                            // else block
+                            this.consumeToken(Keyword.ELSE.toString(), TokenType.KW);
+
+                            if(this.confirmToken(Operator.OPEN_BRACE.symbol, TokenType.PUNC) != null) {
+                                // else only
+                                this.currentScope = new Scope(this.currentScope, null, Scope.ScopeType.CONTROL_FLOW);
+                                ifElse = this.parseBlock();
+                                this.currentScope = this.currentScope.parent;
+                            } else {
+                                // else-if
+                                final ArrayList<ExpressionNode> al = new ArrayList<>();
+                                al.add(this.parseExpression(false));
+                                ifElse = new BlockNode(al);
+                            }
+
+                            result = new IfNode(ifCondition, ifBody, ifElse);
+                        } else {
+                            // no else block
+                            result = new IfNode(ifCondition, ifBody);
+                        }
+
+                        return result;
+                        break;
+                    case WHILE:
+                        ExpressionNode whileCondition = this.parseExpression(true);
+
+                        this.currentScope = new Scope(this.currentScope, null, Scope.ScopeType.CONTROL_FLOW);
+                        BlockNode whileBody = this.parseBlock();
+                        this.currentScope = this.currentScope.parent;
+
+                        return new WhileNode(whileCondition, whileBody);
+                        break;
+                    case RETURN:
+                        if(this.currentScope == this.rootScope) {
+                            return null;
+                        }
+
+                        return new ReturnNode(this.parseExpression(true));
+                        break;
                 }
             }
+
+            // from this point forward, nodes are generated directly, not dispatched
+            this.tokenizer.next();
+
+            // literals
+            switch (nextToken.tokentype) {
+                case NUM:
+                    break;
+                case STR:
+                    break;
+                case VAR:
+                    break;
+            }
+
+            this.inputStream.err("Unexpected token: " + nextToken.toString());
+
+            return null;
         };
     }
 

@@ -1,7 +1,7 @@
 package io.kwu.kythera.parser.node;
 
-import io.kwu.kythera.parser.Operator;
-import static io.kwu.kythera.parser.Operator.*;
+import io.kwu.kythera.parser.tokenizer.Operator;
+import static io.kwu.kythera.parser.tokenizer.Operator.*;
 import io.kwu.kythera.parser.ParserException;
 
 import java.util.Arrays;
@@ -15,7 +15,7 @@ public final class BinaryNode extends ExpressionNode {
         super(NodeKind.BINARY, null);
 
         if (!Arrays.asList(new Operator[] {
-                EQUIVALENT,
+            EQUIV,
                 NOT_EQUIV,
                 LESS_EQUIV,
                 GREATER_EQUIV,

@@ -12,10 +12,6 @@ public final class PrimitiveTypeLiteral {
         }
     }
 
-//    public static PrimitiveTypeLiteralNode UNIT = new PrimitiveTypeLiteralNode(BaseType.UNIT);
-//    public static PrimitiveTypeLiteralNode INT = new PrimitiveTypeLiteralNode(BaseType.INT);
-//    public static PrimitiveTypeLiteralNode BOOL = new PrimitiveTypeLiteralNode(BaseType.BOOL);
-
     public static PrimitiveTypeLiteralNode UNIT = new PrimitiveTypeLiteralNode(BaseType.UNIT);
     public static PrimitiveTypeLiteralNode BOOL = new PrimitiveTypeLiteralNode(BaseType.BOOL);
     public static PrimitiveTypeLiteralNode BYTE = new PrimitiveTypeLiteralNode(BaseType.BYTE);

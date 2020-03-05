@@ -1,6 +1,6 @@
 package io.kwu.kythera.parser.node;
 
-import io.kwu.kythera.parser.Operator;
+import io.kwu.kythera.parser.tokenizer.Operator;
 import io.kwu.kythera.parser.ParserException;
 
 public class UnaryNode extends ExpressionNode {
@@ -10,7 +10,7 @@ public class UnaryNode extends ExpressionNode {
     public UnaryNode(Operator op, ExpressionNode target) throws ParserException {
         super(NodeKind.UNARY, target.type);
 
-        if(op != Operator.NOT) {
+        if(op != Operator.BANG) {
             throw new ParserException("Invalid operator: " + op.symbol + " cannot be used as a unary operator.");
         }
 

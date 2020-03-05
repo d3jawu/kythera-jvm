@@ -1,4 +1,4 @@
-package io.kwu.kythera.parser;
+package io.kwu.kythera.parser.tokenizer;
 
 /** operators are named after their symbols, not their function (e.g. PLUS instead of ADD)
  * because they could later be overloaded to do anything
@@ -19,8 +19,10 @@ public enum Operator {
     // TODO bitwise boolean operators
 
     // comparison
-    EQUIVALENT("==", 8),
+    EQUIV("==", 8),
+    DEEP_EQUIV("===", 8),
     NOT_EQUIV("!=", 8),
+    DEEP_NOT_EQUIV("!==", 8),
 
     LESS_THAN("<", 9),
     GREATER_THAN(">", 9),
@@ -37,7 +39,7 @@ public enum Operator {
     DIVIDE("/", 12),
     MODULUS("%", 12),
 
-    NOT("!", 14),
+    BANG("!", 14),
 
     // access
     DOT(".", 16),
