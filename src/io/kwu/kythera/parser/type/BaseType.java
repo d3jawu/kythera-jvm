@@ -26,8 +26,15 @@ public enum BaseType {
 
     public final String name;
     public final boolean scalar;
+    public final NodeType nt;
     BaseType(String name, boolean scalar) {
         this.name = name;
         this.scalar = scalar;
+        // am I even allowed to do this???
+        if(this.scalar) {
+            this.nt = new NodeType(this);
+        } else {
+            this.nt = null;
+        }
     }
 }

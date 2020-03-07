@@ -148,7 +148,9 @@ public final class Parser {
                         return new WhileNode(whileCondition, whileBody);
                         break;
                     case RETURN:
-                        if(this.currentScope == this.rootScope) {
+                        // Can only return from a function scope
+                        if(this.currentScope.scopeType != Scope.ScopeType.FUNCTION) {
+                            this.inputStream.err("Cannot return from within this scope.");
                             return null;
                         }
 
@@ -163,6 +165,11 @@ public final class Parser {
             // literals
             switch (nextToken.tokentype) {
                 case NUM:
+                    if(nextToken.value.contains(".")) {
+                        return new
+                    } else {
+
+                    }
                     break;
                 case STR:
                     break;

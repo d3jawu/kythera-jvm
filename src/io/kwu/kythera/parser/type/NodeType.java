@@ -22,18 +22,16 @@ public class NodeType {
         this.baseType = typeNode.baseType;
     }
 
-    // TODO there might be a more elegant way to do this conversion
     // scalar types only need one instance for the whole parser, provided statically here
+    public static NodeType UNIT = new NodeType(BaseType.UNIT);
     public static NodeType INT = new NodeType(BaseType.INT);
     public static NodeType BOOL = new NodeType(BaseType.BOOL);
     public static NodeType TYPE = new NodeType(BaseType.TYPE);
     public static NodeType STR = new NodeType(BaseType.STR);
 
-    public static final Map<BaseType, NodeType> fromBaseType = Collections.unmodifiableMap(
-        Map.ofEntries(
-            Map.entry(BaseType.INT, INT),
-            Map.entry(BaseType.BOOL, BOOL),
-            Map.entry(BaseType.TYPE, TYPE)
-        )
-    );
+    public enum PrimitiveNodeType {
+        UNIT(),
+
+
+    }
 }

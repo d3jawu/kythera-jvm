@@ -6,28 +6,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static io.kwu.kythera.parser.tokenizer.TokenType.*;
 
 public final class Tokenizer {
-    final static String[] KEYWORDS = {
-        "let",
-        "if",
-        "else",
-        "while",
-        "each",
-        "switch",
-        "case",
-        "fallthrough",
-        "default",
-        "break",
-        "return",
-        "continue", // control flow
-        "type",
-        "typeof",
-        "as",
-        "import",
-        "export",
-        "include",
-        "load",
-    };
-
     interface Condition {
         boolean check(char c);
     }
@@ -187,7 +165,7 @@ public final class Tokenizer {
     }
 
     private static boolean isKeyword(String word) {
-        return Arrays.asList(KEYWORDS).contains(word);
+        return Arrays.asList(Keyword.values()).contains(Keyword.valueOf(word.toUpperCase()));
     }
 
     private static boolean isDigit(char c) {
