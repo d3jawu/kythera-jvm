@@ -1,10 +1,5 @@
 package io.kwu.kythera.parser.type;
 
-import io.kwu.kythera.parser.node.TypeLiteralNode;
-
-import java.util.Collections;
-import java.util.Map;
-
 /**
  * Parser's internal representation of a type.
  * Distinct from a TypeLiteralNode (which represents and comes from syntax).
@@ -18,10 +13,6 @@ public class NodeType {
         this.baseType = baseType;
     }
 
-    public NodeType(TypeLiteralNode typeNode) {
-        this.baseType = typeNode.baseType;
-    }
-
     // scalar types only need one instance for the whole parser, provided statically here
     public static NodeType UNIT = new NodeType(BaseType.UNIT);
     public static NodeType INT = new NodeType(BaseType.INT);
@@ -29,9 +20,16 @@ public class NodeType {
     public static NodeType TYPE = new NodeType(BaseType.TYPE);
     public static NodeType STR = new NodeType(BaseType.STR);
 
+    // we only need one instance of each scalar node type, stored here
     public enum PrimitiveNodeType {
-        UNIT(),
+        UNIT(new NodeType(BaseType.UNIT)),
+        BOOL(new NodeType(BaseType.BOOL)),
+        INT(new NodeType(BaseType.INT)),
+        DOUBLE(new NodeType(BaseType.DOUBLE)),
+        CHAR(new NodeType(BaseType.CHAR));
 
+        PrimitiveNodeType(BaseType bt) {
 
+        }
     }
 }
