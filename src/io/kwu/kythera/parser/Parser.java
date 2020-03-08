@@ -28,15 +28,17 @@ public final class Parser {
         this.tokenizer = new Tokenizer(this.inputStream);
     }
 
-    public List<StatementNode> parse() throws ParserException {
+    public List<StatementNode> parse()  {
         while (!this.tokenizer.eof()) {
             ExpressionNode exp = this.parseExpression(true);
             if(exp == null) {
-                throw new ParserException("Expression evaluation failed.");
+                System.err.println("Expression evaluation failed.");
+                System.exit(1);
             }
             this.program.add(exp);
             if (this.confirmToken(";", TokenType.PUNC) == null) {
-                throw new ParserException("Missing semicolon.");
+                System.err.println("Missing semicolon.");
+                System.exit(1);
             }
             this.consumeToken(";", TokenType.PUNC);
         }
@@ -45,7 +47,7 @@ public final class Parser {
     }
 
     // TODO clean up error handling, which uses null way too much
-    private ExpressionNode parseExpression(boolean canSplit) throws ParserException {
+    private ExpressionNode parseExpression(boolean canSplit)  {
         ExpressionSupplier parseExpressionAtom = () -> {
             Token t;
             t = new Token(Operator.OPEN_PAREN.symbol, TokenType.PUNC);
@@ -85,7 +87,7 @@ public final class Parser {
                     case LET:
                         Token identToken = this.tokenizer.next();
                         if(identToken.tokentype != TokenType.VAR) {
-                            this.inputStream.err("Expected identifier but got " + identToken.value);
+                            System.err.println("Expected identifier but got " + identToken.value);
                             return null;
                         }
 
@@ -97,7 +99,7 @@ public final class Parser {
                             this.currentScope.create(identToken.value, value.type);
                             return new LetNode(identToken.value, value);
                         } catch (Exception e) {
-                            this.inputStream.err(e.getMessage());
+                            System.err.println(e.getMessage());
                             return null;
                         }
                         break;
@@ -150,7 +152,7 @@ public final class Parser {
                     case RETURN:
                         // Can only return from a function scope
                         if(this.currentScope.scopeType != Scope.ScopeType.FUNCTION) {
-                            this.inputStream.err("Cannot return from within this scope.");
+                            System.err.println("Cannot return from within this scope.");
                             return null;
                         }
 
@@ -177,7 +179,7 @@ public final class Parser {
                     break;
             }
 
-            this.inputStream.err("Unexpected token: " + nextToken.toString());
+            System.err.println("Unexpected token: " + nextToken.toString());
 
             return null;
         };
@@ -257,7 +259,7 @@ public final class Parser {
             this.tokenizer.next();
         } else {
             final Token nextVal = this.tokenizer.peek();
-            this.inputStream.err("Expecting "
+            System.err.println("Expecting "
                     + type.toString() + ": " + value
                     + " but got" + nextVal.tokentype.toString() + ": " + nextVal.value + " instead.");
         }

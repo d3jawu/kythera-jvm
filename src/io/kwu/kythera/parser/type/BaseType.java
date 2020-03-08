@@ -5,7 +5,7 @@ package io.kwu.kythera.parser.type;
  * For non-scalar types, additional information is needed
  * to fully describe and distinguish the type.
  */
-enum BaseType {
+public enum BaseType {
     UNIT("unit", true),
     BOOL("bool", true),
 //    BYTE("byte", true),
@@ -23,7 +23,6 @@ enum BaseType {
     FN("fn", false),
     TYPE("type", false);
 
-
     public final String name;
     public final boolean scalar;
     public final NodeType nt;
@@ -32,7 +31,7 @@ enum BaseType {
         this.scalar = scalar;
         // am I even allowed to do this???
         if(this.scalar) {
-            this.nt = new NodeType(this);
+            this.nt = new PrimitiveNodeType(this);
         } else {
             this.nt = null;
         }

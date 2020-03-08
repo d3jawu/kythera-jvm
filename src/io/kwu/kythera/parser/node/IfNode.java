@@ -1,18 +1,18 @@
 package io.kwu.kythera.parser.node;
 
 import io.kwu.kythera.parser.type.NodeType;
-import io.kwu.kythera.parser.ParserException;
 
 public class IfNode extends ExpressionNode {
     public final ExpressionNode condition;
     public final BlockNode body;
     public final BlockNode elseBody;
 
-    public IfNode(ExpressionNode condition, BlockNode body) throws ParserException {
+    public IfNode(ExpressionNode condition, BlockNode body)  {
         super(NodeKind.IF);
 
         if(!condition.type.equals(NodeType.BOOL)) {
-            throw new ParserException("Type error: If-expression condition must evaluate to bool.");
+            System.err.println("Type error: If-expression condition must evaluate to bool.");
+            System.exit(1);
         }
 
         this.condition = condition;
@@ -22,15 +22,17 @@ public class IfNode extends ExpressionNode {
         this.elseBody = null;
     }
 
-    public IfNode(ExpressionNode condition, BlockNode body, BlockNode elseBody) throws ParserException{
+    public IfNode(ExpressionNode condition, BlockNode body, BlockNode elseBody) {
         super(NodeKind.IF);
 
         if(!condition.type.equals(NodeType.BOOL)) {
-            throw new ParserException("Type error: If-expression condition must evaluate to bool.");
+            System.err.println("Type error: If-expression condition must evaluate to bool.");
+            System.exit(1);
         }
 
         if(!body.type.equals(elseBody.type)) {
-            throw new ParserException("Type mismatch: 'if' block has type " + body.type.toString() + " but 'else' block has type " + elseBody.type.toString());
+            System.err.println("Type mismatch: 'if' block has type " + body.type.toString() + " but 'else' block has type " + elseBody.type.toString());
+            System.exit(1);
         }
 
         this.condition = condition;

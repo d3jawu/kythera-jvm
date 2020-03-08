@@ -1,6 +1,6 @@
 package io.kwu.kythera.parser.node;
 
-public enum NodeKind {
+enum NodeKind {
     UNARY,
     BINARY,
     ASSIGN,

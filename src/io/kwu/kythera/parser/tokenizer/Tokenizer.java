@@ -132,6 +132,7 @@ public final class Tokenizer {
 
         // TODO make error handling more informative, use proper Exceptions, show line/col numbers
         System.err.println("Error: cannot handle character: " + c);
+        System.exit(1);
         return null;
     }
 

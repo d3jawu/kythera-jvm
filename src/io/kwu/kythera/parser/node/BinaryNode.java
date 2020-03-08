@@ -2,7 +2,6 @@ package io.kwu.kythera.parser.node;
 
 import io.kwu.kythera.parser.tokenizer.Operator;
 import static io.kwu.kythera.parser.tokenizer.Operator.*;
-import io.kwu.kythera.parser.ParserException;
 
 import java.util.Arrays;
 
@@ -11,7 +10,7 @@ public final class BinaryNode extends ExpressionNode {
     public final ExpressionNode left;
     public final ExpressionNode right;
 
-    public BinaryNode(Operator op, ExpressionNode left, ExpressionNode right) throws ParserException {
+    public BinaryNode(Operator op, ExpressionNode left, ExpressionNode right) {
         super(NodeKind.BINARY, null);
 
         if (!Arrays.asList(new Operator[] {
@@ -29,7 +28,8 @@ public final class BinaryNode extends ExpressionNode {
                 OR_LOGICAL,
                 AND_LOGICAL,
         }).contains(op)) {
-            throw new ParserException("Invalid operator: " + op.symbol + " cannot be used in a binary expression.");
+            System.err.println("Invalid operator: " + op.symbol + " cannot be used in a binary expression.");
+            System.exit(1);
         }
 
         this.op = op;

@@ -42,8 +42,4 @@ public final class InputStream {
     public boolean eof() {
         return this.pos == this.input.length();
     }
-
-    public void err(String message) {
-        System.err.println(message + " at " + Integer.toString(line) + ":" + Integer.toString(col));
-    }
 }

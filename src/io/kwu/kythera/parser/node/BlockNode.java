@@ -1,20 +1,19 @@
 package io.kwu.kythera.parser.node;
 
 import io.kwu.kythera.parser.type.NodeType;
-import io.kwu.kythera.parser.ParserException;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class BlockNode extends ExpressionNode {
     public final List<ExpressionNode> body;
+    public NodeType returnType;
 
-    public BlockNode(List<ExpressionNode> body) throws ParserException {
+    public BlockNode(List<ExpressionNode> body) {
         super(NodeKind.BLOCK); // type to be set later
         this.body = body;
 
-        NodeType returnType = null;
+        returnType = null;
         List<ExpressionNode> returns = body
             .stream()
             .filter(
@@ -31,7 +30,8 @@ public class BlockNode extends ExpressionNode {
             if(returnType == null) {
                 returnType = e.type;
             } else if(!e.type.equals(returnType)){
-                throw new ParserException("Type mismatch: Block returned " + returnType.toString() + " but later also returned " + e.type.toString());
+                System.err.println("Type mismatch: Block returned " + returnType.toString() + " but later also returned " + e.type.toString());
+                System.exit(1);
             }
         }
 

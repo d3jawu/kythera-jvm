@@ -1,10 +1,14 @@
 package io.kwu.kythera.parser.node;
 
-public abstract class TypeLiteralNode extends LiteralNode{
+import io.kwu.kythera.parser.type.NodeType;
+import io.kwu.kythera.parser.type.TypeNodeType;
 
-    // to encode its full type information, would the type information stored within a type literal be a NodeType or a TypeLiteralNode?
+public class TypeLiteralNode extends LiteralNode{
+    NodeType underlyingType;
 
-    public TypeLiteralNode(LiteralNode) {
+    public TypeLiteralNode(NodeType underlyingType) {
+        super(new TypeNodeType());
 
+        this.underlyingType = underlyingType;
     }
 }
