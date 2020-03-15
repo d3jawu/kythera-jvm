@@ -2,14 +2,15 @@ package io.kwu.kythera.parser.node;
 
 import io.kwu.kythera.parser.type.BaseType;
 import io.kwu.kythera.parser.type.NodeType;
+import io.kwu.kythera.parser.type.PrimitiveNodeType;
 
 /**
  * Static expression nodes for type literals of scalar types (e.g. int, bool, etc)
  */
 public final class PrimitiveTypeLiteral {
     private final static class PrimitiveTypeLiteralNode extends TypeLiteralNode {
-        PrimitiveTypeLiteralNode(BaseType type) {
-            super(NodeKind.TYPE, type);
+        PrimitiveTypeLiteralNode(BaseType bt) {
+            super(PrimitiveNodeType.fromBaseType(bt));
         }
     }
 

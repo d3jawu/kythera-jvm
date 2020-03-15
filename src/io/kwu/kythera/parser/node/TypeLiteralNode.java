@@ -4,11 +4,11 @@ import io.kwu.kythera.parser.type.NodeType;
 import io.kwu.kythera.parser.type.TypeNodeType;
 
 public class TypeLiteralNode extends LiteralNode{
-    NodeType underlyingType;
+    NodeType typeValue;
 
-    public TypeLiteralNode(NodeType underlyingType) {
+    public TypeLiteralNode(NodeType typeValue) {
         super(new TypeNodeType());
 
-        this.underlyingType = underlyingType;
+        this.typeValue = typeValue;
     }
 }
