@@ -168,21 +168,43 @@ public final class Parser {
             switch (nextToken.tokentype) {
                 case NUM:
                     if(nextToken.value.contains(".")) {
-                        return new
+                        return new DoubleLiteralNode(Double.parseDouble(nextToken.value));
                     } else {
-
+                        return new IntLiteralNode(Integer.parseInt(nextToken.value));
                     }
                     break;
                 case STR:
+                    return new StrLiteralNode(nextToken.value);
                     break;
                 case VAR:
+                    return new IdentifierNode(nextToken.value, this.currentScope.getTypeOf(nextToken.value));
                     break;
             }
 
             System.err.println("Unexpected token: " + nextToken.toString());
+            System.exit(1);
 
             return null;
         };
+
+    }
+
+    private ExpressionNode makeBinary(ExpressionNode left, int currentPrecedence) {
+        Token token = this.confirmToken(TokenType.OP);
+        if(token != null) {
+            Operator op = Operator.valueOf(token.value);
+            int nextPrecedence = op.precedence;
+            if(nextPrecedence > currentPrecedence) {
+                this.tokenizer.next();
+                ExpressionNode right = this.makeBinary(this.parseExpression(false), nextPrecedence);
+
+                ExpressionNode binary = new BinaryNode(op,left, right);
+
+                return this.makeBinary(binary, currentPrecedence);
+            }
+        }
+
+        return left;
     }
 
     private List<ExpressionNode> delimited(Token start, Token stop, Token delimiter, Supplier<ExpressionNode> supplier) {
