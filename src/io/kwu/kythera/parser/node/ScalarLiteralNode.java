@@ -8,7 +8,7 @@ import io.kwu.kythera.parser.type.NodeType;
 public class ScalarLiteralNode<V> extends LiteralNode {
     public final V value;
 
-    public ScalarLiteralNode(NodeType type, V value)  {
+    public ScalarLiteralNode(NodeType type, V value) {
         super(type);
 
         if (!type.baseType.scalar) {

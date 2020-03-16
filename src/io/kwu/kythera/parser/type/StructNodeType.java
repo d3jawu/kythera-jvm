@@ -12,12 +12,12 @@ public class StructNodeType extends NodeType {
 
     @Override
     public boolean equals(Object other) {
-        if(!(other instanceof StructNodeType)) {
+        if (!(other instanceof StructNodeType)) {
             return false;
         }
 
-        StructNodeType otherStructNodeType = (StructNodeType)other;
-        assert(otherStructNodeType.baseType.equals(BaseType.STRUCT));
+        StructNodeType otherStructNodeType = (StructNodeType) other;
+        assert (otherStructNodeType.baseType.equals(BaseType.STRUCT));
 
         return this.entries.equals(otherStructNodeType.entries);
     }

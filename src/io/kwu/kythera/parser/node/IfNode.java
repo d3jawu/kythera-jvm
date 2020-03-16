@@ -7,10 +7,10 @@ public class IfNode extends ExpressionNode {
     public final BlockNode body;
     public final BlockNode elseBody;
 
-    public IfNode(ExpressionNode condition, BlockNode body)  {
+    public IfNode(ExpressionNode condition, BlockNode body) {
         super(NodeKind.IF);
 
-        if(!condition.type.equals(NodeType.BOOL)) {
+        if (!condition.type.equals(NodeType.BOOL)) {
             System.err.println("Type error: If-expression condition must evaluate to bool.");
             System.exit(1);
         }
@@ -25,12 +25,12 @@ public class IfNode extends ExpressionNode {
     public IfNode(ExpressionNode condition, BlockNode body, BlockNode elseBody) {
         super(NodeKind.IF);
 
-        if(!condition.type.equals(NodeType.BOOL)) {
+        if (!condition.type.equals(NodeType.BOOL)) {
             System.err.println("Type error: If-expression condition must evaluate to bool.");
             System.exit(1);
         }
 
-        if(!body.type.equals(elseBody.type)) {
+        if (!body.type.equals(elseBody.type)) {
             System.err.println("Type mismatch: 'if' block has type " + body.type.toString() + " but 'else' block has type " + elseBody.type.toString());
             System.exit(1);
         }

@@ -21,7 +21,7 @@ public class ListLiteralNode extends LiteralNode {
         this.entries = new ArrayList<>();
     }
 
-    public ListLiteralNode(NodeType entryType, List<ExpressionNode> entries)  {
+    public ListLiteralNode(NodeType entryType, List<ExpressionNode> entries) {
         super(new ListNodeType(entryType));
 
         this.entries = entries;

@@ -2,9 +2,9 @@ package io.kwu.kythera.parser.node;
 
 import io.kwu.kythera.parser.tokenizer.Operator;
 
-import static io.kwu.kythera.parser.tokenizer.Operator.*;
-
 import java.util.Arrays;
+
+import static io.kwu.kythera.parser.tokenizer.Operator.*;
 
 /**
  * Node for any assignment symbol

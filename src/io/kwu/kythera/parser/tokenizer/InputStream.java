@@ -25,7 +25,7 @@ public final class InputStream {
         final char c = this.input.charAt(this.pos);
         this.pos += 1;
 
-        if(c == '\n') {
+        if (c == '\n') {
             this.line += 1;
             this.col = 0;
         } else {

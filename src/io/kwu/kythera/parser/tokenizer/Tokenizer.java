@@ -115,7 +115,7 @@ public final class Tokenizer {
             return t;
         }
 
-        if(Tokenizer.isPunc(c)) {
+        if (Tokenizer.isPunc(c)) {
             char p = this.inputStream.next();
 
             /*
@@ -123,10 +123,10 @@ public final class Tokenizer {
                 this.insertAutoSemi();
             }
             */
-            return new Token(""+p, PUNC);
+            return new Token("" + p, PUNC);
         }
 
-        if(Tokenizer.isOp(c)) {
+        if (Tokenizer.isOp(c)) {
             return new Token(this.readWhile(Tokenizer::isOp), OP);
         }
 

@@ -9,7 +9,7 @@ public class PrimitiveNodeType extends NodeType {
         // reflection... bad
         try {
             return (PrimitiveNodeType) PrimitiveNodeType.class.getField(bt.name.toUpperCase()).get(null);
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.err.println("Internal error: Invalid PrimitiveNodeType " + bt.name);
             System.exit(1);
             return null;

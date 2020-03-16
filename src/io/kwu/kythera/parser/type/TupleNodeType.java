@@ -12,12 +12,12 @@ public class TupleNodeType extends NodeType {
 
     @Override
     public boolean equals(Object other) {
-        if(!(other instanceof TupleNodeType)) {
+        if (!(other instanceof TupleNodeType)) {
             return false;
         }
 
         TupleNodeType otherTupleNodeType = (TupleNodeType) other;
-        assert(otherTupleNodeType.baseType.equals(BaseType.STRUCT));
+        assert (otherTupleNodeType.baseType.equals(BaseType.STRUCT));
 
         return this.entryTypes.equals(otherTupleNodeType.entryTypes);
     }

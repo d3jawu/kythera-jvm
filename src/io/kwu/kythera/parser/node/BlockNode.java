@@ -15,21 +15,21 @@ public class BlockNode extends ExpressionNode {
 
         returnType = null;
         List<ExpressionNode> returns = body
-            .stream()
-            .filter(
-                node -> node.kind == NodeKind.RETURN
-            )
-            .collect(Collectors.toList());
+                .stream()
+                .filter(
+                        node -> node.kind == NodeKind.RETURN
+                )
+                .collect(Collectors.toList());
 
         ExpressionNode lastNode = body.get(body.size() - 1);
-        if(lastNode.kind != NodeKind.RETURN) {
+        if (lastNode.kind != NodeKind.RETURN) {
             returns.add(lastNode); // if no return, block evaluates to last expression value
         }
 
-        for(ExpressionNode e : body) {
-            if(returnType == null) {
+        for (ExpressionNode e : body) {
+            if (returnType == null) {
                 returnType = e.type;
-            } else if(!e.type.equals(returnType)){
+            } else if (!e.type.equals(returnType)) {
                 System.err.println("Type mismatch: Block returned " + returnType.toString() + " but later also returned " + e.type.toString());
                 System.exit(1);
             }

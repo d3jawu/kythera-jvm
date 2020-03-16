@@ -11,12 +11,12 @@ public class ListNodeType extends NodeType {
 
     @Override
     public boolean equals(Object other) {
-        if(!(other instanceof ListNodeType)) {
+        if (!(other instanceof ListNodeType)) {
             return false;
         }
 
         ListNodeType otherListNodeType = (ListNodeType) other;
-        assert(otherListNodeType.baseType.equals(BaseType.LIST));
+        assert (otherListNodeType.baseType.equals(BaseType.LIST));
 
         return this.entryType.equals(otherListNodeType.entryType);
     }

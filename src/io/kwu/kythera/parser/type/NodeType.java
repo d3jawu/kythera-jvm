@@ -3,7 +3,7 @@ package io.kwu.kythera.parser.type;
 /**
  * Parser's internal representation of a type.
  * Distinct from a TypeLiteralNode (which represents and comes from syntax).
- *
+ * <p>
  * Analogous to a ParseNode with kind "type" in kythera-js.
  */
 public abstract class NodeType {
@@ -15,7 +15,7 @@ public abstract class NodeType {
 
     @Override
     public boolean equals(Object other) {
-        if(!(other instanceof NodeType)) {
+        if (!(other instanceof NodeType)) {
             return false;
         }
 

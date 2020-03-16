@@ -14,15 +14,15 @@ public class FnNodeType extends NodeType {
 
     @Override
     public boolean equals(Object other) {
-        if(!(other instanceof FnNodeType)) {
+        if (!(other instanceof FnNodeType)) {
             return false;
         }
 
-        FnNodeType otherFnNodeType = (FnNodeType)other;
+        FnNodeType otherFnNodeType = (FnNodeType) other;
 
-        assert(otherFnNodeType.baseType.equals(BaseType.FN));
+        assert (otherFnNodeType.baseType.equals(BaseType.FN));
 
         return this.returnType.equals(otherFnNodeType.returnType) &&
-            this.parameters.equals(otherFnNodeType.parameters);
+                this.parameters.equals(otherFnNodeType.parameters);
     }
 }

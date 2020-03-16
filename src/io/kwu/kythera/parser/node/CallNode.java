@@ -9,7 +9,7 @@ public class CallNode extends ExpressionNode {
     public CallNode(ExpressionNode target, ExpressionNode[] arguments) {
         super(NodeKind.CALL);
 
-        if(target.type instanceof FnNodeType) {
+        if (target.type instanceof FnNodeType) {
             System.err.println("Type error: Call must be performed on a function type.");
             System.exit(1);
         }

@@ -8,10 +8,10 @@ package io.kwu.kythera.parser.type;
 public enum BaseType {
     UNIT("unit", true),
     BOOL("bool", true),
-//    BYTE("byte", true),
+    //    BYTE("byte", true),
 //    SHORT("short", true),
     INT("int", true),
-//    LONG("long", true),
+    //    LONG("long", true),
 //    FLOAT("float", true),
     DOUBLE("double", true),
     CHAR("char", true),
@@ -26,11 +26,12 @@ public enum BaseType {
     public final String name;
     public final boolean scalar;
     public final NodeType nt;
+
     BaseType(String name, boolean scalar) {
         this.name = name;
         this.scalar = scalar;
         // am I even allowed to do this???
-        if(this.scalar) {
+        if (this.scalar) {
             this.nt = new PrimitiveNodeType(this);
         } else {
             this.nt = null;

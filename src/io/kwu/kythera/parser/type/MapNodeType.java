@@ -12,12 +12,12 @@ public class MapNodeType extends NodeType {
 
     @Override
     public boolean equals(Object other) {
-        if(!(other instanceof MapNodeType)) {
+        if (!(other instanceof MapNodeType)) {
             return false;
         }
 
         MapNodeType otherMapNodeType = (MapNodeType) other;
-        assert(otherMapNodeType.baseType.equals(BaseType.MAP));
+        assert (otherMapNodeType.baseType.equals(BaseType.MAP));
 
         return this.keyType.equals(otherMapNodeType.keyType) &&
                 this.valueType.equals(otherMapNodeType.valueType);

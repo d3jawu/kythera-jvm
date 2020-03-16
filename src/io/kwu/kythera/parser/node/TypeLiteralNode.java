@@ -3,7 +3,7 @@ package io.kwu.kythera.parser.node;
 import io.kwu.kythera.parser.type.NodeType;
 import io.kwu.kythera.parser.type.TypeNodeType;
 
-public class TypeLiteralNode extends LiteralNode{
+public class TypeLiteralNode extends LiteralNode {
     NodeType typeValue;
 
     public TypeLiteralNode(NodeType typeValue) {

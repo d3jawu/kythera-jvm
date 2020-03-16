@@ -1,6 +1,7 @@
 package io.kwu.kythera.parser.tokenizer;
 
-/** operators are named after their symbols, not their function (e.g. PLUS instead of ADD)
+/**
+ * operators are named after their symbols, not their function (e.g. PLUS instead of ADD)
  * because they could later be overloaded to do anything
  */
 public enum Operator {
@@ -53,6 +54,7 @@ public enum Operator {
 
     public final String symbol;
     public final int precedence; // higher precedence evaluated first
+
     Operator(String symbol, int precedence) {
         this.symbol = symbol;
         this.precedence = precedence;

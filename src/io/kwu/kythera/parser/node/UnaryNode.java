@@ -6,10 +6,10 @@ public class UnaryNode extends ExpressionNode {
     public final Operator operator;
     public final ExpressionNode target;
 
-    public UnaryNode(Operator op, ExpressionNode target)  {
+    public UnaryNode(Operator op, ExpressionNode target) {
         super(NodeKind.UNARY, target.type);
 
-        if(op != Operator.BANG) {
+        if (op != Operator.BANG) {
             System.err.println("Invalid operator: " + op.symbol + " cannot be used as a unary operator.");
         }
 

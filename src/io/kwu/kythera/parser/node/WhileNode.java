@@ -6,9 +6,9 @@ public class WhileNode extends ExpressionNode {
     public final ExpressionNode condition;
     public final BlockNode body;
 
-    public WhileNode(ExpressionNode condition, BlockNode body)  {
+    public WhileNode(ExpressionNode condition, BlockNode body) {
         super(NodeKind.WHILE);
-        if(!condition.type.equals(PrimitiveNodeType.BOOL)) {
+        if (!condition.type.equals(PrimitiveNodeType.BOOL)) {
             System.err.println("Type error: while-statement condition must evaluate to boolean.");
             System.exit(1);
         }
