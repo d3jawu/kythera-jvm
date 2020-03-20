@@ -3,8 +3,11 @@ package io.kwu.kythera.parser;
 import io.kwu.kythera.Scope;
 import io.kwu.kythera.parser.node.*;
 import io.kwu.kythera.parser.tokenizer.*;
+import io.kwu.kythera.parser.type.NodeType;
+import io.kwu.kythera.parser.type.StructNodeType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -116,25 +119,6 @@ public final class Parser {
                 // true, false, and unit are no longer keywords, they are literals
                 case TYPEOF:
                     break;
-                case LET:
-                    Token identToken = this.tokenizer.next();
-                    if (identToken.tokentype != TokenType.VAR) {
-                        System.err.println("Expected identifier but got " + identToken.value);
-                        return null;
-                    }
-
-                    this.consumeToken(Operator.EQUALS.symbol, TokenType.OP);
-
-                    ExpressionNode value = this.parseExpression(true);
-
-                    try {
-                        this.currentScope.create(identToken.value, value.type);
-                        return new LetNode(identToken.value, value);
-                    } catch (Exception e) {
-                        System.err.println(e.getMessage());
-                        return null;
-                    }
-                    break;
                 case IF:
                     ExpressionNode ifCondition = this.parseExpression(true);
 
@@ -171,7 +155,6 @@ public final class Parser {
                     }
 
                     return result;
-                break;
                 case WHILE:
                     ExpressionNode whileCondition = this.parseExpression(true);
 
@@ -180,16 +163,6 @@ public final class Parser {
                     this.currentScope = this.currentScope.parent;
 
                     return new WhileNode(whileCondition, whileBody);
-                break;
-                case RETURN:
-                    // Can only return from a function scope
-                    if (this.currentScope.scopeType != Scope.ScopeType.FUNCTION) {
-                        System.err.println("Cannot return from within this scope.");
-                        return null;
-                    }
-
-                    return new ReturnNode(this.parseExpression(true));
-                break;
             }
         }
 
@@ -204,19 +177,65 @@ public final class Parser {
                 } else {
                     return new IntLiteralNode(Integer.parseInt(nextToken.value));
                 }
-                break;
             case STR:
                 return new StrLiteralNode(nextToken.value);
-            break;
             case VAR:
                 return new IdentifierNode(nextToken.value, this.currentScope.getTypeOf(nextToken.value));
-            break;
         }
 
         System.err.println("Unexpected token: " + nextToken.toString());
         System.exit(1);
 
         return null;
+    }
+
+    private BlockNode parseBlock() {
+
+    }
+
+    private FnLiteralNode parseFunctionLiteral() {
+
+    }
+
+    // literals beginning with '{' could be objects
+    // TODO or maps
+    // TODO they could also be blocks... how do we distinguish that?
+    private StructLiteralNode parseStructLiteral() {
+        this.consumeToken("{", TokenType.PUNC);
+
+        StructNodeType structType = new StructNodeType();
+        StructLiteralNode structResult = new StructLiteralNode(structType);
+
+//        boolean isStruct = true; // isStruct iff !isMap
+//        boolean firstRun = true; // we decide whether it's a struct or map, and do some other things, on the first run only
+
+        HashMap<String, NodeType> typeContents = structType.entries;
+        HashMap<String, ExpressionNode> resultContents = structResult.values;
+
+        this.currentScope = new Scope(this.currentScope, structType, Scope.ScopeType.FUNCTION);
+
+        while(this.confirmToken("}", TokenType.PUNC) == null) {
+//            if(firstRun) {
+//                isStruct =
+//            }
+
+            String entryKey = this.tokenizer.next().value;
+
+            this.consumeToken("=", TokenType.OP);
+
+            ExpressionNode entryValue = this.parseExpression(true);
+
+            this.consumeToken(",", TokenType.PUNC);
+
+            typeContents.put(entryKey, entryValue.type);
+            resultContents.put(entryKey, entryValue);
+        }
+
+        this.consumeToken("}", TokenType.PUNC);
+
+        this.currentScope = this.currentScope.parent;
+
+        return structResult;
     }
 
     private ExpressionNode makeBinary(ExpressionNode left, int currentPrecedence) {

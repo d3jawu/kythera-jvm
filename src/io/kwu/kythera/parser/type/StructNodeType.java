@@ -1,11 +1,16 @@
 package io.kwu.kythera.parser.type;
 
-import java.util.Map;
+import java.util.HashMap;
 
 public class StructNodeType extends NodeType {
-    public final Map<String, NodeType> entries;
+    public final HashMap<String, NodeType> entries;
 
-    public StructNodeType(Map<String, NodeType> entries) {
+    public StructNodeType() {
+        super(BaseType.STRUCT);
+        this.entries = new HashMap<>();
+    }
+
+    public StructNodeType(HashMap<String, NodeType> entries) {
         super(BaseType.STRUCT);
         this.entries = entries;
     }
