@@ -6,9 +6,7 @@ import io.kwu.kythera.parser.tokenizer.*;
 import io.kwu.kythera.parser.type.NodeType;
 import io.kwu.kythera.parser.type.StructNodeType;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.function.Supplier;
 
 public final class Parser {
@@ -189,12 +187,26 @@ public final class Parser {
         return null;
     }
 
+    // TODO isn't the whole program a block? Why aren't we representing the top level program as a block?
+    // as a consequence of this, there may be some duplication with the top-level parse function
     private BlockNode parseBlock() {
+        consumeToken("{", TokenType.PUNC);
 
+        while(this.confirmToken("}", TokenType.PUNC) == null) {
+
+        }
+
+        consumeToken("}", TokenType.PUNC);
     }
 
     private FnLiteralNode parseFunctionLiteral() {
+        NodeType returnType;
 
+        this.currentScope = new Scope(this.currentScope, null, Scope.ScopeType.FUNCTION);
+
+        SortedMap<String, NodeType> parameters;
+
+        parameters =
     }
 
     // literals beginning with '{' could be objects
@@ -206,8 +218,6 @@ public final class Parser {
         StructNodeType structType = new StructNodeType();
         StructLiteralNode structResult = new StructLiteralNode(structType);
 
-//        boolean isStruct = true; // isStruct iff !isMap
-//        boolean firstRun = true; // we decide whether it's a struct or map, and do some other things, on the first run only
 
         HashMap<String, NodeType> typeContents = structType.entries;
         HashMap<String, ExpressionNode> resultContents = structResult.values;
@@ -215,10 +225,6 @@ public final class Parser {
         this.currentScope = new Scope(this.currentScope, structType, Scope.ScopeType.FUNCTION);
 
         while(this.confirmToken("}", TokenType.PUNC) == null) {
-//            if(firstRun) {
-//                isStruct =
-//            }
-
             String entryKey = this.tokenizer.next().value;
 
             this.consumeToken("=", TokenType.OP);
