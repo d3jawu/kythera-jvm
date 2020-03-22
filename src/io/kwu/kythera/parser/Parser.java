@@ -244,7 +244,12 @@ public final class Parser {
 
     // parse a type, whether builtin or user defined
     private NodeType parseType() {
+        if(confirmToken("{", TokenType.PUNC) == null) {
+            // scalar or user-defined reference type
 
+        } else {
+            // struct type
+        }
     }
 
     // literals beginning with '{' could be objects
@@ -298,35 +303,6 @@ public final class Parser {
         }
 
         return left;
-    }
-
-    private List<ExpressionNode> delimited(Token start, Token stop, Token delimiter, Supplier<ExpressionNode> supplier) {
-        List<ExpressionNode> results = new ArrayList<>();
-        boolean first = true;
-
-        this.consumeToken(start);
-
-        while (!this.tokenizer.eof()) {
-            if (this.confirmToken(stop) != null) {
-                break;
-            }
-
-            if (first) {
-                first = false;
-            } else {
-                this.consumeToken(delimiter);
-            }
-
-            if (this.confirmToken(stop) != null) {
-                break;
-            }
-
-            results.add(supplier.get());
-        }
-
-        this.consumeToken(stop);
-
-        return results;
     }
 
     // TODO making this a separate function may be redundant if it is always followed by a call to consumeToken
