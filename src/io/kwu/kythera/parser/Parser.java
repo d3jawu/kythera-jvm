@@ -32,7 +32,7 @@ public final class Parser {
         while (!this.tokenizer.eof()) {
             StatementNode st = this.parseStatement();
             if (st == null) {
-                System.err.println("Expression evaluation failed.");
+                System.err.println("Statement evaluation failed.");
                 System.exit(1);
             }
             this.program.add(st);
@@ -99,7 +99,7 @@ public final class Parser {
         }
 
         if (this.confirmToken(Operator.OPEN_BRACKET.symbol, TokenType.PUNC) != null) {
-            return this.parseFunctionLiteral();
+            return this.parseFnLiteral();
         }
 
         if (this.confirmToken(Operator.BANG.symbol, TokenType.OP) != null) {
@@ -141,9 +141,9 @@ public final class Parser {
                             this.currentScope = this.currentScope.parent;
                         } else {
                             // else-if
-                            final ArrayList<ExpressionNode> al = new ArrayList<>();
-                            al.add(this.parseExpression(false));
-                            ifElse = new BlockNode(al);
+                            this.consumeToken(Keyword.IF.toString(), TokenType.KW);
+                            ifElse = this.parseBlock();
+                            // TODO this is wrong
                         }
 
                         result = new IfNode(ifCondition, ifBody, ifElse);
@@ -190,23 +190,61 @@ public final class Parser {
     // TODO isn't the whole program a block? Why aren't we representing the top level program as a block?
     // as a consequence of this, there may be some duplication with the top-level parse function
     private BlockNode parseBlock() {
+        List<StatementNode> body = new ArrayList<>();
+
         consumeToken("{", TokenType.PUNC);
 
         while(this.confirmToken("}", TokenType.PUNC) == null) {
-
+            StatementNode st = this.parseStatement();
+            if(st == null) {
+                System.err.println("Statement evaluation failed.");
+                System.exit(1);
+            }
+            this.program.add(st);
+            if(this.confirmToken(";", TokenType.PUNC) == null) {
+                System.err.println("Missing semicolon.");
+                System.exit(1);
+            }
+            this.consumeToken(";", TokenType.PUNC);
         }
 
         consumeToken("}", TokenType.PUNC);
+
+        return new BlockNode(body);
     }
 
-    private FnLiteralNode parseFunctionLiteral() {
-        NodeType returnType;
-
+    private FnLiteralNode parseFnLiteral() {
         this.currentScope = new Scope(this.currentScope, null, Scope.ScopeType.FUNCTION);
 
-        SortedMap<String, NodeType> parameters;
+        SortedMap<String, NodeType> parameters = new TreeMap<String, NodeType>();
 
-        parameters =
+        this.consumeToken("(", TokenType.PUNC);
+
+        while(this.confirmToken(")", TokenType.PUNC) == null) {
+            // type is an expression
+            NodeType paramType = this.parseExpression(true).type;
+            String paramName = this.confirmToken(TokenType.STR).value;
+
+            parameters.put(paramName, paramType);
+            this.currentScope.create(paramName, paramType);
+
+            if(this.confirmToken(")", TokenType.PUNC) == null) {
+                this.consumeToken(",", TokenType.PUNC);
+            }
+        }
+
+        this.consumeToken(")", TokenType.PUNC);
+
+        BlockNode body = this.parseBlock();
+
+        this.currentScope = this.currentScope.parent;
+
+        return new FnLiteralNode(parameters, body, body.returnType);
+    }
+
+    // parse a type, whether builtin or user defined
+    private NodeType parseType() {
+
     }
 
     // literals beginning with '{' could be objects

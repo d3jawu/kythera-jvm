@@ -39,9 +39,10 @@ public class Scope {
     /**
      * Initialize variable. Throws error if already declared
      */
-    public void create(String name, NodeType type) throws Exception {
+    public void create(String name, NodeType type) {
         if (this.symbols.containsKey(name)) {
-            throw new Exception(name + " is already bound.");
+            System.err.println(name + " is already bound in this scope.");
+            System.exit(1);
         }
 
         this.symbols.put(name, type);

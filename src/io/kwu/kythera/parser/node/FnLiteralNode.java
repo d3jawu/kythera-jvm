@@ -9,18 +9,10 @@ import java.util.SortedMap;
 
 public class FnLiteralNode extends LiteralNode {
     public final SortedMap<String, NodeType> parameters;
-    public final List<ExpressionNode> body;
+    public final BlockNode body;
     public final NodeType returnType;
 
-    public FnLiteralNode(SortedMap<String, NodeType> parameters, NodeType returnType) {
-        super(new FnNodeType(new ArrayList<>(parameters.values()), returnType));
-
-        this.parameters = parameters;
-        this.body = new ArrayList<>();
-        this.returnType = returnType;
-    }
-
-    public FnLiteralNode(SortedMap<String, NodeType> parameters, List<ExpressionNode> body, NodeType returnType) {
+    public FnLiteralNode(SortedMap<String, NodeType> parameters, BlockNode body, NodeType returnType) {
         super(new FnNodeType(new ArrayList<>(parameters.values()), returnType));
 
         this.parameters = parameters;
