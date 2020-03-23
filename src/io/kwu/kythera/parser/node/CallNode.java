@@ -2,11 +2,13 @@ package io.kwu.kythera.parser.node;
 
 import io.kwu.kythera.parser.type.FnNodeType;
 
+import java.util.List;
+
 public class CallNode extends ExpressionNode {
     public final ExpressionNode target;
-    public final ExpressionNode[] arguments;
+    public final List<ExpressionNode> arguments;
 
-    public CallNode(ExpressionNode target, ExpressionNode[] arguments) {
+    public CallNode(ExpressionNode target, List<ExpressionNode> arguments) {
         super(NodeKind.CALL);
 
         if (target.type instanceof FnNodeType) {

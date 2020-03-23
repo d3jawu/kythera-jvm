@@ -8,7 +8,6 @@ import io.kwu.kythera.parser.type.PrimitiveNodeType;
 import io.kwu.kythera.parser.type.StructNodeType;
 
 import java.util.*;
-import java.util.function.Supplier;
 
 public final class Parser {
     private List<StatementNode> program;
@@ -59,7 +58,6 @@ public final class Parser {
                 Token identifierToken = this.confirmToken(TokenType.VAR);
                 if (identifierToken == null) {
                     System.err.println("Expecting identifier token, got " + identifierToken.toString());
-                    ;
                     System.exit(1);
                     return null;
                 }
@@ -80,14 +78,40 @@ public final class Parser {
     }
 
     private ExpressionNode parseExpression(boolean canSplit) {
+        ExpressionNode exp = parseExpressionAtom();
+
+        while(
+                (canSplit && this.confirmToken(TokenType.OP) != null) || // can start binary
+                        (this.confirmToken("(", TokenType.PUNC) != null) || // can start call
+                        (this.confirmToken("as", TokenType.KW) != null) || // can make as
+                        (this.confirmToken(".", TokenType.PUNC) != null) // can make dot access
+//                      || (canSplit && this.confirmToken("[", TokenType.PUNC) != null) // can make bracket access
+        ) {
+            if(canSplit && this.confirmToken(TokenType.OP) != null) {
+                exp = makeBinary(exp, 0);
+            }
+
+            if (this.confirmToken("as", TokenType.KW) != null) {
+                exp = makeAs(exp);
+            }
+
+            if(this.confirmToken("(", TokenType.PUNC) != null) {
+                exp = makeCall(exp);
+            }
+
+            if(this.confirmToken(".", TokenType.PUNC) != null) {
+                exp = makeDotAccess(exp);
+            }
+        }
+
+        return exp;
     }
 
-    private ExpressionNode parseExpressionAtom(boolean canSplit) {
+    private ExpressionNode parseExpressionAtom() {
         Token t;
         t = new Token(Operator.OPEN_PAREN.symbol, TokenType.PUNC);
         if (this.confirmToken(t) != null) {
             this.consumeToken(t);
-            // ... where do exceptions thrown by parseExpression go?
             ExpressionNode contents = this.parseExpression(true);
             this.consumeToken(Operator.CLOSE_PAREN.symbol, TokenType.PUNC);
         }
@@ -337,6 +361,35 @@ public final class Parser {
         }
 
         return left;
+    }
+
+    private ExpressionNode makeAs(ExpressionNode exp) {
+        this.consumeToken("as", TokenType.KW);
+
+        return new AsNode(exp, this.parseType());
+    }
+
+    private ExpressionNode makeCall(ExpressionNode exp) {
+        List<ExpressionNode> arguments = new ArrayList<>();
+
+        this.consumeToken("(", TokenType.PUNC);
+
+        while(this.confirmToken(")") == null) {
+            arguments.add(this.parseExpression(true));
+            this.consumeToken(",", TokenType.PUNC);
+        }
+
+        this.consumeToken(")", TokenType.PUNC);
+
+        return new CallNode(exp, arguments);
+    }
+
+    private ExpressionNode makeDotAccess(ExpressionNode exp) {
+        this.consumeToken(".", TokenType.PUNC);
+
+        String memberName = this.tokenizer.next().value;
+
+        return new DotAccessNode(exp, memberName);
     }
 
     // TODO making this a separate function may be redundant if it is always followed by a call to consumeToken

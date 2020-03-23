@@ -12,7 +12,7 @@ public final class BinaryNode extends ExpressionNode {
     public final ExpressionNode right;
 
     public BinaryNode(Operator op, ExpressionNode left, ExpressionNode right) {
-        super(NodeKind.BINARY, null);
+        super(NodeKind.BINARY);
 
         if (!Arrays.asList(new Operator[]{
                 EQUIV,

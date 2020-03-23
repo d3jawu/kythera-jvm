@@ -1,6 +1,6 @@
 package io.kwu.kythera.parser.node;
 
-import io.kwu.kythera.parser.type.NodeType;
+import io.kwu.kythera.parser.type.PrimitiveNodeType;
 
 public class IfNode extends ExpressionNode {
     public final ExpressionNode condition;
@@ -10,7 +10,7 @@ public class IfNode extends ExpressionNode {
     public IfNode(ExpressionNode condition, BlockNode body) {
         super(NodeKind.IF);
 
-        if (!condition.type.equals(NodeType.BOOL)) {
+        if (!condition.type.equals(PrimitiveNodeType.BOOL)) {
             System.err.println("Type error: If-expression condition must evaluate to bool.");
             System.exit(1);
         }
@@ -25,7 +25,7 @@ public class IfNode extends ExpressionNode {
     public IfNode(ExpressionNode condition, BlockNode body, BlockNode elseBody) {
         super(NodeKind.IF);
 
-        if (!condition.type.equals(NodeType.BOOL)) {
+        if (!condition.type.equals(PrimitiveNodeType.BOOL)) {
             System.err.println("Type error: If-expression condition must evaluate to bool.");
             System.exit(1);
         }
