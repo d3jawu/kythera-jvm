@@ -4,6 +4,7 @@ import io.kwu.kythera.Scope;
 import io.kwu.kythera.parser.node.*;
 import io.kwu.kythera.parser.tokenizer.*;
 import io.kwu.kythera.parser.type.NodeType;
+import io.kwu.kythera.parser.type.PrimitiveNodeType;
 import io.kwu.kythera.parser.type.StructNodeType;
 
 import java.util.*;
@@ -244,11 +245,44 @@ public final class Parser {
 
     // parse a type, whether builtin or user defined
     private NodeType parseType() {
-        if(confirmToken("{", TokenType.PUNC) == null) {
+        if(this.confirmToken("{", TokenType.PUNC) == null) {
             // scalar or user-defined reference type
 
+            Token typeName = this.confirmToken(TokenType.VAR);
+
+            switch(typeName.value) {
+                case "int":
+                    return PrimitiveNodeType.INT;
+                case "double":
+                    return PrimitiveNodeType.DOUBLE;
+                case "bool":
+                    return PrimitiveNodeType.BOOL;
+                case "unit":
+                    return PrimitiveNodeType.UNIT;
+//                case "str":
+//                    return PrimitiveNodeType.STR;
+                default:
+                    // TODO something with variable node types?
+            }
+
+            return null;
         } else {
+            HashMap<String, NodeType> entries =  new HashMap<>();
             // struct type
+            this.consumeToken("{", TokenType.PUNC);
+
+            // TODO maybe start new scope?
+
+            while(this.confirmToken("}", TokenType.PUNC) == null) {
+                NodeType entryType = this.parseType();
+                String entryName = this.confirmToken(TokenType.STR).value;
+
+                entries.put(entryName, entryType);
+            }
+
+            this.consumeToken("}", TokenType.PUNC);
+
+            return new StructNodeType(entries);
         }
     }
 
