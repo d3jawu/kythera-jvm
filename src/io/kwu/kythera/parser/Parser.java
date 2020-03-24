@@ -3,6 +3,7 @@ package io.kwu.kythera.parser;
 import io.kwu.kythera.Scope;
 import io.kwu.kythera.parser.node.*;
 import io.kwu.kythera.parser.tokenizer.*;
+import io.kwu.kythera.parser.type.BaseType;
 import io.kwu.kythera.parser.type.NodeType;
 import io.kwu.kythera.parser.type.PrimitiveNodeType;
 import io.kwu.kythera.parser.type.StructNodeType;
@@ -268,7 +269,10 @@ public final class Parser {
     }
 
     // parse a type, whether builtin or user defined
-    private NodeType parseType() {
+
+    // parseType should not exist... it should be a part of parseExpression
+    // all existing calls to parseType should be replaced with calls to parseExpression
+    private ExpressionNode parseType() {
         if(this.confirmToken("{", TokenType.PUNC) == null) {
             // scalar or user-defined reference type
 
@@ -276,13 +280,13 @@ public final class Parser {
 
             switch(typeName.value) {
                 case "int":
-                    return PrimitiveNodeType.INT;
+                    return PrimitiveTypeLiteral.INT;
                 case "double":
-                    return PrimitiveNodeType.DOUBLE;
+                    return PrimitiveTypeLiteral.DOUBLE;
                 case "bool":
-                    return PrimitiveNodeType.BOOL;
+                    return PrimitiveTypeLiteral.BOOL;
                 case "unit":
-                    return PrimitiveNodeType.UNIT;
+                    return PrimitiveTypeLiteral.UNIT;
 //                case "str":
 //                    return PrimitiveNodeType.STR;
                 default:
@@ -291,15 +295,20 @@ public final class Parser {
 
             return null;
         } else {
-            HashMap<String, NodeType> entries =  new HashMap<>();
+            HashMap<String, ExpressionNode> entries =  new HashMap<>();
             // struct type
             this.consumeToken("{", TokenType.PUNC);
 
             // TODO maybe start new scope?
 
             while(this.confirmToken("}", TokenType.PUNC) == null) {
-                NodeType entryType = this.parseType();
+                ExpressionNode entryType = this.parseType();
                 String entryName = this.confirmToken(TokenType.STR).value;
+
+                if(entryType.type.baseType != BaseType.TYPE) {
+                    System.err.println("Expected type value but got: " + entryType.type.toString());
+                    System.exit(0);
+                }
 
                 entries.put(entryName, entryType);
             }

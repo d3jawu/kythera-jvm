@@ -11,4 +11,6 @@ public abstract class StatementNode {
     public StatementNode(NodeKind kind) {
         this.kind = kind;
     }
+
+    public abstract void print(int indent);
 }
