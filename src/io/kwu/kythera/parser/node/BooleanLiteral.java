@@ -1,6 +1,7 @@
 package io.kwu.kythera.parser.node;
 
-import io.kwu.kythera.parser.type.PrimitiveNodeType;
+import io.kwu.kythera.Main;
+import io.kwu.kythera.parser.BaseType;
 
 public class BooleanLiteral {
     // since there are only two boolean values we just pre-generate their nodes and just reuse them
@@ -17,9 +18,14 @@ public class BooleanLiteral {
         public final boolean value;
 
         private BooleanLiteralNode(boolean value) {
-            super(NodeKind.LITERAL, PrimitiveNodeType.BOOL);
+            super(NodeKind.LITERAL, BaseType.BOOL.typeLiteral);
 
             this.value = value;
+        }
+
+        @Override
+        public void print(int indent) {
+            Main.printlnWithIndent("BooleanLiteralNode {" + this.value + "}", indent);
         }
     }
 }

@@ -3,10 +3,6 @@ package io.kwu.kythera.parser;
 import io.kwu.kythera.Scope;
 import io.kwu.kythera.parser.node.*;
 import io.kwu.kythera.parser.tokenizer.*;
-import io.kwu.kythera.parser.type.BaseType;
-import io.kwu.kythera.parser.type.NodeType;
-import io.kwu.kythera.parser.type.PrimitiveNodeType;
-import io.kwu.kythera.parser.type.StructNodeType;
 
 import java.util.*;
 
@@ -201,8 +197,8 @@ public final class Parser {
                 } else {
                     return new IntLiteralNode(Integer.parseInt(nextToken.value));
                 }
-            case STR:
-                return new StrLiteralNode(nextToken.value);
+//            case STR:
+//                return new StrLiteralNode(nextToken.value);
             case VAR:
                 return new IdentifierNode(nextToken.value, this.currentScope.getTypeOf(nextToken.value));
         }
@@ -242,13 +238,13 @@ public final class Parser {
     private FnLiteralNode parseFnLiteral() {
         this.currentScope = new Scope(this.currentScope, null, Scope.ScopeType.FUNCTION);
 
-        SortedMap<String, NodeType> parameters = new TreeMap<String, NodeType>();
+        SortedMap<String, ExpressionNode> parameters = new TreeMap<String, ExpressionNode>();
 
         this.consumeToken("(", TokenType.PUNC);
 
         while(this.confirmToken(")", TokenType.PUNC) == null) {
             // type is an expression
-            NodeType paramType = this.parseExpression(true).type;
+            ExpressionNode paramType = this.parseExpression(true);
             String paramName = this.confirmToken(TokenType.STR).value;
 
             parameters.put(paramName, paramType);
@@ -265,13 +261,10 @@ public final class Parser {
 
         this.currentScope = this.currentScope.parent;
 
-        return new FnLiteralNode(parameters, body, body.returnType);
+        return new FnLiteralNode(parameters, body, body.typeExp);
     }
 
     // parse a type, whether builtin or user defined
-
-    // parseType should not exist... it should be a part of parseExpression
-    // all existing calls to parseType should be replaced with calls to parseExpression
     private ExpressionNode parseType() {
         if(this.confirmToken("{", TokenType.PUNC) == null) {
             // scalar or user-defined reference type
@@ -280,13 +273,13 @@ public final class Parser {
 
             switch(typeName.value) {
                 case "int":
-                    return PrimitiveTypeLiteral.INT;
+                    return BaseType.INT.typeLiteral;
                 case "double":
-                    return PrimitiveTypeLiteral.DOUBLE;
+                    return BaseType.DOUBLE.typeLiteral;
                 case "bool":
-                    return PrimitiveTypeLiteral.BOOL;
+                    return BaseType.BOOL.typeLiteral;
                 case "unit":
-                    return PrimitiveTypeLiteral.UNIT;
+                    return BaseType.UNIT.typeLiteral;
 //                case "str":
 //                    return PrimitiveNodeType.STR;
                 default:
@@ -305,8 +298,9 @@ public final class Parser {
                 ExpressionNode entryType = this.parseType();
                 String entryName = this.confirmToken(TokenType.STR).value;
 
-                if(entryType.type.baseType != BaseType.TYPE) {
-                    System.err.println("Expected type value but got: " + entryType.type.toString());
+                // TODO this might not be right
+                if(entryType.equals(BaseType.TYPE.typeLiteral)) {
+                    System.err.println("Expected type value but got: " + entryType.typeExp.toString());
                     System.exit(0);
                 }
 
@@ -315,7 +309,7 @@ public final class Parser {
 
             this.consumeToken("}", TokenType.PUNC);
 
-            return new StructNodeType(entries);
+            return new StructTypeLiteralNode(entries);
         }
     }
 
@@ -325,11 +319,10 @@ public final class Parser {
     private StructLiteralNode parseStructLiteral() {
         this.consumeToken("{", TokenType.PUNC);
 
-        StructNodeType structType = new StructNodeType();
+        StructTypeLiteralNode structType = new StructTypeLiteralNode();
         StructLiteralNode structResult = new StructLiteralNode(structType);
 
-
-        HashMap<String, NodeType> typeContents = structType.entries;
+        HashMap<String, ExpressionNode> typeContents = structType.entries;
         HashMap<String, ExpressionNode> resultContents = structResult.values;
 
         this.currentScope = new Scope(this.currentScope, structType, Scope.ScopeType.FUNCTION);
@@ -343,7 +336,7 @@ public final class Parser {
 
             this.consumeToken(",", TokenType.PUNC);
 
-            typeContents.put(entryKey, entryValue.type);
+            typeContents.put(entryKey, entryValue.typeExp);
             resultContents.put(entryKey, entryValue);
         }
 
@@ -375,7 +368,7 @@ public final class Parser {
     private ExpressionNode makeAs(ExpressionNode exp) {
         this.consumeToken("as", TokenType.KW);
 
-        return new AsNode(exp, this.parseType());
+        return new AsNode(exp, this.parseExpression(true));
     }
 
     private ExpressionNode makeCall(ExpressionNode exp) {

@@ -1,5 +1,6 @@
 package io.kwu.kythera.parser.node;
 
+import io.kwu.kythera.Main;
 import io.kwu.kythera.parser.tokenizer.Operator;
 
 import java.util.Arrays;
@@ -14,7 +15,7 @@ public class AssignNode extends ExpressionNode {
     public final ExpressionNode right;
 
     public AssignNode(Operator op, ExpressionNode left, ExpressionNode right) {
-        super(NodeKind.ASSIGN, right.type);
+        super(NodeKind.ASSIGN, right.typeExp);
 
         // TODO ensure that left node is an identifier or object member
 
@@ -32,5 +33,17 @@ public class AssignNode extends ExpressionNode {
 
         this.left = left;
         this.right = right;
+    }
+
+    @Override
+    public void print(int indent) {
+        Main.printlnWithIndent("AssignNode {", indent);
+
+        Main.printlnWithIndent("\tLHS:", indent);
+        left.print(indent + 1);
+        Main.printlnWithIndent("\tRHS:", indent);
+        right.print(indent + 1);
+
+        Main.printlnWithIndent("} AssignNode", indent);
     }
 }

@@ -1,5 +1,7 @@
 package io.kwu.kythera.parser.node;
 
+import io.kwu.kythera.Main;
+
 /**
  * Access of compound type with brackets, e.g.
  * myArray[0]
@@ -13,5 +15,11 @@ public class BracketAccessNode extends ExpressionNode {
 
         this.target = target;
         this.key = key;
+
+        // TODO find out type
+    }
+
+    @Override
+    public void print(int indent) {
     }
 }

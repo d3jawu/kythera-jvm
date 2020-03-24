@@ -1,6 +1,6 @@
 package io.kwu.kythera.parser.node;
 
-import io.kwu.kythera.parser.type.PrimitiveNodeType;
+import io.kwu.kythera.parser.BaseType;
 
 public class WhileNode extends ExpressionNode {
     public final ExpressionNode condition;
@@ -8,7 +8,7 @@ public class WhileNode extends ExpressionNode {
 
     public WhileNode(ExpressionNode condition, BlockNode body) {
         super(NodeKind.WHILE);
-        if (!condition.type.equals(PrimitiveNodeType.BOOL)) {
+        if (!condition.typeExp.equals(BaseType.BOOL.typeLiteral)) {
             System.err.println("Type error: while-statement condition must evaluate to boolean.");
             System.exit(1);
         }
@@ -17,6 +17,11 @@ public class WhileNode extends ExpressionNode {
         this.body = body;
 
         // while evaluates to last statement run (?)
-        this.type = body.returnType;
+        this.typeExp = body.typeExp;
+    }
+
+    @Override
+    public void print(int indent) {
+        // TODO
     }
 }

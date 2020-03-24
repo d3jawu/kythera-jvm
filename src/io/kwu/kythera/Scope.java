@@ -1,6 +1,6 @@
 package io.kwu.kythera;
 
-import io.kwu.kythera.parser.type.NodeType;
+import io.kwu.kythera.parser.node.ExpressionNode;
 
 import java.util.HashMap;
 
@@ -14,7 +14,7 @@ public class Scope {
     }
 
     public final Scope parent;
-    private HashMap<String, NodeType> symbols = new HashMap<>();
+    private HashMap<String, ExpressionNode> symbols = new HashMap<>();
 
     public final ScopeType scopeType;
 
@@ -26,7 +26,7 @@ public class Scope {
 
     // child scope
     // TODO refactor this so scopeType comes before thisType and thisType is optional
-    public Scope(Scope parent, NodeType thisType, ScopeType scopeType) {
+    public Scope(Scope parent, ExpressionNode thisType, ScopeType scopeType) {
         this.parent = parent;
 
         if (thisType != null) {
@@ -39,7 +39,7 @@ public class Scope {
     /**
      * Initialize variable. Throws error if already declared
      */
-    public void create(String name, NodeType type) {
+    public void create(String name, ExpressionNode type) {
         if (this.symbols.containsKey(name)) {
             System.err.println(name + " is already bound in this scope.");
             System.exit(1);
@@ -51,7 +51,7 @@ public class Scope {
     /**
      * Get type of variable
      */
-    public NodeType getTypeOf(String name) {
+    public ExpressionNode getTypeOf(String name) {
         if (this.symbols.containsKey(name)) {
             return this.symbols.get(name);
         } else {

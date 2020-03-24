@@ -1,13 +1,13 @@
 package io.kwu.kythera.parser.node;
 
-import io.kwu.kythera.parser.type.NodeType;
+import io.kwu.kythera.Main;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class BlockNode extends ExpressionNode {
     public final List<StatementNode> body;
-    public NodeType returnType;
+    public ExpressionNode returnTypeExp;
 
     public BlockNode(List<StatementNode> body) {
         super(NodeKind.BLOCK); // type to be set later
@@ -32,18 +32,31 @@ public class BlockNode extends ExpressionNode {
         }
 
         // check all return statements for type equivalence
-        returnType = null;
+
+        returnTypeExp = null;
         for (StatementNode st : returns) {
             ReturnNode ret = (ReturnNode) st;
 
-            if(returnType == null) {
-                returnType = ret.value.type;
-            } else if (!ret.value.type.equals(returnType)) {
-                System.err.println("Type mismatch: Block returned " + returnType.toString() + " but later also returned " + ret.value.type.toString());
+            if(returnTypeExp == null) {
+                returnTypeExp = ret.exp.typeExp;
+            } else if (!ret.exp.typeExp.equals(returnTypeExp)) {
+                System.err.println("Type mismatch: Block returned " + returnTypeExp.typeExp.toString() + " but later also returned " + ret.exp.typeExp.toString());
                 System.exit(1);
             }
         }
 
-        this.type = returnType;
+        this.typeExp = returnTypeExp;
+    }
+
+    @Override
+    public void print(int indent) {
+        Main.printlnWithIndent("BlockNode {", indent);
+        Main.printlnWithIndent("\tBody:", indent);
+
+        for(StatementNode st : this.body) {
+            st.print(indent + 1);
+        }
+
+        Main.printlnWithIndent("} BlockNode", indent);
     }
 }

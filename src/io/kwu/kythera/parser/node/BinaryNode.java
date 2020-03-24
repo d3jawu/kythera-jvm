@@ -1,5 +1,6 @@
 package io.kwu.kythera.parser.node;
 
+import io.kwu.kythera.Main;
 import io.kwu.kythera.parser.tokenizer.Operator;
 
 import java.util.Arrays;
@@ -37,7 +38,23 @@ public final class BinaryNode extends ExpressionNode {
         this.left = left;
         this.right = right;
 
-        // TODO type check left and right
-        this.type = left.type;
+        // TODO type check left and right agreement
+        // type comparison is simply (typeof LHS).equals(typeof RHS)
+        // where typeof is Kythera's typeof implementation, not Java's
+        if(! left.typeExp.equals(right.typeExp)) {
+            System.err.println("RHS and LHS types do not match.");
+            System.exit(1);
+        }
+    }
+
+    @Override
+    public void print(int indent) {
+        Main.printlnWithIndent("BinaryNode {", indent);
+        Main.printlnWithIndent("\top: {" + op.symbol + "}", indent);
+        Main.printlnWithIndent("\tLHS:", indent);
+        left.print(indent + 1);
+        Main.printlnWithIndent("\tRHS:", indent);
+        right.print(indent + 1);
+        Main.printlnWithIndent("} BinaryNode", indent);
     }
 }
