@@ -166,7 +166,13 @@ public final class Tokenizer {
     }
 
     private static boolean isKeyword(String word) {
-        return Arrays.asList(Keyword.values()).contains(Keyword.valueOf(word.toUpperCase()));
+        for(Keyword kw : Keyword.values()) {
+            if(kw.name().toLowerCase().equals(word)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static boolean isDigit(char c) {

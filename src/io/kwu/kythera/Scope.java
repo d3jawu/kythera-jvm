@@ -56,7 +56,9 @@ public class Scope {
             return this.symbols.get(name);
         } else {
             if (this.parent == null) {
-                throw new Error(name + " is not defined.");
+                System.err.println(name + " is not defined in this scope.");
+                System.exit(1);
+                return null;
             } else {
                 return this.parent.getTypeOf(name);
             }

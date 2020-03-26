@@ -27,17 +27,7 @@ public final class Parser {
 
     public List<StatementNode> parse() {
         while (!this.tokenizer.eof()) {
-            StatementNode st = this.parseStatement();
-            if (st == null) {
-                System.err.println("Statement evaluation failed.");
-                System.exit(1);
-            }
-            this.program.add(st);
-            if (this.confirmToken(";", TokenType.PUNC) == null) {
-                System.err.println("Missing semicolon.");
-                System.exit(1);
-            }
-            this.consumeToken(";", TokenType.PUNC);
+            loadStatement();
         }
 
         return this.program;
@@ -59,7 +49,9 @@ public final class Parser {
                     return null;
                 }
 
-                this.consumeToken("=", TokenType.PUNC);
+                this.consumeToken(TokenType.VAR);
+
+                this.consumeToken("=", TokenType.OP);
 
                 ExpressionNode value = this.parseExpression(true);
 
@@ -217,22 +209,26 @@ public final class Parser {
         consumeToken("{", TokenType.PUNC);
 
         while(this.confirmToken("}", TokenType.PUNC) == null) {
-            StatementNode st = this.parseStatement();
-            if(st == null) {
-                System.err.println("Statement evaluation failed.");
-                System.exit(1);
-            }
-            this.program.add(st);
-            if(this.confirmToken(";", TokenType.PUNC) == null) {
-                System.err.println("Missing semicolon.");
-                System.exit(1);
-            }
-            this.consumeToken(";", TokenType.PUNC);
+            loadStatement();
         }
 
         consumeToken("}", TokenType.PUNC);
 
         return new BlockNode(body);
+    }
+
+    private void loadStatement() {
+        StatementNode st = this.parseStatement();
+        if(st == null) {
+            System.err.println("Statement evaluation failed.");
+            System.exit(1);
+        }
+        this.program.add(st);
+        if(this.confirmToken(";", TokenType.PUNC) == null) {
+            System.err.println("Missing semicolon.");
+            System.exit(1);
+        }
+        this.consumeToken(";", TokenType.PUNC);
     }
 
     private FnLiteralNode parseFnLiteral() {
@@ -434,15 +430,25 @@ public final class Parser {
         return confirmToken(null, type);
     }
 
-    // TODO this is only ever called with type=null from delimited(), it may be possible to remove the null altogether
+    // consume token without checking value
+    private void consumeToken(TokenType type) {
+        if(this.confirmToken(type) != null) {
+            this.tokenizer.next();
+        } else {
+            final Token nextVal = this.tokenizer.peek();
+            System.err.println("Expecting " + type.toString() + " but got " + nextVal.tokentype.toString());
+        }
+    }
+
     private void consumeToken(String value, TokenType type) {
         if (this.confirmToken(value, type) != null) {
             this.tokenizer.next();
         } else {
             final Token nextVal = this.tokenizer.peek();
             System.err.println("Expecting "
-                    + type.toString() + ": " + value
-                    + " but got" + nextVal.tokentype.toString() + ": " + nextVal.value + " instead.");
+                    + type.toString() + " " + value
+                    + " but got " + nextVal.tokentype.toString() + ": " + nextVal.value);
+            System.exit(1);
         }
     }
 

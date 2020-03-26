@@ -18,7 +18,6 @@ public class Main {
                 st.print(0);
             }
         } catch (Exception e){
-            System.err.println("Exception:");
             e.printStackTrace();
             System.exit(1);
         }

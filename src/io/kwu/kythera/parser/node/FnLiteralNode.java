@@ -1,6 +1,9 @@
 package io.kwu.kythera.parser.node;
 
+import io.kwu.kythera.Main;
+
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.SortedMap;
 
 public class FnLiteralNode extends LiteralNode {
@@ -18,6 +21,23 @@ public class FnLiteralNode extends LiteralNode {
 
     @Override
     public void print(int indent) {
-        // TODO
+        Main.printlnWithIndent("FnLiteralNode {", indent);
+        Main.printlnWithIndent("\tParameters:", indent);
+
+        for(Map.Entry<String, ExpressionNode> entry : parameters.entrySet()) {
+            Main.printlnWithIndent("\tName:", indent);
+            Main.printlnWithIndent(entry.getKey(), indent + 1);
+            Main.printlnWithIndent("\tType expression:", indent);
+            entry.getValue().print(indent + 1);
+        }
+
+        Main.printlnWithIndent("\tBody:", indent);
+
+        body.print(indent + 1);
+
+        Main.printlnWithIndent("\tReturn type:", indent);
+
+        returnType.print(indent + 1);
+        Main.printlnWithIndent("} FnLiteralNode", indent);
     }
 }
