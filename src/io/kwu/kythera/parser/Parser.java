@@ -55,6 +55,8 @@ public final class Parser {
 
                 ExpressionNode value = this.parseExpression(true);
 
+                this.currentScope.create(identifierToken.value, value.typeExp);
+
                 return new LetNode(identifierToken.value, value);
             }
 
@@ -352,7 +354,22 @@ public final class Parser {
                 this.tokenizer.next();
                 ExpressionNode right = this.makeBinary(this.parseExpression(false), nextPrecedence);
 
-                ExpressionNode binary = new BinaryNode(op, left, right);
+                ExpressionNode binary;
+
+                switch (op.kind) {
+                    case ASSIGN:
+                        binary = new AssignNode(op, left, right);
+                        break;
+                    case LOGICAL:
+                    case COMPARE:
+                    case ARITHMETIC:
+                        binary = new BinaryNode(op, left, right);
+                        break;
+                    default:
+                        System.err.println("Invalid operator for binary operation: " + op.symbol);
+                        System.exit(0);
+                        binary = null;
+                }
 
                 return this.makeBinary(binary, currentPrecedence);
             }

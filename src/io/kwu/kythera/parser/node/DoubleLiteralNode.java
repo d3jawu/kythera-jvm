@@ -13,6 +13,6 @@ public class DoubleLiteralNode extends ExpressionNode {
 
     @Override
     public void print(int indent) {
-        Main.printlnWithIndent("DoubleLiteralNode {" + value + "}", indent);
+        Main.printlnWithIndent("DoubleLiteralNode { value: " + value + " }", indent);
     }
 }

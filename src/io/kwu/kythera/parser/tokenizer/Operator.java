@@ -6,58 +6,58 @@ package io.kwu.kythera.parser.tokenizer;
  */
 public enum Operator {
     // assignments, see here: https://introcs.cs.princeton.edu/java/11precedence/
-    EQUALS("=", 1),
-    PLUS_EQUALS("+=", 1),
-    MINUS_EQUALS("-=", 1),
-    TIMES_EQUALS("*=", 1),
-    DIV_EQUALS("/=", 1),
-    MOD_EQUALS("%=", 1),
+    EQUALS("=", 1, OperatorKind.ASSIGN),
+    PLUS_EQUALS("+=", 1, OperatorKind.ASSIGN),
+    MINUS_EQUALS("-=", 1, OperatorKind.ASSIGN),
+    TIMES_EQUALS("*=", 1, OperatorKind.ASSIGN),
+    DIV_EQUALS("/=", 1, OperatorKind.ASSIGN),
+    MOD_EQUALS("%=", 1, OperatorKind.ASSIGN),
 
     // boolean logical
-    OR_LOGICAL("||", 3),
-    AND_LOGICAL("&&", 4),
+    OR_LOGICAL("||", 3, OperatorKind.LOGICAL),
+    AND_LOGICAL("&&", 4, OperatorKind.LOGICAL),
 
     // TODO bitwise boolean operators
 
     // comparison
-    EQUIV("==", 8),
-    DEEP_EQUIV("===", 8),
-    NOT_EQUIV("!=", 8),
-    DEEP_NOT_EQUIV("!==", 8),
+    EQUIV("==", 8, OperatorKind.COMPARE),
+    DEEP_EQUIV("===", 8, OperatorKind.COMPARE),
+    NOT_EQUIV("!=", 8, OperatorKind.COMPARE),
+    DEEP_NOT_EQUIV("!==", 8, OperatorKind.COMPARE),
 
-    LESS_THAN("<", 9),
-    GREATER_THAN(">", 9),
-    LESS_EQUIV("<=", 9),
-    GREATER_EQUIV(">=", 9),
-
-    // TODO bit shift operators
+    LESS_THAN("<", 9, OperatorKind.COMPARE),
+    GREATER_THAN(">", 9, OperatorKind.COMPARE),
+    LESS_EQUIV("<=", 9, OperatorKind.COMPARE),
+    GREATER_EQUIV(">=", 9, OperatorKind.COMPARE),
 
     // arithmetic
-    PLUS("+", 11),
-    MINUS("-", 11),
+    PLUS("+", 11, OperatorKind.ARITHMETIC),
+    MINUS("-", 11, OperatorKind.ARITHMETIC),
 
-    TIMES("*", 12),
-    DIVIDE("/", 12),
-    MODULUS("%", 12),
+    TIMES("*", 12, OperatorKind.ARITHMETIC),
+    DIVIDE("/", 12, OperatorKind.ARITHMETIC),
+    MODULUS("%", 12, OperatorKind.ARITHMETIC),
 
-    BANG("!", 14),
+    BANG("!", 14, OperatorKind.LOGICAL),
 
     // access
-    DOT(".", 16),
-    OPEN_PAREN("(", 16),
-    CLOSE_PAREN(")", 16),
-    OPEN_BRACKET("[", 16),
-    CLOSE_BRACKET("]", 16),
-    // maybe the braces should have precedence 13 since they are used for object creation, not access?
-    OPEN_BRACE("{", 16),
-    CLOSE_BRACE("}", 16);
+    DOT(".", 16, OperatorKind.ACCESS),
+    OPEN_PAREN("(", 16, OperatorKind.ACCESS),
+    CLOSE_PAREN(")", 16, OperatorKind.ACCESS),
+    OPEN_BRACKET("[", 16, OperatorKind.ACCESS),
+    CLOSE_BRACKET("]", 16, OperatorKind.ACCESS),
+    // TODO maybe the braces should have precedence 13 since they are used for object creation, not access?
+    OPEN_BRACE("{", 16, OperatorKind.ACCESS),
+    CLOSE_BRACE("}", 16, OperatorKind.ACCESS);
 
     public final String symbol;
     public final int precedence; // higher precedence evaluated first
+    public final OperatorKind kind;
 
-    Operator(String symbol, int precedence) {
+    Operator(String symbol, int precedence, OperatorKind kind) {
         this.symbol = symbol;
         this.precedence = precedence;
+        this.kind = kind;
     }
 
     public static Operator symbolOf(String symbol) {
@@ -68,5 +68,13 @@ public enum Operator {
         }
 
         return null;
+    }
+
+    public enum OperatorKind {
+        ASSIGN,
+        LOGICAL,
+        COMPARE,
+        ARITHMETIC,
+        ACCESS,
     }
 }

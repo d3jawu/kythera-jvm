@@ -1,13 +1,9 @@
 package io.kwu.kythera.parser.node;
 
+import io.kwu.kythera.Main;
+
 public class IdentifierNode extends ExpressionNode {
     public final String name;
-
-    public IdentifierNode(String name) {
-        // TODO symbol table lookup
-        super(NodeKind.IDENTIFIER);
-        this.name = name;
-    }
 
     public IdentifierNode(String name, ExpressionNode typeExp) {
         super(NodeKind.IDENTIFIER);
@@ -17,6 +13,6 @@ public class IdentifierNode extends ExpressionNode {
 
     @Override
     public void print(int indent) {
-
+        Main.printlnWithIndent("IdentifierNode { name: " + name + " }", indent);
     }
 }

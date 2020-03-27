@@ -25,12 +25,10 @@ public class Main {
     }
 
     public static void printlnWithIndent(String message, int indent) {
-        String output = "";
-        for(int i = 0; i < indent; i += 1) {
-            output += '\t';
-        }
+        StringBuilder output = new StringBuilder();
+        output.append("\t".repeat(Math.max(0, indent)));
 
-        output += message;
+        output.append(message);
         System.out.println(output);
     }
 }

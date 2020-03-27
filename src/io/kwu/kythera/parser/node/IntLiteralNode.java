@@ -14,6 +14,6 @@ public class IntLiteralNode extends ExpressionNode {
 
     @Override
     public void print(int indent) {
-        Main.printlnWithIndent("IntLiteralNode {" + value + "}", indent);
+        Main.printlnWithIndent("IntLiteralNode { value: " + value + " }", indent);
     }
 }
