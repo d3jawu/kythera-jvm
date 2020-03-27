@@ -59,4 +59,14 @@ public enum Operator {
         this.symbol = symbol;
         this.precedence = precedence;
     }
+
+    public static Operator symbolOf(String symbol) {
+        for(Operator o : values()) {
+            if(o.symbol.equals(symbol)) {
+                return o;
+            }
+        }
+
+        return null;
+    }
 }

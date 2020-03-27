@@ -346,7 +346,7 @@ public final class Parser {
     private ExpressionNode makeBinary(ExpressionNode left, int currentPrecedence) {
         Token token = this.confirmToken(TokenType.OP);
         if (token != null) {
-            Operator op = Operator.valueOf(token.value);
+            Operator op = Operator.symbolOf(token.value);
             int nextPrecedence = op.precedence;
             if (nextPrecedence > currentPrecedence) {
                 this.tokenizer.next();
