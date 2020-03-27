@@ -14,11 +14,11 @@ public class BooleanLiteral {
         FALSE = new BooleanLiteralNode(false);
     }
 
-    private static class BooleanLiteralNode extends ExpressionNode {
+    private static class BooleanLiteralNode extends LiteralNode{
         public final boolean value;
 
         private BooleanLiteralNode(boolean value) {
-            super(NodeKind.LITERAL, BaseType.BOOL.typeLiteral);
+            super(BaseType.BOOL.typeLiteral);
 
             this.value = value;
         }

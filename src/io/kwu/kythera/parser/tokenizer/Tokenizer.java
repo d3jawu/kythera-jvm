@@ -1,6 +1,5 @@
 package io.kwu.kythera.parser.tokenizer;
 
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.kwu.kythera.parser.tokenizer.TokenType.*;
@@ -48,11 +47,6 @@ public final class Tokenizer {
         }
 
         return output.toString();
-    }
-
-    private void readToNewLine() {
-        this.readWhile((char c) -> c != '\n');
-        this.inputStream.next();
     }
 
     private Token tokenFromString() {

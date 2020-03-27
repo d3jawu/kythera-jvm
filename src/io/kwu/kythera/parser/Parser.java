@@ -105,6 +105,7 @@ public final class Parser {
             this.consumeToken(t);
             ExpressionNode contents = this.parseExpression(true);
             this.consumeToken(Operator.CLOSE_PAREN.symbol, TokenType.PUNC);
+            return contents;
         }
 
         // hang on to this for later
@@ -130,7 +131,6 @@ public final class Parser {
             this.consumeToken(nextToken);
 
             switch (Keyword.valueOf(nextToken.value.toUpperCase())) {
-                // true, false, and unit are no longer keywords, they are literals
                 case TYPEOF:
                     break;
                 case IF:
@@ -194,6 +194,18 @@ public final class Parser {
 //            case STR:
 //                return new StrLiteralNode(nextToken.value);
             case VAR:
+                if(nextToken.value.equals("true")) {
+                    return BooleanLiteral.TRUE;
+                }
+
+                if(nextToken.value.equals("false")) {
+                    return BooleanLiteral.FALSE;
+                }
+
+                if(nextToken.value.equals("unit")) {
+                    return UnitLiteral.UNIT;
+                }
+
                 return new IdentifierNode(nextToken.value, this.currentScope.getTypeOf(nextToken.value));
         }
 

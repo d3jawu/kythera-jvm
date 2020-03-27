@@ -3,11 +3,11 @@ package io.kwu.kythera.parser.node;
 import io.kwu.kythera.Main;
 import io.kwu.kythera.parser.BaseType;
 
-public class IntLiteralNode extends ExpressionNode {
+public class IntLiteralNode extends LiteralNode{
     public final int value;
 
     public IntLiteralNode(int value) {
-        super(NodeKind.LITERAL, BaseType.INT.typeLiteral);
+        super(BaseType.INT.typeLiteral);
 
         this.value = value;
     }

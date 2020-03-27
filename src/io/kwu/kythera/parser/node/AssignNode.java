@@ -35,9 +35,9 @@ public class AssignNode extends ExpressionNode {
     public void print(int indent) {
         Main.printlnWithIndent("AssignNode {", indent);
 
-        Main.printlnWithIndent("\tLHS:", indent);
+        Main.printlnWithIndent("\tleft:", indent);
         left.print(indent + 1);
-        Main.printlnWithIndent("\tRHS:", indent);
+        Main.printlnWithIndent("\tleft:", indent);
         right.print(indent + 1);
 
         Main.printlnWithIndent("} AssignNode", indent);

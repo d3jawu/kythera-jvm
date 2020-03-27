@@ -3,11 +3,11 @@ package io.kwu.kythera.parser.node;
 import io.kwu.kythera.Main;
 import io.kwu.kythera.parser.BaseType;
 
-public class DoubleLiteralNode extends ExpressionNode {
+public class DoubleLiteralNode extends LiteralNode {
     public final double value;
 
     public DoubleLiteralNode(double value) {
-        super(NodeKind.LITERAL, BaseType.DOUBLE.typeLiteral);
+        super(BaseType.DOUBLE.typeLiteral);
         this.value = value;
     }
 
