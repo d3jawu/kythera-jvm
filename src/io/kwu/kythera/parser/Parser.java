@@ -9,20 +9,17 @@ import java.util.*;
 public final class Parser {
     private List<StatementNode> program;
 
-    private Scope rootScope;
     private Scope currentScope;
 
-    private InputStream inputStream;
     private Tokenizer tokenizer;
 
     public Parser(String input) {
         this.program = new ArrayList<StatementNode>();
 
-        this.rootScope = new Scope();
-        this.currentScope = this.rootScope;
+        this.currentScope = new Scope();
 
-        this.inputStream = new InputStream(input);
-        this.tokenizer = new Tokenizer(this.inputStream);
+        InputStream inputStream = new InputStream(input);
+        this.tokenizer = new Tokenizer(inputStream);
     }
 
     public List<StatementNode> parse() {
@@ -73,7 +70,7 @@ public final class Parser {
 
         while(
                 (canSplit && this.confirmToken(TokenType.OP) != null) || // can start binary
-                        (this.confirmToken("(", TokenType.PUNC) != null) || // can start call
+                        (this.confirmToken(Operator.OPEN_PAREN.symbol, TokenType.PUNC) != null) || // can start call
                         (this.confirmToken("as", TokenType.KW) != null) || // can make as
                         (this.confirmToken(".", TokenType.PUNC) != null) // can make dot access
 //                      || (canSplit && this.confirmToken("[", TokenType.PUNC) != null) // can make bracket access
@@ -86,7 +83,7 @@ public final class Parser {
                 exp = makeAs(exp);
             }
 
-            if(this.confirmToken("(", TokenType.PUNC) != null) {
+            if(this.confirmToken(Operator.OPEN_PAREN.symbol, TokenType.PUNC) != null) {
                 exp = makeCall(exp);
             }
 
@@ -194,19 +191,25 @@ public final class Parser {
 //            case STR:
 //                return new StrLiteralNode(nextToken.value);
             case VAR:
-                if(nextToken.value.equals("true")) {
-                    return BooleanLiteral.TRUE;
-                }
+                // insert built-in values
+                switch(nextToken.value) {
+                    case "true":
+                        return BooleanLiteral.TRUE;
+                    case "false":
+                        return BooleanLiteral.FALSE;
+                    case "unit":
+                        return UnitLiteral.UNIT;
+                    default:
+                        // try type literal
+                        TypeLiteralNode tl = BaseType.typeLiteralOf(nextToken.value);
 
-                if(nextToken.value.equals("false")) {
-                    return BooleanLiteral.FALSE;
+                        // otherwise, it's a normal identifier
+                        if(tl == null) {
+                            return new IdentifierNode(nextToken.value, this.currentScope.getTypeOf(nextToken.value));
+                        } else {
+                            return tl;
+                        }
                 }
-
-                if(nextToken.value.equals("unit")) {
-                    return UnitLiteral.UNIT;
-                }
-
-                return new IdentifierNode(nextToken.value, this.currentScope.getTypeOf(nextToken.value));
         }
 
         System.err.println("Unexpected token: " + nextToken.toString());
@@ -250,77 +253,30 @@ public final class Parser {
 
         SortedMap<String, ExpressionNode> parameters = new TreeMap<String, ExpressionNode>();
 
-        this.consumeToken("(", TokenType.PUNC);
+        this.consumeToken(Operator.OPEN_PAREN.symbol, TokenType.PUNC);
 
-        while(this.confirmToken(")", TokenType.PUNC) == null) {
+        while(this.confirmToken(Operator.CLOSE_PAREN.symbol, TokenType.PUNC) == null) {
             // type is an expression
             ExpressionNode paramType = this.parseExpression(true);
+
             String paramName = this.confirmToken(TokenType.STR).value;
+            this.consumeToken(TokenType.STR);
 
             parameters.put(paramName, paramType);
             this.currentScope.create(paramName, paramType);
 
-            if(this.confirmToken(")", TokenType.PUNC) == null) {
+            if(this.confirmToken(Operator.CLOSE_PAREN.symbol, TokenType.PUNC) == null) {
                 this.consumeToken(",", TokenType.PUNC);
             }
         }
 
-        this.consumeToken(")", TokenType.PUNC);
+        this.consumeToken(Operator.CLOSE_PAREN.symbol, TokenType.PUNC);
 
         BlockNode body = this.parseBlock();
 
         this.currentScope = this.currentScope.parent;
 
         return new FnLiteralNode(parameters, body, body.typeExp);
-    }
-
-    // parse a type, whether builtin or user defined
-    private ExpressionNode parseType() {
-        if(this.confirmToken("{", TokenType.PUNC) == null) {
-            // scalar or user-defined reference type
-
-            Token typeName = this.confirmToken(TokenType.VAR);
-
-            switch(typeName.value) {
-                case "int":
-                    return BaseType.INT.typeLiteral;
-                case "double":
-                    return BaseType.DOUBLE.typeLiteral;
-                case "bool":
-                    return BaseType.BOOL.typeLiteral;
-                case "unit":
-                    return BaseType.UNIT.typeLiteral;
-//                case "str":
-//                    return PrimitiveNodeType.STR;
-                default:
-                    // TODO something with variable node types?
-            }
-
-            return null;
-        } else {
-            HashMap<String, ExpressionNode> entries =  new HashMap<>();
-            // struct type
-            this.consumeToken("{", TokenType.PUNC);
-
-            // TODO maybe start new scope?
-
-            while(this.confirmToken("}", TokenType.PUNC) == null) {
-                ExpressionNode entryType = this.parseType();
-                String entryName = this.confirmToken(TokenType.STR).value;
-
-                // TODO this might not be right
-                if(entryType.equals(BaseType.TYPE.typeLiteral)) {
-                    System.err.println("Expected type value but got: " + entryType.typeExp.toString());
-                    System.exit(0);
-                }
-
-                entries.put(entryName, entryType);
-            }
-
-            this.consumeToken("}", TokenType.PUNC);
-
-            return new StructTypeLiteralNode(entries);
-        }
     }
 
     // literals beginning with '{' could be objects
@@ -340,7 +296,7 @@ public final class Parser {
         while(this.confirmToken("}", TokenType.PUNC) == null) {
             String entryKey = this.tokenizer.next().value;
 
-            this.consumeToken("=", TokenType.OP);
+            this.consumeToken(Operator.EQUALS.symbol, TokenType.OP);
 
             ExpressionNode entryValue = this.parseExpression(true);
 
@@ -399,14 +355,14 @@ public final class Parser {
     private ExpressionNode makeCall(ExpressionNode exp) {
         List<ExpressionNode> arguments = new ArrayList<>();
 
-        this.consumeToken("(", TokenType.PUNC);
+        this.consumeToken(Operator.OPEN_PAREN.symbol, TokenType.PUNC);
 
-        while(this.confirmToken(")") == null) {
+        while(this.confirmToken(Operator.CLOSE_PAREN.symbol) == null) {
             arguments.add(this.parseExpression(true));
             this.consumeToken(",", TokenType.PUNC);
         }
 
-        this.consumeToken(")", TokenType.PUNC);
+        this.consumeToken(Operator.CLOSE_PAREN.symbol, TokenType.PUNC);
 
         return new CallNode(exp, arguments);
     }
@@ -466,6 +422,7 @@ public final class Parser {
         } else {
             final Token nextVal = this.tokenizer.peek();
             System.err.println("Expecting " + type.toString() + " but got " + nextVal.tokentype.toString());
+            System.exit(1);
         }
     }
 
@@ -475,7 +432,7 @@ public final class Parser {
         } else {
             final Token nextVal = this.tokenizer.peek();
             System.err.println("Expecting "
-                    + type.toString() + " " + value
+                    + type.toString() + ": " + value
                     + " but got " + nextVal.tokentype.toString() + ": " + nextVal.value);
             System.exit(1);
         }

@@ -36,4 +36,14 @@ public enum BaseType {
         // all types have a base type literal for their primitive case, even non-scalar types
         this.typeLiteral = new TypeLiteralNode(this);
     }
+
+    public static TypeLiteralNode typeLiteralOf(String name) {
+        for(BaseType bt : values()) {
+            if(bt.name.equals(name)) {
+                return bt.typeLiteral;
+            }
+        }
+
+        return null;
+    }
 }

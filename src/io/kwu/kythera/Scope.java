@@ -39,13 +39,13 @@ public class Scope {
     /**
      * Initialize variable. Throws error if already declared
      */
-    public void create(String name, ExpressionNode type) {
+    public void create(String name, ExpressionNode typeExp) {
         if (this.symbols.containsKey(name)) {
             System.err.println(name + " is already bound in this scope.");
             System.exit(1);
         }
 
-        this.symbols.put(name, type);
+        this.symbols.put(name, typeExp);
     }
 
     /**
