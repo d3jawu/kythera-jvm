@@ -14,7 +14,7 @@ public class TypeLiteralNode extends LiteralNode {
 
     @Override
     public void print(int indent) {
-        Main.printlnWithIndent("TypeLiteralNode {" + baseType.name + "}", indent);
+        Main.printlnWithIndent("TypeLiteralNode { " + baseType.name + " }", indent);
     }
 
     // for type expressions, "equals" means "is type-compatible with"

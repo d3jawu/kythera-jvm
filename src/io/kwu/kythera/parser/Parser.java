@@ -14,7 +14,7 @@ public final class Parser {
     private Tokenizer tokenizer;
 
     public Parser(String input) {
-        this.program = new ArrayList<StatementNode>();
+        this.program = new ArrayList<>();
 
         this.currentScope = new Scope();
 
@@ -24,7 +24,7 @@ public final class Parser {
 
     public List<StatementNode> parse() {
         while (!this.tokenizer.eof()) {
-            loadStatement();
+            loadStatement(this.program);
         }
 
         return this.program;
@@ -41,14 +41,14 @@ public final class Parser {
 
                 Token identifierToken = this.confirmToken(TokenType.VAR);
                 if (identifierToken == null) {
-                    System.err.println("Expecting identifier token, got " + identifierToken.toString());
+                    System.err.println("Expecting identifier token, got " + this.tokenizer.peek());
                     System.exit(1);
                     return null;
                 }
 
                 this.consumeToken(TokenType.VAR);
 
-                this.consumeToken("=", TokenType.OP);
+                this.consumeToken(Operator.EQUALS.symbol, TokenType.OP);
 
                 ExpressionNode value = this.parseExpression(true);
 
@@ -101,6 +101,12 @@ public final class Parser {
         if (this.confirmToken(t) != null) {
             this.consumeToken(t);
             ExpressionNode contents = this.parseExpression(true);
+
+            if(this.confirmToken(TokenType.VAR) != null) {
+                // function declaration
+                return this.parseFnLiteral(contents);
+            }
+
             this.consumeToken(Operator.CLOSE_PAREN.symbol, TokenType.PUNC);
             return contents;
         }
@@ -109,11 +115,15 @@ public final class Parser {
         Token nextToken = this.tokenizer.peek();
 
         if (this.confirmToken(Operator.OPEN_BRACE.symbol, TokenType.PUNC) != null) {
+            // TODO could also be block
             return this.parseStructLiteral();
         }
 
         if (this.confirmToken(Operator.OPEN_BRACKET.symbol, TokenType.PUNC) != null) {
-            return this.parseFnLiteral();
+            // TODO parse list literal
+            System.err.println("Not yet implemented.");
+            System.exit(1);
+            return null;
         }
 
         if (this.confirmToken(Operator.BANG.symbol, TokenType.OP) != null) {
@@ -139,33 +149,31 @@ public final class Parser {
 
                     this.currentScope = this.currentScope.parent;
 
-                    IfNode result;
-
                     if (this.confirmToken(Keyword.ELSE.toString(), TokenType.KW) != null) {
-                        BlockNode ifElse;
+                        // else block present
+                        ExpressionNode ifElse;
 
-                        // else block
                         this.consumeToken(Keyword.ELSE.toString(), TokenType.KW);
 
                         if (this.confirmToken(Operator.OPEN_BRACE.symbol, TokenType.PUNC) != null) {
-                            // else only
+                            // else only, block follows
                             this.currentScope = new Scope(this.currentScope, null, Scope.ScopeType.CONTROL_FLOW);
                             ifElse = this.parseBlock();
                             this.currentScope = this.currentScope.parent;
+                        } else if(this.confirmToken(Keyword.IF.toString(), TokenType.KW) != null){
+                            // else-if, if follows
+                            ifElse = this.parseExpression(true);
                         } else {
-                            // else-if
-                            this.consumeToken(Keyword.IF.toString(), TokenType.KW);
-                            ifElse = this.parseBlock();
-                            // TODO this is wrong
+                            System.err.println(this.tokenizer.peek().toString() + " is not valid after 'else'.");
+                            System.exit(1);
+                            return null;
                         }
 
-                        result = new IfNode(ifCondition, ifBody, ifElse);
+                        return new IfNode(ifCondition, ifBody, ifElse);
                     } else {
                         // no else block
-                        result = new IfNode(ifCondition, ifBody);
+                        return new IfNode(ifCondition, ifBody);
                     }
-
-                    return result;
                 case WHILE:
                     ExpressionNode whileCondition = this.parseExpression(true);
 
@@ -218,15 +226,13 @@ public final class Parser {
         return null;
     }
 
-    // TODO isn't the whole program a block? Why aren't we representing the top level program as a block?
-    // as a consequence of this, there may be some duplication with the top-level parse function
     private BlockNode parseBlock() {
         List<StatementNode> body = new ArrayList<>();
 
         consumeToken("{", TokenType.PUNC);
 
         while(this.confirmToken("}", TokenType.PUNC) == null) {
-            loadStatement();
+            loadStatement(body);
         }
 
         consumeToken("}", TokenType.PUNC);
@@ -234,36 +240,44 @@ public final class Parser {
         return new BlockNode(body);
     }
 
-    private void loadStatement() {
+    private void loadStatement(List<StatementNode> statements) {
         StatementNode st = this.parseStatement();
         if(st == null) {
             System.err.println("Statement evaluation failed.");
             System.exit(1);
         }
-        this.program.add(st);
+        statements.add(st);
         if(this.confirmToken(";", TokenType.PUNC) == null) {
-            System.err.println("Missing semicolon.");
+            System.err.println("Expected semicolon but got " + this.tokenizer.peek());
             System.exit(1);
         }
         this.consumeToken(";", TokenType.PUNC);
     }
 
-    private FnLiteralNode parseFnLiteral() {
-        this.currentScope = new Scope(this.currentScope, null, Scope.ScopeType.FUNCTION);
+    private FnLiteralNode parseFnLiteral(ExpressionNode firstTypeExpression) {
+        // because of the way functions are read in, the parser has already consumed the first type expression and can just pass it in here.
 
+        boolean firstRun = true;
         SortedMap<String, ExpressionNode> parameters = new TreeMap<String, ExpressionNode>();
 
-        this.consumeToken(Operator.OPEN_PAREN.symbol, TokenType.PUNC);
+        this.currentScope = new Scope(this.currentScope, null, Scope.ScopeType.FUNCTION);
+
+        // opening parentheses and first type expression have already been consumed
 
         while(this.confirmToken(Operator.CLOSE_PAREN.symbol, TokenType.PUNC) == null) {
-            // type is an expression
-            ExpressionNode paramType = this.parseExpression(true);
+            ExpressionNode paramTypeExp;
+            if(firstRun) {
+                paramTypeExp = firstTypeExpression;
+                firstRun = false;
+            } else {
+                paramTypeExp = this.parseExpression(true);
+            }
 
-            String paramName = this.confirmToken(TokenType.STR).value;
-            this.consumeToken(TokenType.STR);
+            String paramName = this.confirmToken(TokenType.VAR).value;
+            this.consumeToken(TokenType.VAR);
 
-            parameters.put(paramName, paramType);
-            this.currentScope.create(paramName, paramType);
+            parameters.put(paramName, paramTypeExp);
+            this.currentScope.create(paramName, paramTypeExp);
 
             if(this.confirmToken(Operator.CLOSE_PAREN.symbol, TokenType.PUNC) == null) {
                 this.consumeToken(",", TokenType.PUNC);
@@ -276,7 +290,7 @@ public final class Parser {
 
         this.currentScope = this.currentScope.parent;
 
-        return new FnLiteralNode(parameters, body, body.typeExp);
+        return new FnLiteralNode(parameters, body);
     }
 
     // literals beginning with '{' could be objects
@@ -296,7 +310,7 @@ public final class Parser {
         while(this.confirmToken("}", TokenType.PUNC) == null) {
             String entryKey = this.tokenizer.next().value;
 
-            this.consumeToken(Operator.EQUALS.symbol, TokenType.OP);
+            this.consumeToken(":", TokenType.PUNC);
 
             ExpressionNode entryValue = this.parseExpression(true);
 
@@ -373,6 +387,10 @@ public final class Parser {
         String memberName = this.tokenizer.next().value;
 
         return new DotAccessNode(exp, memberName);
+    }
+
+    private ExpressionNode makeBracketAccess(ExpressionNode exp) {
+        return null;
     }
 
     // TODO making this a separate function may be redundant if it is always followed by a call to consumeToken

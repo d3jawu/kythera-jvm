@@ -7,13 +7,17 @@ import java.util.stream.Collectors;
 
 public class BlockNode extends ExpressionNode {
     public final List<StatementNode> body;
-    public ExpressionNode returnTypeExp;
 
     public BlockNode(List<StatementNode> body) {
         super(NodeKind.BLOCK); // type to be set later
         this.body = body;
 
-        List<StatementNode> returns = body
+        if(body.size() <= 0) {
+            System.err.println("Block cannot have empty body. To return nothing, use `unit`.");
+            System.exit(1);
+        }
+
+        List<StatementNode> returnStatements = body
             .stream()
             .filter(
                 node -> node.kind == NodeKind.RETURN
@@ -22,40 +26,51 @@ public class BlockNode extends ExpressionNode {
 
         StatementNode lastNode = body.get(body.size() - 1);
 
-        if(!(lastNode instanceof ExpressionNode)) {
-            System.err.println("Last statement in block must be an expression.");
+        if(lastNode.kind != NodeKind.RETURN && !(lastNode instanceof ExpressionNode)) {
+            System.err.println("Last statement in block must be a return or expression.");
             System.exit(1);
         }
 
-        if (lastNode.kind != NodeKind.RETURN) {
-            returns.add(lastNode); // if no return, block evaluates to last expression value
-        }
-
         // check all return statements for type equivalence
+        typeExp = null; // for BlockNodes, typeExp is the return type
+        for (StatementNode st : returnStatements) {
+            if(st.kind == NodeKind.RETURN) {
+                ReturnNode ret = (ReturnNode) st;
 
-        returnTypeExp = null;
-        for (StatementNode st : returns) {
-            ReturnNode ret = (ReturnNode) st;
-
-            if(returnTypeExp == null) {
-                returnTypeExp = ret.exp.typeExp;
-            } else if (!ret.exp.typeExp.equals(returnTypeExp)) {
-                System.err.println("Type mismatch: Block returned " + returnTypeExp.typeExp.toString() + " but later also returned " + ret.exp.typeExp.toString());
-                System.exit(1);
+                if(typeExp == null) {
+                    typeExp = ret.exp.typeExp;
+                } else if (!ret.exp.typeExp.equals(typeExp)) {
+                    System.err.println("Type mismatch: Block returned " + ret.exp.typeExp.toString() + " but later also returned " + ret.exp.typeExp.toString());
+                    System.exit(1);
+                }
             }
         }
 
-        this.typeExp = returnTypeExp;
+        if(typeExp == null) {
+            // if no return statements, use last expression as value
+            this.typeExp = ((ExpressionNode)lastNode).typeExp;
+        } else {
+            // check last expression against return types
+            if(lastNode instanceof ExpressionNode) {
+                if(((ExpressionNode) lastNode).typeExp.equals(typeExp)) {
+                    System.err.println("Type mismatch between last expression and return type.");
+                    System.exit(1);
+                }
+            }
+        }
     }
 
     @Override
     public void print(int indent) {
         Main.printlnWithIndent("BlockNode {", indent);
-        Main.printlnWithIndent("\tBody:", indent);
+        Main.printlnWithIndent("\tbody:", indent);
 
         for(StatementNode st : this.body) {
-            st.print(indent + 1);
+            st.print(indent + 2);
         }
+
+        Main.printlnWithIndent("\treturn type exp:", indent);
+        typeExp.print(indent + 2);
 
         Main.printlnWithIndent("} BlockNode", indent);
     }
