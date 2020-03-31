@@ -35,7 +35,6 @@ public final class Parser {
 
         // let and return are the only non-expression nodes
         if (nextToken.tokentype == TokenType.KW) {
-
             if (nextToken.value.equals(Keyword.LET.toString())) {
                 this.consumeToken(nextToken);
 
@@ -58,6 +57,8 @@ public final class Parser {
             }
 
             if (nextToken.value.equals(Keyword.RETURN.toString())) {
+                this.consumeToken(Keyword.RETURN.toString(), TokenType.KW);
+
                 return new ReturnNode(this.parseExpression(true));
             }
         }
@@ -367,13 +368,18 @@ public final class Parser {
     }
 
     private ExpressionNode makeCall(ExpressionNode exp) {
+        System.out.println("Making call");
         List<ExpressionNode> arguments = new ArrayList<>();
 
         this.consumeToken(Operator.OPEN_PAREN.symbol, TokenType.PUNC);
 
         while(this.confirmToken(Operator.CLOSE_PAREN.symbol) == null) {
             arguments.add(this.parseExpression(true));
-            this.consumeToken(",", TokenType.PUNC);
+
+            // allow last comma to be missing
+            if(this.confirmToken(Operator.CLOSE_PAREN.symbol) == null) {
+                this.consumeToken(",", TokenType.PUNC);
+            }
         }
 
         this.consumeToken(Operator.CLOSE_PAREN.symbol, TokenType.PUNC);
