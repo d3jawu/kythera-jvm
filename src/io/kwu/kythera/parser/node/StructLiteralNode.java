@@ -1,5 +1,6 @@
 package io.kwu.kythera.parser.node;
 
+import java.io.PrintStream;
 import java.util.HashMap;
 
 public class StructLiteralNode extends LiteralNode {
@@ -12,7 +13,7 @@ public class StructLiteralNode extends LiteralNode {
     }
 
     @Override
-    public void print(int indent) {
+    public void print(int indent, PrintStream stream) {
 
     }
 }

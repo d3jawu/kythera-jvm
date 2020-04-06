@@ -2,6 +2,8 @@ package io.kwu.kythera.parser.node;
 
 import io.kwu.kythera.Main;
 
+import java.io.PrintStream;
+
 /**
  * Node for access by dot, e.g.
  * myObject.fieldName
@@ -24,11 +26,11 @@ public class DotAccessNode extends ExpressionNode {
     }
 
     @Override
-    public void print(int indent) {
-        Main.printlnWithIndent("DotAccessNode {", indent);
-        Main.printlnWithIndent("\ttarget:", indent);
-        target.print(indent + 1);
-        Main.printlnWithIndent("\tkey: " + key, indent);
-        Main.printlnWithIndent("} DotAccessNode", indent);
+    public void print(int indent, PrintStream stream) {
+        Main.printlnWithIndent("DotAccessNode {", indent, stream);
+        Main.printlnWithIndent("\ttarget:", indent, stream);
+        target.print(indent + 1, stream);
+        Main.printlnWithIndent("\tkey: " + key, indent, stream);
+        Main.printlnWithIndent("} DotAccessNode", indent, stream);
     }
 }

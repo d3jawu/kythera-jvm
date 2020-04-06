@@ -3,7 +3,9 @@ package io.kwu.kythera.parser.node;
 import io.kwu.kythera.Main;
 import io.kwu.kythera.parser.tokenizer.Operator;
 
-import static io.kwu.kythera.parser.tokenizer.Operator.*;
+import java.io.PrintStream;
+
+import static io.kwu.kythera.parser.tokenizer.Operator.OperatorKind;
 
 /**
  * Node for any assignment symbol
@@ -27,17 +29,22 @@ public class AssignNode extends ExpressionNode {
 
         this.left = left;
         this.right = right;
+
+        if (!left.typeExp.equals(right.typeExp)) {
+            System.err.println("Left and right types do not match.");
+            System.exit(1);
+        }
     }
 
     @Override
-    public void print(int indent) {
-        Main.printlnWithIndent("AssignNode {", indent);
+    public void print(int indent, PrintStream stream) {
+        Main.printlnWithIndent("AssignNode {", indent, stream);
 
-        Main.printlnWithIndent("\tleft:", indent);
-        left.print(indent + 1);
-        Main.printlnWithIndent("\tleft:", indent);
-        right.print(indent + 1);
+        Main.printlnWithIndent("\tleft:", indent, stream);
+        left.print(indent + 2, stream);
+        Main.printlnWithIndent("\tright:", indent, stream);
+        right.print(indent + 2, stream);
 
-        Main.printlnWithIndent("} AssignNode", indent);
+        Main.printlnWithIndent("} AssignNode", indent, stream);
     }
 }

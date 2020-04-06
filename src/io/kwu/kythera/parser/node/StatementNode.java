@@ -1,5 +1,7 @@
 package io.kwu.kythera.parser.node;
 
+import java.io.PrintStream;
+
 /**
  * All nodes extend StatementNode. Statements do not evaluate to a value, so they have no type.
  * Most StatementNodes extend ExpressionNode. Exceptions include "let" and "return".
@@ -12,5 +14,5 @@ public abstract class StatementNode {
         this.kind = kind;
     }
 
-    public abstract void print(int indent);
+    public abstract void print(int indent, PrintStream stream);
 }

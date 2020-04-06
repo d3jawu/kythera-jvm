@@ -3,6 +3,8 @@ package io.kwu.kythera.parser.node;
 import io.kwu.kythera.Main;
 import io.kwu.kythera.parser.BaseType;
 
+import java.io.PrintStream;
+
 public class BooleanLiteral {
     // since there are only two boolean values we just pre-generate their nodes and just reuse them
 
@@ -14,7 +16,7 @@ public class BooleanLiteral {
         FALSE = new BooleanLiteralNode(false);
     }
 
-    private static class BooleanLiteralNode extends LiteralNode{
+    private static class BooleanLiteralNode extends LiteralNode {
         public final boolean value;
 
         private BooleanLiteralNode(boolean value) {
@@ -24,8 +26,8 @@ public class BooleanLiteral {
         }
 
         @Override
-        public void print(int indent) {
-            Main.printlnWithIndent("BooleanLiteralNode { " + this.value + " }", indent);
+        public void print(int indent, PrintStream stream) {
+            Main.printlnWithIndent("BooleanLiteralNode { " + this.value + " }", indent, stream);
         }
     }
 }

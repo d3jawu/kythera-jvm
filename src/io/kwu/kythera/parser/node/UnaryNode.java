@@ -3,6 +3,8 @@ package io.kwu.kythera.parser.node;
 import io.kwu.kythera.Main;
 import io.kwu.kythera.parser.tokenizer.Operator;
 
+import java.io.PrintStream;
+
 public class UnaryNode extends ExpressionNode {
     public final Operator operator;
     public final ExpressionNode target;
@@ -20,11 +22,11 @@ public class UnaryNode extends ExpressionNode {
     }
 
     @Override
-    public void print(int indent) {
-        Main.printlnWithIndent("UnaryNode {", indent);
-        Main.printlnWithIndent("\top: " + operator.symbol, indent);
-        Main.printlnWithIndent("\ttarget", indent);
-        target.print(indent + 1);
-        Main.printlnWithIndent("} UnaryNode", indent);
+    public void print(int indent, PrintStream stream) {
+        Main.printlnWithIndent("UnaryNode {", indent, stream);
+        Main.printlnWithIndent("\top: " + operator.symbol, indent, stream);
+        Main.printlnWithIndent("\ttarget", indent, stream);
+        target.print(indent + 1, stream);
+        Main.printlnWithIndent("} UnaryNode", indent, stream);
     }
 }

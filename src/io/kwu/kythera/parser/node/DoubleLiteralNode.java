@@ -3,6 +3,8 @@ package io.kwu.kythera.parser.node;
 import io.kwu.kythera.Main;
 import io.kwu.kythera.parser.BaseType;
 
+import java.io.PrintStream;
+
 public class DoubleLiteralNode extends LiteralNode {
     public final double value;
 
@@ -12,7 +14,7 @@ public class DoubleLiteralNode extends LiteralNode {
     }
 
     @Override
-    public void print(int indent) {
-        Main.printlnWithIndent("DoubleLiteralNode { " + value + " }", indent);
+    public void print(int indent, PrintStream stream) {
+        Main.printlnWithIndent("DoubleLiteralNode { " + value + " }", indent, stream);
     }
 }

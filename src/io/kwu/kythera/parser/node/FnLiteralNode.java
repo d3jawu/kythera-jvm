@@ -2,6 +2,7 @@ package io.kwu.kythera.parser.node;
 
 import io.kwu.kythera.Main;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.SortedMap;
@@ -18,24 +19,24 @@ public class FnLiteralNode extends LiteralNode {
     }
 
     @Override
-    public void print(int indent) {
-        Main.printlnWithIndent("FnLiteralNode {", indent);
-        Main.printlnWithIndent("\tparameters:", indent);
+    public void print(int indent, PrintStream stream) {
+        Main.printlnWithIndent("FnLiteralNode {", indent, stream);
+        Main.printlnWithIndent("\tparameters:", indent, stream);
 
         int n = 0;
 
-        for(Map.Entry<String, ExpressionNode> entry : parameters.entrySet()) {
-            Main.printlnWithIndent("\t\tparam " + n + ": " + entry.getKey(), indent);
-            Main.printlnWithIndent("\t\ttype exp:", indent);
-            entry.getValue().print(indent + 3);
+        for (Map.Entry<String, ExpressionNode> entry : parameters.entrySet()) {
+            Main.printlnWithIndent("\t\tparam " + n + ": " + entry.getKey(), indent, stream);
+            Main.printlnWithIndent("\t\ttype exp:", indent, stream);
+            entry.getValue().print(indent + 3, stream);
 
             n += 1;
         }
 
-        Main.printlnWithIndent("\tbody:", indent);
+        Main.printlnWithIndent("\tbody:", indent, stream);
 
-        body.print(indent + 2);
+        body.print(indent + 2, stream);
 
-        Main.printlnWithIndent("} FnLiteralNode", indent);
+        Main.printlnWithIndent("} FnLiteralNode", indent, stream);
     }
 }

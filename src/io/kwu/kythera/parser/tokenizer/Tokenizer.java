@@ -160,8 +160,8 @@ public final class Tokenizer {
     }
 
     private static boolean isKeyword(String word) {
-        for(Keyword kw : Keyword.values()) {
-            if(kw.name().toLowerCase().equals(word)) {
+        for (Keyword kw : Keyword.values()) {
+            if (kw.name().toLowerCase().equals(word)) {
                 return true;
             }
         }

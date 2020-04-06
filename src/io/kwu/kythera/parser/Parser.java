@@ -69,14 +69,14 @@ public final class Parser {
     private ExpressionNode parseExpression(boolean canSplit) {
         ExpressionNode exp = parseExpressionAtom();
 
-        while(
-                (canSplit && this.confirmToken(TokenType.OP) != null) || // can start binary
-                        (this.confirmToken(Operator.OPEN_PAREN.symbol, TokenType.PUNC) != null) || // can start call
-                        (this.confirmToken("as", TokenType.KW) != null) || // can make as
-                        (this.confirmToken(".", TokenType.PUNC) != null) // can make dot access
+        while (
+            (canSplit && this.confirmToken(TokenType.OP) != null) || // can start binary
+                (this.confirmToken(Operator.OPEN_PAREN.symbol, TokenType.PUNC) != null) || // can start call
+                (this.confirmToken("as", TokenType.KW) != null) || // can make as
+                (this.confirmToken(".", TokenType.PUNC) != null) // can make dot access
 //                      || (canSplit && this.confirmToken("[", TokenType.PUNC) != null) // can make bracket access
         ) {
-            if(canSplit && this.confirmToken(TokenType.OP) != null) {
+            if (canSplit && this.confirmToken(TokenType.OP) != null) {
                 exp = makeBinary(exp, 0);
             }
 
@@ -84,11 +84,11 @@ public final class Parser {
                 exp = makeAs(exp);
             }
 
-            if(this.confirmToken(Operator.OPEN_PAREN.symbol, TokenType.PUNC) != null) {
+            if (this.confirmToken(Operator.OPEN_PAREN.symbol, TokenType.PUNC) != null) {
                 exp = makeCall(exp);
             }
 
-            if(this.confirmToken(".", TokenType.PUNC) != null) {
+            if (this.confirmToken(".", TokenType.PUNC) != null) {
                 exp = makeDotAccess(exp);
             }
         }
@@ -103,7 +103,7 @@ public final class Parser {
             this.consumeToken(t);
             ExpressionNode contents = this.parseExpression(true);
 
-            if(this.confirmToken(TokenType.VAR) != null) {
+            if (this.confirmToken(TokenType.VAR) != null) {
                 // function declaration
                 return this.parseFnLiteral(contents);
             }
@@ -144,7 +144,7 @@ public final class Parser {
                 case IF:
                     ExpressionNode ifCondition = this.parseExpression(true);
 
-                    this.currentScope = new Scope(this.currentScope, null, Scope.ScopeType.CONTROL_FLOW);
+                    this.currentScope = new Scope(this.currentScope, Scope.ScopeType.CONTROL_FLOW, null);
 
                     BlockNode ifBody = this.parseBlock();
 
@@ -158,10 +158,10 @@ public final class Parser {
 
                         if (this.confirmToken(Operator.OPEN_BRACE.symbol, TokenType.PUNC) != null) {
                             // else only, block follows
-                            this.currentScope = new Scope(this.currentScope, null, Scope.ScopeType.CONTROL_FLOW);
+                            this.currentScope = new Scope(this.currentScope, Scope.ScopeType.CONTROL_FLOW, null);
                             ifElse = this.parseBlock();
                             this.currentScope = this.currentScope.parent;
-                        } else if(this.confirmToken(Keyword.IF.toString(), TokenType.KW) != null){
+                        } else if (this.confirmToken(Keyword.IF.toString(), TokenType.KW) != null) {
                             // else-if, if follows
                             ifElse = this.parseExpression(true);
                         } else {
@@ -178,7 +178,7 @@ public final class Parser {
                 case WHILE:
                     ExpressionNode whileCondition = this.parseExpression(true);
 
-                    this.currentScope = new Scope(this.currentScope, null, Scope.ScopeType.CONTROL_FLOW);
+                    this.currentScope = new Scope(this.currentScope, Scope.ScopeType.CONTROL_FLOW, null);
                     BlockNode whileBody = this.parseBlock();
                     this.currentScope = this.currentScope.parent;
 
@@ -201,7 +201,7 @@ public final class Parser {
 //                return new StrLiteralNode(nextToken.value);
             case VAR:
                 // insert built-in values
-                switch(nextToken.value) {
+                switch (nextToken.value) {
                     case "true":
                         return BooleanLiteral.TRUE;
                     case "false":
@@ -213,7 +213,7 @@ public final class Parser {
                         TypeLiteralNode tl = BaseType.typeLiteralOf(nextToken.value);
 
                         // otherwise, it's a normal identifier
-                        if(tl == null) {
+                        if (tl == null) {
                             return new IdentifierNode(nextToken.value, this.currentScope.getTypeOf(nextToken.value));
                         } else {
                             return tl;
@@ -232,7 +232,7 @@ public final class Parser {
 
         consumeToken("{", TokenType.PUNC);
 
-        while(this.confirmToken("}", TokenType.PUNC) == null) {
+        while (this.confirmToken("}", TokenType.PUNC) == null) {
             loadStatement(body);
         }
 
@@ -243,12 +243,12 @@ public final class Parser {
 
     private void loadStatement(List<StatementNode> statements) {
         StatementNode st = this.parseStatement();
-        if(st == null) {
+        if (st == null) {
             System.err.println("Statement evaluation failed.");
             System.exit(1);
         }
         statements.add(st);
-        if(this.confirmToken(";", TokenType.PUNC) == null) {
+        if (this.confirmToken(";", TokenType.PUNC) == null) {
             System.err.println("Expected semicolon but got " + this.tokenizer.peek());
             System.exit(1);
         }
@@ -261,13 +261,13 @@ public final class Parser {
         boolean firstRun = true;
         SortedMap<String, ExpressionNode> parameters = new TreeMap<String, ExpressionNode>();
 
-        this.currentScope = new Scope(this.currentScope, null, Scope.ScopeType.FUNCTION);
+        this.currentScope = new Scope(this.currentScope, Scope.ScopeType.FUNCTION, null);
 
         // opening parentheses and first type expression have already been consumed
 
-        while(this.confirmToken(Operator.CLOSE_PAREN.symbol, TokenType.PUNC) == null) {
+        while (this.confirmToken(Operator.CLOSE_PAREN.symbol, TokenType.PUNC) == null) {
             ExpressionNode paramTypeExp;
-            if(firstRun) {
+            if (firstRun) {
                 paramTypeExp = firstTypeExpression;
                 firstRun = false;
             } else {
@@ -280,7 +280,7 @@ public final class Parser {
             parameters.put(paramName, paramTypeExp);
             this.currentScope.create(paramName, paramTypeExp);
 
-            if(this.confirmToken(Operator.CLOSE_PAREN.symbol, TokenType.PUNC) == null) {
+            if (this.confirmToken(Operator.CLOSE_PAREN.symbol, TokenType.PUNC) == null) {
                 this.consumeToken(",", TokenType.PUNC);
             }
         }
@@ -306,9 +306,9 @@ public final class Parser {
         HashMap<String, ExpressionNode> typeContents = structType.entries;
         HashMap<String, ExpressionNode> resultContents = structResult.values;
 
-        this.currentScope = new Scope(this.currentScope, structType, Scope.ScopeType.FUNCTION);
+        this.currentScope = new Scope(this.currentScope, Scope.ScopeType.FUNCTION, structType);
 
-        while(this.confirmToken("}", TokenType.PUNC) == null) {
+        while (this.confirmToken("}", TokenType.PUNC) == null) {
             String entryKey = this.tokenizer.next().value;
 
             this.consumeToken(":", TokenType.PUNC);
@@ -373,11 +373,11 @@ public final class Parser {
 
         this.consumeToken(Operator.OPEN_PAREN.symbol, TokenType.PUNC);
 
-        while(this.confirmToken(Operator.CLOSE_PAREN.symbol) == null) {
+        while (this.confirmToken(Operator.CLOSE_PAREN.symbol) == null) {
             arguments.add(this.parseExpression(true));
 
             // allow last comma to be missing
-            if(this.confirmToken(Operator.CLOSE_PAREN.symbol) == null) {
+            if (this.confirmToken(Operator.CLOSE_PAREN.symbol) == null) {
                 this.consumeToken(",", TokenType.PUNC);
             }
         }
@@ -441,7 +441,7 @@ public final class Parser {
 
     // consume token without checking value
     private void consumeToken(TokenType type) {
-        if(this.confirmToken(type) != null) {
+        if (this.confirmToken(type) != null) {
             this.tokenizer.next();
         } else {
             final Token nextVal = this.tokenizer.peek();
@@ -456,8 +456,8 @@ public final class Parser {
         } else {
             final Token nextVal = this.tokenizer.peek();
             System.err.println("Expecting "
-                    + type.toString() + ": " + value
-                    + " but got " + nextVal.tokentype.toString() + ": " + nextVal.value);
+                + type.toString() + ": " + value
+                + " but got " + nextVal.tokentype.toString() + ": " + nextVal.value);
             System.exit(1);
         }
     }

@@ -61,8 +61,8 @@ public enum Operator {
     }
 
     public static Operator symbolOf(String symbol) {
-        for(Operator o : values()) {
-            if(o.symbol.equals(symbol)) {
+        for (Operator o : values()) {
+            if (o.symbol.equals(symbol)) {
                 return o;
             }
         }

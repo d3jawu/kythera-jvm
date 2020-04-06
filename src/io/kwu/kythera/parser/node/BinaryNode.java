@@ -3,7 +3,9 @@ package io.kwu.kythera.parser.node;
 import io.kwu.kythera.Main;
 import io.kwu.kythera.parser.tokenizer.Operator;
 
-import static io.kwu.kythera.parser.tokenizer.Operator.*;
+import java.io.PrintStream;
+
+import static io.kwu.kythera.parser.tokenizer.Operator.OperatorKind;
 
 public final class BinaryNode extends ExpressionNode {
     public final Operator op;
@@ -24,12 +26,12 @@ public final class BinaryNode extends ExpressionNode {
 
         // type comparison is simply (typeof LHS).equals(typeof RHS)
         // where typeof is Kythera's typeof implementation, not Java's
-        if(! left.typeExp.equals(right.typeExp)) {
+        if (!left.typeExp.equals(right.typeExp)) {
             System.err.println("LHS and RHS types do not match.");
             System.err.println("left:");
-            left.typeExp.print(0);
+            left.typeExp.print(0, System.err);
             System.err.println("right:");
-            right.typeExp.print(0);
+            right.typeExp.print(0, System.err);
             System.exit(1);
         }
 
@@ -37,13 +39,13 @@ public final class BinaryNode extends ExpressionNode {
     }
 
     @Override
-    public void print(int indent) {
-        Main.printlnWithIndent("BinaryNode {", indent);
-        Main.printlnWithIndent("\top: " + op.symbol, indent);
-        Main.printlnWithIndent("\tleft:", indent);
-        left.print(indent + 1);
-        Main.printlnWithIndent("\tright:", indent);
-        right.print(indent + 1);
-        Main.printlnWithIndent("} BinaryNode", indent);
+    public void print(int indent, PrintStream stream) {
+        Main.printlnWithIndent("BinaryNode {", indent, stream);
+        Main.printlnWithIndent("\top: " + op.symbol, indent, stream);
+        Main.printlnWithIndent("\tleft:", indent, stream);
+        left.print(indent + 1, stream);
+        Main.printlnWithIndent("\tright:", indent, stream);
+        right.print(indent + 1, stream);
+        Main.printlnWithIndent("} BinaryNode", indent, stream);
     }
 }

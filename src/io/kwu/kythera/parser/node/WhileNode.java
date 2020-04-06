@@ -3,6 +3,8 @@ package io.kwu.kythera.parser.node;
 import io.kwu.kythera.Main;
 import io.kwu.kythera.parser.BaseType;
 
+import java.io.PrintStream;
+
 public class WhileNode extends ExpressionNode {
     public final ExpressionNode condition;
     public final BlockNode body;
@@ -22,12 +24,12 @@ public class WhileNode extends ExpressionNode {
     }
 
     @Override
-    public void print(int indent) {
-        Main.printlnWithIndent("WhileNode {", indent);
-        Main.printlnWithIndent("\t condition:", indent);
-        condition.print(indent + 2);
-        Main.printlnWithIndent("\tbody:", indent);
-        body.print(indent + 2);
-        Main.printlnWithIndent("} WhileNode", indent);
+    public void print(int indent, PrintStream stream) {
+        Main.printlnWithIndent("WhileNode {", indent, stream);
+        Main.printlnWithIndent("\t condition:", indent, stream);
+        condition.print(indent + 2, stream);
+        Main.printlnWithIndent("\tbody:", indent, stream);
+        body.print(indent + 2, stream);
+        Main.printlnWithIndent("} WhileNode", indent, stream);
     }
 }

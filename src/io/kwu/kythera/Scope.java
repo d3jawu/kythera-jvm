@@ -25,8 +25,7 @@ public class Scope {
     }
 
     // child scope
-    // TODO refactor this so scopeType comes before thisType and thisType is optional
-    public Scope(Scope parent, ExpressionNode thisType, ScopeType scopeType) {
+    public Scope(Scope parent, ScopeType scopeType, ExpressionNode thisType) {
         this.parent = parent;
 
         if (thisType != null) {

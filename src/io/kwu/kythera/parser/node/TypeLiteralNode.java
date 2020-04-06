@@ -3,6 +3,8 @@ package io.kwu.kythera.parser.node;
 import io.kwu.kythera.Main;
 import io.kwu.kythera.parser.BaseType;
 
+import java.io.PrintStream;
+
 public class TypeLiteralNode extends LiteralNode {
     public final BaseType baseType;
 
@@ -13,15 +15,15 @@ public class TypeLiteralNode extends LiteralNode {
     }
 
     @Override
-    public void print(int indent) {
-        Main.printlnWithIndent("TypeLiteralNode { " + baseType.name + " }", indent);
+    public void print(int indent, PrintStream stream) {
+        Main.printlnWithIndent("TypeLiteralNode { " + baseType.name + " }", indent, stream);
     }
 
-    // for type expressions, "equals" means "is type-compatible with"
-    // TODO this might not be commutative for non-scalar types
+    // for type values, equals means an *exact* match
+    // remember, values in Kythera must be cast to exactly the type they are to be used as (?)
     @Override
     public boolean equals(Object o) {
-        if(!(o instanceof TypeLiteralNode)) {
+        if (!(o instanceof TypeLiteralNode)) {
             return false;
         }
 

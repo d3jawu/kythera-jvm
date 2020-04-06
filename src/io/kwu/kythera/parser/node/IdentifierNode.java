@@ -2,6 +2,8 @@ package io.kwu.kythera.parser.node;
 
 import io.kwu.kythera.Main;
 
+import java.io.PrintStream;
+
 public class IdentifierNode extends ExpressionNode {
     public final String name;
 
@@ -12,7 +14,7 @@ public class IdentifierNode extends ExpressionNode {
     }
 
     @Override
-    public void print(int indent) {
-        Main.printlnWithIndent("IdentifierNode { name: " + name + " }", indent);
+    public void print(int indent, PrintStream stream) {
+        Main.printlnWithIndent("IdentifierNode { name: " + name + " }", indent, stream);
     }
 }

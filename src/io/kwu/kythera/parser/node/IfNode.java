@@ -3,6 +3,8 @@ package io.kwu.kythera.parser.node;
 import io.kwu.kythera.Main;
 import io.kwu.kythera.parser.BaseType;
 
+import java.io.PrintStream;
+
 public class IfNode extends ExpressionNode {
     public final ExpressionNode condition;
     public final BlockNode body;
@@ -27,7 +29,7 @@ public class IfNode extends ExpressionNode {
         super(NodeKind.IF);
 
         // else body can be either an if or a block
-        if(!(elseBody instanceof IfNode) && !(elseBody instanceof BlockNode)) {
+        if (!(elseBody instanceof IfNode) && !(elseBody instanceof BlockNode)) {
             System.err.println("'else' must be followed by either a block or an if statement.");
             System.exit(1);
         }
@@ -39,10 +41,10 @@ public class IfNode extends ExpressionNode {
 
         // make sure both blocks have matching return types
         if (!body.typeExp.equals(elseBody.typeExp)) {
-            System.out.println("Type mismatch: 'if' block has type ");
-            body.typeExp.print(0);
-            System.out.println(" but 'else' block has type ");
-            elseBody.typeExp.print(0);
+            System.err.println("Type mismatch: 'if' block has type ");
+            body.typeExp.print(0, System.err);
+            System.err.println(" but 'else' block has type ");
+            elseBody.typeExp.print(0, System.err);
             System.exit(1);
         }
 
@@ -54,18 +56,18 @@ public class IfNode extends ExpressionNode {
     }
 
     @Override
-    public void print(int indent) {
-        Main.printlnWithIndent("IfNode {", indent);
-        Main.printlnWithIndent("\tcondition:", indent);
-        condition.print(indent + 2);
-        Main.printlnWithIndent("\tbody:", indent);
-        body.print(indent + 2);
+    public void print(int indent, PrintStream stream) {
+        Main.printlnWithIndent("IfNode {", indent, stream);
+        Main.printlnWithIndent("\tcondition:", indent, stream);
+        condition.print(indent + 2, stream);
+        Main.printlnWithIndent("\tbody:", indent, stream);
+        body.print(indent + 2, stream);
 
-        if(this.elseBody != null) {
-            Main.printlnWithIndent("\telse body:", indent);
-            elseBody.print(indent + 2);
+        if (this.elseBody != null) {
+            Main.printlnWithIndent("\telse body:", indent, stream);
+            elseBody.print(indent + 2, stream);
         }
 
-        Main.printlnWithIndent("} IfNode", indent);
+        Main.printlnWithIndent("} IfNode", indent, stream);
     }
 }

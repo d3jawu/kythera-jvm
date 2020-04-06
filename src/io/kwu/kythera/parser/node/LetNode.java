@@ -2,6 +2,8 @@ package io.kwu.kythera.parser.node;
 
 import io.kwu.kythera.Main;
 
+import java.io.PrintStream;
+
 public class LetNode extends StatementNode {
     public final String identifier;
     public final ExpressionNode value;
@@ -14,14 +16,14 @@ public class LetNode extends StatementNode {
     }
 
     @Override
-    public void print(int indent) {
-        Main.printlnWithIndent("LetNode {", indent);
+    public void print(int indent, PrintStream stream) {
+        Main.printlnWithIndent("LetNode {", indent, stream);
 
-        Main.printlnWithIndent("\tidentifier: " + identifier, indent);
-        Main.printlnWithIndent("\tvalue:", indent);
+        Main.printlnWithIndent("\tidentifier: " + identifier, indent, stream);
+        Main.printlnWithIndent("\tvalue:", indent, stream);
 
-        value.print(indent + 1);
+        value.print(indent + 1, stream);
 
-        Main.printlnWithIndent("} LetNode", indent);
+        Main.printlnWithIndent("} LetNode", indent, stream);
     }
 }

@@ -10,15 +10,15 @@ import io.kwu.kythera.parser.node.TypeLiteralNode;
 public enum BaseType {
     UNIT("unit", true),
     BOOL("bool", true),
-//    BYTE("byte", true),
+    //    BYTE("byte", true),
 //    SHORT("short", true),
     INT("int", true),
-//    LONG("long", true),
+    //    LONG("long", true),
 //    FLOAT("float", true),
     DOUBLE("double", true),
     CHAR("char", true),
     STRUCT("struct", false),
-//    TUPLE("tuple", false),
+    //    TUPLE("tuple", false),
 //    MAP("map", false),
 //    LIST("list", false),
 //    STR("str", false),
@@ -38,8 +38,8 @@ public enum BaseType {
     }
 
     public static TypeLiteralNode typeLiteralOf(String name) {
-        for(BaseType bt : values()) {
-            if(bt.name.equals(name)) {
+        for (BaseType bt : values()) {
+            if (bt.name.equals(name)) {
                 return bt.typeLiteral;
             }
         }

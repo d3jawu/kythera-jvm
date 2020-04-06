@@ -3,6 +3,7 @@ package io.kwu.kythera.parser.node;
 import io.kwu.kythera.Main;
 import io.kwu.kythera.parser.BaseType;
 
+import java.io.PrintStream;
 import java.util.List;
 
 public class CallNode extends ExpressionNode {
@@ -22,21 +23,21 @@ public class CallNode extends ExpressionNode {
     }
 
     @Override
-    public void print(int indent) {
-        Main.printlnWithIndent("CallNode {", indent);
-        Main.printlnWithIndent("\ttarget:", indent);
-        target.print(indent + 2);
-        Main.printlnWithIndent("\targuments:", indent);
+    public void print(int indent, PrintStream stream) {
+        Main.printlnWithIndent("CallNode {", indent, stream);
+        Main.printlnWithIndent("\ttarget:", indent, stream);
+        target.print(indent + 2, stream);
+        Main.printlnWithIndent("\targuments:", indent, stream);
 
         int n = 0;
 
-        for(ExpressionNode ex : arguments) {
-            Main.printlnWithIndent("\t\targ " + n + ":", indent);
-            ex.print(indent + 3);
+        for (ExpressionNode ex : arguments) {
+            Main.printlnWithIndent("\t\targ " + n + ":", indent, stream);
+            ex.print(indent + 3, stream);
 
             n += 1;
         }
 
-        Main.printlnWithIndent("} CallNode", indent);
+        Main.printlnWithIndent("} CallNode", indent, stream);
     }
 }

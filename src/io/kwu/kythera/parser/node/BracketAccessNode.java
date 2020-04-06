@@ -1,6 +1,6 @@
 package io.kwu.kythera.parser.node;
 
-import io.kwu.kythera.Main;
+import java.io.PrintStream;
 
 /**
  * Access of compound type with brackets, e.g.
@@ -20,6 +20,6 @@ public class BracketAccessNode extends ExpressionNode {
     }
 
     @Override
-    public void print(int indent) {
+    public void print(int indent, PrintStream stream) {
     }
 }
