@@ -104,7 +104,7 @@ public final class Parser {
             ExpressionNode contents = this.parseExpression(true);
 
             if (this.confirmToken(TokenType.VAR) != null) {
-                // function declaration
+                // if the next token is a var value, it's the beginning of a fn literal
                 return this.parseFnLiteral(contents);
             }
 
@@ -116,8 +116,7 @@ public final class Parser {
         Token nextToken = this.tokenizer.peek();
 
         if (this.confirmToken(Operator.OPEN_BRACE.symbol, TokenType.PUNC) != null) {
-            // TODO could also be block
-            return this.parseStructLiteral();
+            // TODO distinguish between struct literal, struct type literal, and block
         }
 
         if (this.confirmToken(Operator.OPEN_BRACKET.symbol, TokenType.PUNC) != null) {
@@ -227,10 +226,14 @@ public final class Parser {
         return null;
     }
 
-    private BlockNode parseBlock() {
+    // sometimes parseBlock will be called with the first statement already parsed
+    private BlockNode parseBlock(StatementNode firstStatement) {
         List<StatementNode> body = new ArrayList<>();
 
-        consumeToken("{", TokenType.PUNC);
+        body.add(firstStatement);
+
+        // TODO optional semi
+        this.consumeToken(";", TokenType.PUNC);
 
         while (this.confirmToken("}", TokenType.PUNC) == null) {
             loadStatement(body);
@@ -239,6 +242,14 @@ public final class Parser {
         consumeToken("}", TokenType.PUNC);
 
         return new BlockNode(body);
+    }
+
+    private BlockNode parseBlock() {
+        consumeToken("{", TokenType.PUNC);
+
+        StatementNode firstStatement = this.parseStatement();
+
+        return parseBlock(firstStatement);
     }
 
     private void loadStatement(List<StatementNode> statements) {
@@ -294,22 +305,26 @@ public final class Parser {
         return new FnLiteralNode(parameters, body);
     }
 
-    // literals beginning with '{' could be objects
-    // TODO or maps
-    // TODO they could also be blocks... how do we distinguish that?
-    private StructLiteralNode parseStructLiteral() {
-        this.consumeToken("{", TokenType.PUNC);
-
+    // sometimes parseStructLiteral is called with the first identifier already consumed
+    private StructLiteralNode parseStructLiteral(String firstIdentifier) {
         StructTypeLiteralNode structType = new StructTypeLiteralNode();
         StructLiteralNode structResult = new StructLiteralNode(structType);
 
         HashMap<String, ExpressionNode> typeContents = structType.entries;
-        HashMap<String, ExpressionNode> resultContents = structResult.values;
+        HashMap<String, ExpressionNode> resultContents = structResult.entries;
 
         this.currentScope = new Scope(this.currentScope, Scope.ScopeType.FUNCTION, structType);
 
+        boolean firstRun = true;
+
         while (this.confirmToken("}", TokenType.PUNC) == null) {
-            String entryKey = this.tokenizer.next().value;
+            String entryKey;
+            if(firstRun) {
+                entryKey = firstIdentifier;
+                firstRun = false;
+            } else {
+                entryKey = this.tokenizer.next().value;
+            }
 
             this.consumeToken(":", TokenType.PUNC);
 
@@ -326,6 +341,54 @@ public final class Parser {
         this.currentScope = this.currentScope.parent;
 
         return structResult;
+    }
+
+    private StructLiteralNode parseStructLiteral() {
+        this.consumeToken("{", TokenType.PUNC);
+
+        Token t = this.tokenizer.next();
+
+        if(t.tokentype != TokenType.VAR) {
+            System.err.println("Expecting identifier for struct literal but got " + t.toString());
+            System.exit(1);
+        }
+
+        return this.parseStructLiteral(t.value);
+    }
+
+    private StructTypeLiteralNode parseStructTypeLiteral(ExpressionNode firstTypeExp) {
+        StructTypeLiteralNode structType = new StructTypeLiteralNode();
+
+        HashMap<String, ExpressionNode> entries = structType.entries;
+
+        boolean firstRun = true;
+
+        while(this.confirmToken("}", TokenType.PUNC) != null) {
+            ExpressionNode typeExp;
+            if(firstRun) {
+                typeExp = firstTypeExp;
+                firstRun = false;
+            } else {
+                typeExp = this.parseExpression(true);
+            }
+            String entryKey = this.tokenizer.next().value;
+
+            this.consumeToken(",", TokenType.PUNC);
+
+            entries.put(entryKey, typeExp);
+        }
+
+        this.consumeToken("}", TokenType.PUNC);
+
+        return structType;
+    }
+
+    private StructTypeLiteralNode parseStructTypeLiteral() {
+        this.consumeToken("{", TokenType.PUNC);
+
+        ExpressionNode firstTypeExp = this.parseExpression(true);
+
+        return this.parseStructTypeLiteral(firstTypeExp);
     }
 
     private ExpressionNode makeBinary(ExpressionNode left, int currentPrecedence) {
@@ -429,17 +492,14 @@ public final class Parser {
         return confirmToken(token.value, token.tokentype);
     }
 
-    // TODO verify value matches without checking type
     private Token confirmToken(String value) {
         return confirmToken(value, null);
     }
 
-    // TODO verify token matches type without checking value
     private Token confirmToken(TokenType type) {
         return confirmToken(null, type);
     }
 
-    // consume token without checking value
     private void consumeToken(TokenType type) {
         if (this.confirmToken(type) != null) {
             this.tokenizer.next();
