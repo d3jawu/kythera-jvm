@@ -169,6 +169,65 @@ public final class Tokenizer {
         return false;
     }
 
+    // alias for confirm(Token t)
+    public Token confirm(String value, TokenType type) {
+        return this.confirm(new Token(value, type));
+    }
+
+    public Token confirm(Token t) {
+        if (this.eof()) {
+            return null;
+        }
+
+        final Token next = this.peek();
+
+        if (t.equals(next)) {
+            return next;
+        } else {
+            return null;
+        }
+    }
+
+    public Token confirm(TokenType tt) {
+        if (this.eof()) {
+            return null;
+        }
+
+        final Token next = this.peek();
+
+        if(next.tokentype != tt) {
+            return null;
+        }
+
+        return next;
+    }
+
+    // alias for consume(Token t)
+    public void consume(String value, TokenType type) {
+        this.consume(new Token(value, type));
+    }
+
+    // combines confirm + next
+    public void consume(Token t) {
+        if (this.confirm(t) != null) {
+            this.next();
+        } else {
+            final Token next = this.peek();
+            System.err.println("Expecting " + t.toString() + " but got " + next.toString());
+            System.exit(1);
+        }
+    }
+
+    public void consume(TokenType tt) {
+        if (this.confirm(tt) != null) {
+            this.next();
+        } else {
+            final Token next = this.peek();
+            System.err.println("Expecting " + tt.toString() + " but got " + next.tokentype.toString());
+            System.exit(1);
+        }
+    }
+
     private static boolean isDigit(char c) {
         return ("" + c).matches("[0-9]");
     }
@@ -188,6 +247,8 @@ public final class Tokenizer {
     private static boolean isPunc(char c) {
         return ",;(){}[]:.".indexOf(c) >= 0;
     }
+
+    // TODO static punc literals
 
     private static boolean isWhitespace(char c) {
         return " \t\n".indexOf(c) >= 0;

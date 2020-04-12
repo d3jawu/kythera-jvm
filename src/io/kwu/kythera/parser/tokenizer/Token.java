@@ -13,4 +13,15 @@ public final class Token {
     public String toString() {
         return tokentype.name() + ": " + value;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if(!(o instanceof Token)) {
+            return false;
+        }
+
+        Token t = (Token) o;
+
+        return this.tokentype == t.tokentype && this.value.equals(t.value);
+    }
 }

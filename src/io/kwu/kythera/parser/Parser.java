@@ -36,18 +36,18 @@ public final class Parser {
         // let and return are the only non-expression nodes
         if (nextToken.tokentype == TokenType.KW) {
             if (nextToken.value.equals(Keyword.LET.toString())) {
-                this.consumeToken(nextToken);
+                this.tokenizer.consume(nextToken);
 
-                Token identifierToken = this.confirmToken(TokenType.VAR);
+                Token identifierToken = this.tokenizer.confirm(TokenType.VAR);
                 if (identifierToken == null) {
                     System.err.println("Expecting identifier token, got " + this.tokenizer.peek());
                     System.exit(1);
                     return null;
                 }
 
-                this.consumeToken(TokenType.VAR);
+                this.tokenizer.consume(TokenType.VAR);
 
-                this.consumeToken(Operator.EQUALS.symbol, TokenType.OP);
+                this.tokenizer.consume(Operator.EQUALS.symbol, TokenType.OP);
 
                 ExpressionNode value = this.parseExpression(true);
 
@@ -57,7 +57,7 @@ public final class Parser {
             }
 
             if (nextToken.value.equals(Keyword.RETURN.toString())) {
-                this.consumeToken(Keyword.RETURN.toString(), TokenType.KW);
+                this.tokenizer.consume(Keyword.RETURN.toString(), TokenType.KW);
 
                 return new ReturnNode(this.parseExpression(true));
             }
@@ -70,25 +70,25 @@ public final class Parser {
         ExpressionNode exp = parseExpressionAtom();
 
         while (
-            (canSplit && this.confirmToken(TokenType.OP) != null) || // can start binary
-                (this.confirmToken(Operator.OPEN_PAREN.symbol, TokenType.PUNC) != null) || // can start call
-                (this.confirmToken("as", TokenType.KW) != null) || // can make as
-                (this.confirmToken(".", TokenType.PUNC) != null) // can make dot access
-//                      || (canSplit && this.confirmToken("[", TokenType.PUNC) != null) // can make bracket access
+            (canSplit && this.tokenizer.confirm(TokenType.OP) != null) || // can start binary
+                (this.tokenizer.confirm(Operator.OPEN_PAREN.symbol, TokenType.PUNC) != null) || // can start call
+                (this.tokenizer.confirm("as", TokenType.KW) != null) || // can make as
+                (this.tokenizer.confirm(".", TokenType.PUNC) != null) // can make dot access
+//                      || (canSplit && this.tokenizer.confirm("[", TokenType.PUNC) != null) // can make bracket access
         ) {
-            if (canSplit && this.confirmToken(TokenType.OP) != null) {
+            if (canSplit && this.tokenizer.confirm(TokenType.OP) != null) {
                 exp = makeBinary(exp, 0);
             }
 
-            if (this.confirmToken("as", TokenType.KW) != null) {
+            if (this.tokenizer.confirm("as", TokenType.KW) != null) {
                 exp = makeAs(exp);
             }
 
-            if (this.confirmToken(Operator.OPEN_PAREN.symbol, TokenType.PUNC) != null) {
+            if (this.tokenizer.confirm(Operator.OPEN_PAREN.symbol, TokenType.PUNC) != null) {
                 exp = makeCall(exp);
             }
 
-            if (this.confirmToken(".", TokenType.PUNC) != null) {
+            if (this.tokenizer.confirm(".", TokenType.PUNC) != null) {
                 exp = makeDotAccess(exp);
             }
         }
@@ -99,43 +99,43 @@ public final class Parser {
     private ExpressionNode parseExpressionAtom() {
         Token t;
         t = new Token(Operator.OPEN_PAREN.symbol, TokenType.PUNC);
-        if (this.confirmToken(t) != null) {
-            this.consumeToken(t);
+        if (this.tokenizer.confirm(t) != null) {
+            this.tokenizer.consume(t);
             ExpressionNode contents = this.parseExpression(true);
 
-            if (this.confirmToken(TokenType.VAR) != null) {
+            if (this.tokenizer.confirm(TokenType.VAR) != null) {
                 // if the next token is a var value, it's the beginning of a fn literal
                 return this.parseFnLiteral(contents);
             }
 
-            this.consumeToken(Operator.CLOSE_PAREN.symbol, TokenType.PUNC);
+            this.tokenizer.consume(Operator.CLOSE_PAREN.symbol, TokenType.PUNC);
             return contents;
         }
 
         // hang on to this for later
         Token nextToken = this.tokenizer.peek();
 
-        if (this.confirmToken(Operator.OPEN_BRACE.symbol, TokenType.PUNC) != null) {
+        if (this.tokenizer.confirm(Operator.OPEN_BRACE.symbol, TokenType.PUNC) != null) {
             // TODO distinguish between struct literal, struct type literal, and block
         }
 
-        if (this.confirmToken(Operator.OPEN_BRACKET.symbol, TokenType.PUNC) != null) {
+        if (this.tokenizer.confirm(Operator.OPEN_BRACKET.symbol, TokenType.PUNC) != null) {
             // TODO parse list literal
             System.err.println("Not yet implemented.");
             System.exit(1);
             return null;
         }
 
-        if (this.confirmToken(Operator.BANG.symbol, TokenType.OP) != null) {
-            this.consumeToken(Operator.BANG.symbol, TokenType.OP);
+        if (this.tokenizer.confirm(Operator.BANG.symbol, TokenType.OP) != null) {
+            this.tokenizer.consume(Operator.BANG.symbol, TokenType.OP);
             return new UnaryNode(Operator.BANG, this.parseExpression(false));
         }
 
         // in Kythera-JS type literals were read in at this point; in the JVM implementation
         // they are inserted with the runtime and not part of the parser
 
-        if (this.confirmToken(null, TokenType.KW) != null) {
-            this.consumeToken(nextToken);
+        if (this.tokenizer.confirm(null, TokenType.KW) != null) {
+            this.tokenizer.consume(nextToken);
 
             switch (Keyword.valueOf(nextToken.value.toUpperCase())) {
                 case TYPEOF:
@@ -149,18 +149,18 @@ public final class Parser {
 
                     this.currentScope = this.currentScope.parent;
 
-                    if (this.confirmToken(Keyword.ELSE.toString(), TokenType.KW) != null) {
+                    if (this.tokenizer.confirm(Keyword.ELSE.toString(), TokenType.KW) != null) {
                         // else block present
                         ExpressionNode ifElse;
 
-                        this.consumeToken(Keyword.ELSE.toString(), TokenType.KW);
+                        this.tokenizer.consume(Keyword.ELSE.toString(), TokenType.KW);
 
-                        if (this.confirmToken(Operator.OPEN_BRACE.symbol, TokenType.PUNC) != null) {
+                        if (this.tokenizer.confirm(Operator.OPEN_BRACE.symbol, TokenType.PUNC) != null) {
                             // else only, block follows
                             this.currentScope = new Scope(this.currentScope, Scope.ScopeType.CONTROL_FLOW, null);
                             ifElse = this.parseBlock();
                             this.currentScope = this.currentScope.parent;
-                        } else if (this.confirmToken(Keyword.IF.toString(), TokenType.KW) != null) {
+                        } else if (this.tokenizer.confirm(Keyword.IF.toString(), TokenType.KW) != null) {
                             // else-if, if follows
                             ifElse = this.parseExpression(true);
                         } else {
@@ -233,19 +233,19 @@ public final class Parser {
         body.add(firstStatement);
 
         // TODO optional semi
-        this.consumeToken(";", TokenType.PUNC);
+        this.tokenizer.consume(";", TokenType.PUNC);
 
-        while (this.confirmToken("}", TokenType.PUNC) == null) {
+        while (this.tokenizer.confirm("}", TokenType.PUNC) == null) {
             loadStatement(body);
         }
 
-        consumeToken("}", TokenType.PUNC);
+        this.tokenizer.consume("}", TokenType.PUNC);
 
         return new BlockNode(body);
     }
 
     private BlockNode parseBlock() {
-        consumeToken("{", TokenType.PUNC);
+        this.tokenizer.consume("{", TokenType.PUNC);
 
         StatementNode firstStatement = this.parseStatement();
 
@@ -259,11 +259,11 @@ public final class Parser {
             System.exit(1);
         }
         statements.add(st);
-        if (this.confirmToken(";", TokenType.PUNC) == null) {
+        if (this.tokenizer.confirm(";", TokenType.PUNC) == null) {
             System.err.println("Expected semicolon but got " + this.tokenizer.peek());
             System.exit(1);
         }
-        this.consumeToken(";", TokenType.PUNC);
+        this.tokenizer.consume(";", TokenType.PUNC);
     }
 
     private FnLiteralNode parseFnLiteral(ExpressionNode firstTypeExpression) {
@@ -276,7 +276,7 @@ public final class Parser {
 
         // opening parentheses and first type expression have already been consumed
 
-        while (this.confirmToken(Operator.CLOSE_PAREN.symbol, TokenType.PUNC) == null) {
+        while (this.tokenizer.confirm(Operator.CLOSE_PAREN.symbol, TokenType.PUNC) == null) {
             ExpressionNode paramTypeExp;
             if (firstRun) {
                 paramTypeExp = firstTypeExpression;
@@ -285,18 +285,18 @@ public final class Parser {
                 paramTypeExp = this.parseExpression(true);
             }
 
-            String paramName = this.confirmToken(TokenType.VAR).value;
-            this.consumeToken(TokenType.VAR);
+            String paramName = this.tokenizer.confirm(TokenType.VAR).value;
+            this.tokenizer.consume(TokenType.VAR);
 
             parameters.put(paramName, paramTypeExp);
             this.currentScope.create(paramName, paramTypeExp);
 
-            if (this.confirmToken(Operator.CLOSE_PAREN.symbol, TokenType.PUNC) == null) {
-                this.consumeToken(",", TokenType.PUNC);
+            if (this.tokenizer.confirm(Operator.CLOSE_PAREN.symbol, TokenType.PUNC) == null) {
+                this.tokenizer.consume(",", TokenType.PUNC);
             }
         }
 
-        this.consumeToken(Operator.CLOSE_PAREN.symbol, TokenType.PUNC);
+        this.tokenizer.consume(Operator.CLOSE_PAREN.symbol, TokenType.PUNC);
 
         BlockNode body = this.parseBlock();
 
@@ -317,7 +317,7 @@ public final class Parser {
 
         boolean firstRun = true;
 
-        while (this.confirmToken("}", TokenType.PUNC) == null) {
+        while (this.tokenizer.confirm("}", TokenType.PUNC) == null) {
             String entryKey;
             if(firstRun) {
                 entryKey = firstIdentifier;
@@ -326,17 +326,17 @@ public final class Parser {
                 entryKey = this.tokenizer.next().value;
             }
 
-            this.consumeToken(":", TokenType.PUNC);
+            this.tokenizer.consume(":", TokenType.PUNC);
 
             ExpressionNode entryValue = this.parseExpression(true);
 
-            this.consumeToken(",", TokenType.PUNC);
+            this.tokenizer.consume(",", TokenType.PUNC);
 
             typeContents.put(entryKey, entryValue.typeExp);
             resultContents.put(entryKey, entryValue);
         }
 
-        this.consumeToken("}", TokenType.PUNC);
+        this.tokenizer.consume("}", TokenType.PUNC);
 
         this.currentScope = this.currentScope.parent;
 
@@ -344,7 +344,7 @@ public final class Parser {
     }
 
     private StructLiteralNode parseStructLiteral() {
-        this.consumeToken("{", TokenType.PUNC);
+        this.tokenizer.consume("{", TokenType.PUNC);
 
         Token t = this.tokenizer.next();
 
@@ -363,7 +363,7 @@ public final class Parser {
 
         boolean firstRun = true;
 
-        while(this.confirmToken("}", TokenType.PUNC) != null) {
+        while(this.tokenizer.confirm("}", TokenType.PUNC) != null) {
             ExpressionNode typeExp;
             if(firstRun) {
                 typeExp = firstTypeExp;
@@ -373,18 +373,18 @@ public final class Parser {
             }
             String entryKey = this.tokenizer.next().value;
 
-            this.consumeToken(",", TokenType.PUNC);
+            this.tokenizer.consume(",", TokenType.PUNC);
 
             entries.put(entryKey, typeExp);
         }
 
-        this.consumeToken("}", TokenType.PUNC);
+        this.tokenizer.consume("}", TokenType.PUNC);
 
         return structType;
     }
 
     private StructTypeLiteralNode parseStructTypeLiteral() {
-        this.consumeToken("{", TokenType.PUNC);
+        this.tokenizer.consume("{", TokenType.PUNC);
 
         ExpressionNode firstTypeExp = this.parseExpression(true);
 
@@ -392,7 +392,7 @@ public final class Parser {
     }
 
     private ExpressionNode makeBinary(ExpressionNode left, int currentPrecedence) {
-        Token token = this.confirmToken(TokenType.OP);
+        Token token = this.tokenizer.confirm(TokenType.OP);
         if (token != null) {
             Operator op = Operator.symbolOf(token.value);
             int nextPrecedence = op.precedence;
@@ -425,7 +425,7 @@ public final class Parser {
     }
 
     private ExpressionNode makeAs(ExpressionNode exp) {
-        this.consumeToken("as", TokenType.KW);
+        this.tokenizer.consume("as", TokenType.KW);
 
         return new AsNode(exp, this.parseExpression(true));
     }
@@ -434,24 +434,24 @@ public final class Parser {
         System.out.println("Making call");
         List<ExpressionNode> arguments = new ArrayList<>();
 
-        this.consumeToken(Operator.OPEN_PAREN.symbol, TokenType.PUNC);
+        this.tokenizer.consume(Operator.OPEN_PAREN.symbol, TokenType.PUNC);
 
-        while (this.confirmToken(Operator.CLOSE_PAREN.symbol) == null) {
+        while (this.tokenizer.confirm(Operator.CLOSE_PAREN.symbol, TokenType.PUNC) == null) {
             arguments.add(this.parseExpression(true));
 
             // allow last comma to be missing
-            if (this.confirmToken(Operator.CLOSE_PAREN.symbol) == null) {
-                this.consumeToken(",", TokenType.PUNC);
+            if (this.tokenizer.confirm(Operator.CLOSE_PAREN.symbol, TokenType.PUNC) == null) {
+                this.tokenizer.consume(",", TokenType.PUNC);
             }
         }
 
-        this.consumeToken(Operator.CLOSE_PAREN.symbol, TokenType.PUNC);
+        this.tokenizer.consume(Operator.CLOSE_PAREN.symbol, TokenType.PUNC);
 
         return new CallNode(exp, arguments);
     }
 
     private ExpressionNode makeDotAccess(ExpressionNode exp) {
-        this.consumeToken(".", TokenType.PUNC);
+        this.tokenizer.consume(".", TokenType.PUNC);
 
         String memberName = this.tokenizer.next().value;
 
@@ -462,67 +462,4 @@ public final class Parser {
         return null;
     }
 
-    // TODO making this a separate function may be redundant if it is always followed by a call to consumeToken
-    // TODO make this call with this signature redundant and remove it
-
-    /**
-     * @param value Contents of the token. Pass null to confirm only type.
-     * @param type  Token type. Pass null to confirm only value.
-     * @return Next token if value and/or type match, null otherwise
-     */
-    private Token confirmToken(String value, TokenType type) {
-        if (this.tokenizer.eof()) {
-            return null;
-        }
-
-        final Token token = this.tokenizer.peek();
-
-        if (type != null && token.tokentype != type) {
-            return null;
-        }
-
-        if (value != null && !token.value.equals(value)) {
-            return null;
-        }
-
-        return token;
-    }
-
-    private Token confirmToken(Token token) {
-        return confirmToken(token.value, token.tokentype);
-    }
-
-    private Token confirmToken(String value) {
-        return confirmToken(value, null);
-    }
-
-    private Token confirmToken(TokenType type) {
-        return confirmToken(null, type);
-    }
-
-    private void consumeToken(TokenType type) {
-        if (this.confirmToken(type) != null) {
-            this.tokenizer.next();
-        } else {
-            final Token nextVal = this.tokenizer.peek();
-            System.err.println("Expecting " + type.toString() + " but got " + nextVal.tokentype.toString());
-            System.exit(1);
-        }
-    }
-
-    private void consumeToken(String value, TokenType type) {
-        if (this.confirmToken(value, type) != null) {
-            this.tokenizer.next();
-        } else {
-            final Token nextVal = this.tokenizer.peek();
-            System.err.println("Expecting "
-                + type.toString() + ": " + value
-                + " but got " + nextVal.tokentype.toString() + ": " + nextVal.value);
-            System.exit(1);
-        }
-    }
-
-    private void consumeToken(Token token) {
-        consumeToken(token.value, token.tokentype);
-    }
 }
