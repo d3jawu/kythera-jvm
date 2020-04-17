@@ -1,26 +1,26 @@
 package io.kwu.kythera.parser.node;
 
 import io.kwu.kythera.Main;
-import io.kwu.kythera.parser.tokenizer.Operator;
+import io.kwu.kythera.parser.tokenizer.Symbol;
 
 import java.io.PrintStream;
 
-import static io.kwu.kythera.parser.tokenizer.Operator.OperatorKind;
+import static io.kwu.kythera.parser.tokenizer.Symbol.SymbolKind;
 
 /**
  * Node for any assignment symbol
  */
 public class AssignNode extends ExpressionNode {
-    public final Operator op;
+    public final Symbol op;
     public final ExpressionNode left;
     public final ExpressionNode right;
 
-    public AssignNode(Operator op, ExpressionNode left, ExpressionNode right) {
+    public AssignNode(Symbol op, ExpressionNode left, ExpressionNode right) {
         super(NodeKind.ASSIGN, right.typeExp);
 
         // TODO ensure that left node is a valid identifier or object member
 
-        if (op.kind != OperatorKind.ASSIGN) {
+        if (op.kind != SymbolKind.ASSIGN) {
             System.err.println("Invalid operator: '" + op.symbol + "' is not a valid assignment operator.");
             System.exit(1);
         }

@@ -240,15 +240,18 @@ public final class Tokenizer {
         return isIdentStart(c) || "_0123456789".indexOf(c) >= 0;
     }
 
+    // the tokenizer treats ops and puncs differently
+    // in the parser ops and puncs are treated the same, as Symbols
+
+    // from the tokenizer's perspective ops are symbols that may be followed by other symbols, e.g. '+='
     private static boolean isOp(char c) {
         return "+-*/%=&|<>!~".indexOf(c) >= 0;
     }
 
+    // from the tokenizer's perspective puncs are symbols that only appear alone
     private static boolean isPunc(char c) {
         return ",;(){}[]:.".indexOf(c) >= 0;
     }
-
-    // TODO static punc literals
 
     private static boolean isWhitespace(char c) {
         return " \t\n".indexOf(c) >= 0;

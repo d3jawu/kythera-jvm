@@ -1,21 +1,21 @@
 package io.kwu.kythera.parser.node;
 
 import io.kwu.kythera.Main;
-import io.kwu.kythera.parser.tokenizer.Operator;
+import io.kwu.kythera.parser.tokenizer.Symbol;
 
 import java.io.PrintStream;
 
-import static io.kwu.kythera.parser.tokenizer.Operator.OperatorKind;
+import static io.kwu.kythera.parser.tokenizer.Symbol.SymbolKind;
 
 public final class BinaryNode extends ExpressionNode {
-    public final Operator op;
+    public final Symbol op;
     public final ExpressionNode left;
     public final ExpressionNode right;
 
-    public BinaryNode(Operator op, ExpressionNode left, ExpressionNode right) {
+    public BinaryNode(Symbol op, ExpressionNode left, ExpressionNode right) {
         super(NodeKind.BINARY);
 
-        if (!(op.kind == OperatorKind.ARITHMETIC || op.kind == OperatorKind.LOGICAL || op.kind == OperatorKind.COMPARE)) {
+        if (!(op.kind == SymbolKind.ARITHMETIC || op.kind == SymbolKind.LOGICAL || op.kind == SymbolKind.COMPARE)) {
             System.err.println("Invalid operator: " + op.symbol + " cannot be used in a binary expression.");
             System.exit(1);
         }

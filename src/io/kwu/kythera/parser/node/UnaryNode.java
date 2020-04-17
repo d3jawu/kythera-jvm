@@ -1,19 +1,19 @@
 package io.kwu.kythera.parser.node;
 
 import io.kwu.kythera.Main;
-import io.kwu.kythera.parser.tokenizer.Operator;
+import io.kwu.kythera.parser.tokenizer.Symbol;
 
 import java.io.PrintStream;
 
 public class UnaryNode extends ExpressionNode {
-    public final Operator operator;
+    public final Symbol operator;
     public final ExpressionNode target;
 
-    public UnaryNode(Operator op, ExpressionNode target) {
+    public UnaryNode(Symbol op, ExpressionNode target) {
         // TODO look up op in symbol table for target
         super(NodeKind.UNARY, target.typeExp);
 
-        if (op != Operator.BANG) {
+        if (op != Symbol.BANG) {
             System.err.println("Invalid operator: " + op.symbol + " cannot be used as a unary operator.");
         }
 
