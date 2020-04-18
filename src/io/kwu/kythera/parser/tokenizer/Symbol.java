@@ -6,63 +6,65 @@ package io.kwu.kythera.parser.tokenizer;
  */
 public enum Symbol {
     // assignments, see here: https://introcs.cs.princeton.edu/java/11precedence/
-    EQUALS("=", 1, SymbolKind.ASSIGN),
-    PLUS_EQUALS("+=", 1, SymbolKind.ASSIGN),
-    MINUS_EQUALS("-=", 1, SymbolKind.ASSIGN),
-    TIMES_EQUALS("*=", 1, SymbolKind.ASSIGN),
-    DIV_EQUALS("/=", 1, SymbolKind.ASSIGN),
-    MOD_EQUALS("%=", 1, SymbolKind.ASSIGN),
+    EQUALS("=", 1, SymbolKind.ASSIGN, TokenType.OP),
+    PLUS_EQUALS("+=", 1, SymbolKind.ASSIGN, TokenType.OP),
+    MINUS_EQUALS("-=", 1, SymbolKind.ASSIGN, TokenType.OP),
+    TIMES_EQUALS("*=", 1, SymbolKind.ASSIGN, TokenType.OP),
+    DIV_EQUALS("/=", 1, SymbolKind.ASSIGN, TokenType.OP),
+    MOD_EQUALS("%=", 1, SymbolKind.ASSIGN, TokenType.OP),
 
     // boolean logical
-    OR_LOGICAL("||", 3, SymbolKind.LOGICAL),
-    AND_LOGICAL("&&", 4, SymbolKind.LOGICAL),
+    OR_LOGICAL("||", 3, SymbolKind.LOGICAL, TokenType.OP),
+    AND_LOGICAL("&&", 4, SymbolKind.LOGICAL, TokenType.OP),
 
     // TODO bitwise boolean operators
 
     // comparison
-    EQUIV("==", 8, SymbolKind.COMPARE),
-    DEEP_EQUIV("===", 8, SymbolKind.COMPARE),
-    NOT_EQUIV("!=", 8, SymbolKind.COMPARE),
-    DEEP_NOT_EQUIV("!==", 8, SymbolKind.COMPARE),
+    EQUIV("==", 8, SymbolKind.COMPARE, TokenType.OP),
+    DEEP_EQUIV("===", 8, SymbolKind.COMPARE, TokenType.OP),
+    NOT_EQUIV("!=", 8, SymbolKind.COMPARE, TokenType.OP),
+    DEEP_NOT_EQUIV("!==", 8, SymbolKind.COMPARE, TokenType.OP),
 
-    LESS_THAN("<", 9, SymbolKind.COMPARE),
-    GREATER_THAN(">", 9, SymbolKind.COMPARE),
-    LESS_EQUIV("<=", 9, SymbolKind.COMPARE),
-    GREATER_EQUIV(">=", 9, SymbolKind.COMPARE),
+    LESS_THAN("<", 9, SymbolKind.COMPARE, TokenType.OP),
+    GREATER_THAN(">", 9, SymbolKind.COMPARE, TokenType.OP),
+    LESS_EQUIV("<=", 9, SymbolKind.COMPARE, TokenType.OP),
+    GREATER_EQUIV(">=", 9, SymbolKind.COMPARE, TokenType.OP),
 
     // arithmetic
-    PLUS("+", 11, SymbolKind.ARITHMETIC),
-    MINUS("-", 11, SymbolKind.ARITHMETIC),
+    PLUS("+", 11, SymbolKind.ARITHMETIC, TokenType.OP),
+    MINUS("-", 11, SymbolKind.ARITHMETIC, TokenType.OP),
 
-    TIMES("*", 12, SymbolKind.ARITHMETIC),
-    DIVIDE("/", 12, SymbolKind.ARITHMETIC),
-    MODULUS("%", 12, SymbolKind.ARITHMETIC),
+    TIMES("*", 12, SymbolKind.ARITHMETIC, TokenType.OP),
+    DIVIDE("/", 12, SymbolKind.ARITHMETIC, TokenType.OP),
+    MODULUS("%", 12, SymbolKind.ARITHMETIC, TokenType.OP),
 
-    BANG("!", 14, SymbolKind.LOGICAL),
+    BANG("!", 14, SymbolKind.LOGICAL, TokenType.OP),
 
     // access
-    DOT(".", 16, SymbolKind.ACCESS),
-    OPEN_PAREN("(", 16, SymbolKind.ACCESS),
-    CLOSE_PAREN(")", 16, SymbolKind.ACCESS),
-    OPEN_BRACKET("[", 16, SymbolKind.ACCESS),
-    CLOSE_BRACKET("]", 16, SymbolKind.ACCESS),
+    DOT(".", 16, SymbolKind.ACCESS, TokenType.PUNC),
+    OPEN_PAREN("(", 16, SymbolKind.ACCESS, TokenType.PUNC),
+    CLOSE_PAREN(")", 16, SymbolKind.ACCESS, TokenType.PUNC),
+    OPEN_BRACKET("[", 16, SymbolKind.ACCESS, TokenType.PUNC),
+    CLOSE_BRACKET("]", 16, SymbolKind.ACCESS, TokenType.PUNC),
     // TODO maybe the braces should have precedence 13 since they are used for object creation, not access?
-    OPEN_BRACE("{", 16, SymbolKind.ACCESS),
-    CLOSE_BRACE("}", 16, SymbolKind.ACCESS),
+    OPEN_BRACE("{", 16, SymbolKind.ACCESS, TokenType.PUNC),
+    CLOSE_BRACE("}", 16, SymbolKind.ACCESS, TokenType.PUNC),
 
     // punctuation (non-operator symbols)
-    COMMA(",", -1, SymbolKind.PUNC),
-    SEMICOLON(";", -1, SymbolKind.PUNC),
-    COLON(":", -1, SymbolKind.PUNC);
+    COMMA(",", -1, SymbolKind.PUNC, TokenType.PUNC),
+    SEMICOLON(";", -1, SymbolKind.PUNC, TokenType.PUNC),
+    COLON(":", -1, SymbolKind.PUNC, TokenType.PUNC);
 
     public final String symbol;
     public final int precedence; // higher precedence evaluated first
     public final SymbolKind kind;
+    public final Token token;
 
-    Symbol(String symbol, int precedence, SymbolKind kind) {
+    Symbol(String symbol, int precedence, SymbolKind kind, TokenType tokenType) {
         this.symbol = symbol;
         this.precedence = precedence;
         this.kind = kind;
+        this.token = new Token(symbol, tokenType);
     }
 
     public static Symbol symbolOf(String symbol) {

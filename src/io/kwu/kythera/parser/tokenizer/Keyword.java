@@ -22,6 +22,11 @@ public enum Keyword {
     LOAD(),
     ;
 
+    public final Token token;
+
+    Keyword() {
+        this.token = new Token(this.name().toLowerCase(), TokenType.KW);
+    }
 
     @Override
     public String toString() {

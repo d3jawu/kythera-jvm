@@ -47,7 +47,7 @@ public final class Parser {
 
                 this.tokenizer.consume(TokenType.VAR);
 
-                this.tokenizer.consume(Symbol.EQUALS.symbol, TokenType.OP);
+                this.tokenizer.consume(Symbol.EQUALS.token);
 
                 ExpressionNode value = this.parseExpression(true);
 
@@ -71,10 +71,10 @@ public final class Parser {
 
         while (
             (canSplit && this.tokenizer.confirm(TokenType.OP) != null) || // can start binary
-                (this.tokenizer.confirm(Symbol.OPEN_PAREN.symbol, TokenType.PUNC) != null) || // can start call
+                (this.tokenizer.confirm(Symbol.OPEN_PAREN.token) != null) || // can start call
                 (this.tokenizer.confirm(Keyword.AS.toString(), TokenType.KW) != null) || // can make as
-                (this.tokenizer.confirm(Symbol.DOT.symbol, TokenType.PUNC) != null) // can make dot access
-//                      || (canSplit && this.tokenizer.confirm("[", TokenType.PUNC) != null) // can make bracket access
+                (this.tokenizer.confirm(Symbol.DOT.token) != null) // can make dot access
+//                      || (canSplit && this.tokenizer.confirm(Symbol.OPEN_BRACKET.token) != null) // can make bracket access
         ) {
             if (canSplit && this.tokenizer.confirm(TokenType.OP) != null) {
                 exp = makeBinary(exp, 0);
@@ -84,11 +84,11 @@ public final class Parser {
                 exp = makeAs(exp);
             }
 
-            if (this.tokenizer.confirm(Symbol.OPEN_PAREN.symbol, TokenType.PUNC) != null) {
+            if (this.tokenizer.confirm(Symbol.OPEN_PAREN.token) != null) {
                 exp = makeCall(exp);
             }
 
-            if (this.tokenizer.confirm(Symbol.DOT.symbol, TokenType.PUNC) != null) {
+            if (this.tokenizer.confirm(Symbol.DOT.token) != null) {
                 exp = makeDotAccess(exp);
             }
         }
@@ -97,10 +97,8 @@ public final class Parser {
     }
 
     private ExpressionNode parseExpressionAtom() {
-        Token t;
-        t = new Token(Symbol.OPEN_PAREN.symbol, TokenType.PUNC);
-        if (this.tokenizer.confirm(t) != null) {
-            this.tokenizer.consume(t);
+        if (this.tokenizer.confirm(Symbol.OPEN_PAREN.token) != null) {
+            this.tokenizer.consume(Symbol.OPEN_PAREN.token);
             ExpressionNode contents = this.parseExpression(true);
 
             if (this.tokenizer.confirm(TokenType.VAR) != null) {
@@ -108,28 +106,43 @@ public final class Parser {
                 return this.parseFnLiteral(contents);
             }
 
-            this.tokenizer.consume(Symbol.CLOSE_PAREN.symbol, TokenType.PUNC);
+            this.tokenizer.consume(Symbol.CLOSE_PAREN.token);
             return contents;
         }
 
         // hang on to this for later
         Token nextToken = this.tokenizer.peek();
 
-        if (this.tokenizer.confirm(Symbol.OPEN_BRACE.symbol, TokenType.PUNC) != null) {
+        if (this.tokenizer.confirm(Symbol.OPEN_BRACE.token) != null) {
             // distinguish between struct literal or struct type literal
 
-            this.tokenizer.consume(Symbol.CLOSE_PAREN.symbol, TokenType.PUNC);
+            this.tokenizer.consume(Symbol.CLOSE_PAREN.token);
+            StatementNode firstStatement = this.parseStatement();
+
+            // see what's after first statement:
+            Token next = this.tokenizer.peek();
+
+            if(this.tokenizer.confirm(Symbol.COLON.token) != null) {
+                // colon: struct literal (first statement must be IdentifierNode)
+
+            } else if(this.tokenizer.confirm(Symbol.SEMICOLON.token) != null) {
+                // semicolon: code block
+
+            }
+
+
+            // another expression:
         }
 
-        if (this.tokenizer.confirm(Symbol.OPEN_BRACKET.symbol, TokenType.PUNC) != null) {
+        if (this.tokenizer.confirm(Symbol.OPEN_BRACKET.token) != null) {
             // TODO parse list literal
             System.err.println("Not yet implemented.");
             System.exit(1);
             return null;
         }
 
-        if (this.tokenizer.confirm(Symbol.BANG.symbol, TokenType.OP) != null) {
-            this.tokenizer.consume(Symbol.BANG.symbol, TokenType.OP);
+        if (this.tokenizer.confirm(Symbol.BANG.token) != null) {
+            this.tokenizer.consume(Symbol.BANG.token);
             return new UnaryNode(Symbol.BANG, this.parseExpression(false));
         }
 
@@ -151,18 +164,18 @@ public final class Parser {
 
                     this.currentScope = this.currentScope.parent;
 
-                    if (this.tokenizer.confirm(Keyword.ELSE.toString(), TokenType.KW) != null) {
+                    if (this.tokenizer.confirm(Keyword.ELSE.token) != null) {
                         // else block present
                         ExpressionNode ifElse;
 
-                        this.tokenizer.consume(Keyword.ELSE.toString(), TokenType.KW);
+                        this.tokenizer.consume(Keyword.ELSE.token);
 
-                        if (this.tokenizer.confirm(Symbol.OPEN_BRACE.symbol, TokenType.PUNC) != null) {
+                        if (this.tokenizer.confirm(Symbol.OPEN_BRACE.token) != null) {
                             // else only, block follows
                             this.currentScope = new Scope(this.currentScope, Scope.ScopeType.CONTROL_FLOW, null);
                             ifElse = this.parseBlock();
                             this.currentScope = this.currentScope.parent;
-                        } else if (this.tokenizer.confirm(Keyword.IF.toString(), TokenType.KW) != null) {
+                        } else if (this.tokenizer.confirm(Keyword.IF.token) != null) {
                             // else-if, if follows
                             ifElse = this.parseExpression(true);
                         } else {
@@ -229,15 +242,15 @@ public final class Parser {
     }
 
     private BlockNode parseBlock() {
-        this.tokenizer.consume("{", TokenType.PUNC);
+        this.tokenizer.consume(Symbol.OPEN_BRACE.token);
 
         List<StatementNode> body = new ArrayList<>();
 
-        while (this.tokenizer.confirm("}", TokenType.PUNC) == null) {
+        while (this.tokenizer.confirm(Symbol.CLOSE_BRACE.token) == null) {
             loadStatement(body);
         }
 
-        this.tokenizer.consume("}", TokenType.PUNC);
+        this.tokenizer.consume(Symbol.CLOSE_BRACE.token);
 
         return new BlockNode(body);
     }
@@ -251,11 +264,11 @@ public final class Parser {
         statements.add(st);
 
         // TODO optional semi
-        if (this.tokenizer.confirm(";", TokenType.PUNC) == null) {
+        if (this.tokenizer.confirm(Symbol.SEMICOLON.token) == null) {
             System.err.println("Expected semicolon but got " + this.tokenizer.peek());
             System.exit(1);
         }
-        this.tokenizer.consume(";", TokenType.PUNC);
+        this.tokenizer.consume(Symbol.SEMICOLON.token);
     }
 
     private FnLiteralNode parseFnLiteral(ExpressionNode firstTypeExpression) {
@@ -268,7 +281,7 @@ public final class Parser {
 
         // opening parentheses and first type expression have already been consumed
 
-        while (this.tokenizer.confirm(Symbol.CLOSE_PAREN.symbol, TokenType.PUNC) == null) {
+        while (this.tokenizer.confirm(Symbol.CLOSE_PAREN.token) == null) {
             ExpressionNode paramTypeExp;
             if (firstRun) {
                 paramTypeExp = firstTypeExpression;
@@ -283,12 +296,12 @@ public final class Parser {
             parameters.put(paramName, paramTypeExp);
             this.currentScope.create(paramName, paramTypeExp);
 
-            if (this.tokenizer.confirm(Symbol.CLOSE_PAREN.symbol, TokenType.PUNC) == null) {
-                this.tokenizer.consume(",", TokenType.PUNC);
+            if (this.tokenizer.confirm(Symbol.CLOSE_PAREN.token) == null) {
+                this.tokenizer.consume(Symbol.COMMA.token);
             }
         }
 
-        this.tokenizer.consume(Symbol.CLOSE_PAREN.symbol, TokenType.PUNC);
+        this.tokenizer.consume(Symbol.CLOSE_PAREN.token);
 
         BlockNode body = this.parseBlock();
 
@@ -309,7 +322,7 @@ public final class Parser {
 
         boolean firstRun = true;
 
-        while (this.tokenizer.confirm("}", TokenType.PUNC) == null) {
+        while (this.tokenizer.confirm(Symbol.CLOSE_BRACE.token) == null) {
             String entryKey;
             if(firstRun) {
                 entryKey = firstIdentifier;
@@ -318,17 +331,17 @@ public final class Parser {
                 entryKey = this.tokenizer.next().value;
             }
 
-            this.tokenizer.consume(":", TokenType.PUNC);
+            this.tokenizer.consume(Symbol.COLON.token);
 
             ExpressionNode entryValue = this.parseExpression(true);
 
-            this.tokenizer.consume(",", TokenType.PUNC);
+            this.tokenizer.consume(Symbol.COMMA.token);
 
             typeContents.put(entryKey, entryValue.typeExp);
             resultContents.put(entryKey, entryValue);
         }
 
-        this.tokenizer.consume("}", TokenType.PUNC);
+        this.tokenizer.consume(Symbol.CLOSE_BRACE.token);
 
         this.currentScope = this.currentScope.parent;
 
@@ -336,7 +349,7 @@ public final class Parser {
     }
 
     private StructLiteralNode parseStructLiteral() {
-        this.tokenizer.consume("{", TokenType.PUNC);
+        this.tokenizer.consume(Symbol.OPEN_BRACE.token);
 
         Token t = this.tokenizer.next();
 
@@ -355,7 +368,7 @@ public final class Parser {
 
         boolean firstRun = true;
 
-        while(this.tokenizer.confirm("}", TokenType.PUNC) != null) {
+        while(this.tokenizer.confirm(Symbol.CLOSE_BRACE.token) != null) {
             ExpressionNode typeExp;
             if(firstRun) {
                 typeExp = firstTypeExp;
@@ -365,18 +378,18 @@ public final class Parser {
             }
             String entryKey = this.tokenizer.next().value;
 
-            this.tokenizer.consume(",", TokenType.PUNC);
+            this.tokenizer.consume(Symbol.COMMA.token);
 
             entries.put(entryKey, typeExp);
         }
 
-        this.tokenizer.consume("}", TokenType.PUNC);
+        this.tokenizer.consume(Symbol.CLOSE_BRACE.token);
 
         return structType;
     }
 
     private StructTypeLiteralNode parseStructTypeLiteral() {
-        this.tokenizer.consume("{", TokenType.PUNC);
+        this.tokenizer.consume(Symbol.OPEN_BRACE.token);
 
         ExpressionNode firstTypeExp = this.parseExpression(true);
 
@@ -417,7 +430,7 @@ public final class Parser {
     }
 
     private ExpressionNode makeAs(ExpressionNode exp) {
-        this.tokenizer.consume("as", TokenType.KW);
+        this.tokenizer.consume(Keyword.AS.token);
 
         return new AsNode(exp, this.parseExpression(true));
     }
@@ -426,24 +439,24 @@ public final class Parser {
         System.out.println("Making call");
         List<ExpressionNode> arguments = new ArrayList<>();
 
-        this.tokenizer.consume(Symbol.OPEN_PAREN.symbol, TokenType.PUNC);
+        this.tokenizer.consume(Symbol.OPEN_PAREN.token);
 
-        while (this.tokenizer.confirm(Symbol.CLOSE_PAREN.symbol, TokenType.PUNC) == null) {
+        while (this.tokenizer.confirm(Symbol.CLOSE_PAREN.token) == null) {
             arguments.add(this.parseExpression(true));
 
             // allow last comma to be missing
-            if (this.tokenizer.confirm(Symbol.CLOSE_PAREN.symbol, TokenType.PUNC) == null) {
-                this.tokenizer.consume(",", TokenType.PUNC);
+            if (this.tokenizer.confirm(Symbol.CLOSE_PAREN.token) == null) {
+                this.tokenizer.consume(Symbol.COMMA.token);
             }
         }
 
-        this.tokenizer.consume(Symbol.CLOSE_PAREN.symbol, TokenType.PUNC);
+        this.tokenizer.consume(Symbol.CLOSE_PAREN.token);
 
         return new CallNode(exp, arguments);
     }
 
     private ExpressionNode makeDotAccess(ExpressionNode exp) {
-        this.tokenizer.consume(".", TokenType.PUNC);
+        this.tokenizer.consume(Symbol.DOT.token);
 
         String memberName = this.tokenizer.next().value;
 
