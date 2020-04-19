@@ -213,7 +213,7 @@ public final class Tokenizer {
             this.next();
         } else {
             final Token next = this.peek();
-            System.err.println("Expecting " + t.toString() + " but got " + next.toString());
+            System.err.println("Expecting " + t.toString() + " but got " + next.toString() + " at " + this.inputStream.line() + "," + this.inputStream.col());
             System.exit(1);
         }
     }
@@ -223,7 +223,7 @@ public final class Tokenizer {
             this.next();
         } else {
             final Token next = this.peek();
-            System.err.println("Expecting " + tt.toString() + " but got " + next.tokentype.toString());
+            System.err.println("Expecting " + tt.toString() + " but got " + next.toString() + " at " + this.inputStream.line() + "," + this.inputStream.col());
             System.exit(1);
         }
     }

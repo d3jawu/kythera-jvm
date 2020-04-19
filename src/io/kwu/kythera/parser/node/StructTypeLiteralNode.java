@@ -27,7 +27,7 @@ public class StructTypeLiteralNode extends TypeLiteralNode {
 
         for (Map.Entry<String, ExpressionNode> entry : entries.entrySet()) {
             Main.printlnWithIndent("\t\t" + entry.getKey() + ":", indent, stream);
-            Main.printlnWithIndent("\t\ttypeexp:", indent, stream);
+            Main.printlnWithIndent("\t\t\ttypeExp:", indent, stream);
             entry.getValue().print(indent + 3, stream);
         }
 

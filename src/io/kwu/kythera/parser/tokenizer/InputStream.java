@@ -35,6 +35,14 @@ public final class InputStream {
         return c;
     }
 
+    public int line() {
+        return this.line + 1;
+    }
+
+    public int col() {
+        return this.col + 1;
+    }
+
     public char peek() {
         return this.input.charAt(this.pos);
     }

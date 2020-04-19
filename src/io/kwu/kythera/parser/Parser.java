@@ -116,22 +116,38 @@ public final class Parser {
         if (this.tokenizer.confirm(Symbol.OPEN_BRACE.token) != null) {
             // distinguish between struct literal or struct type literal
 
-            this.tokenizer.consume(Symbol.CLOSE_PAREN.token);
-            StatementNode firstStatement = this.parseStatement();
+            this.tokenizer.consume(Symbol.OPEN_BRACE.token);
 
-            // see what's after first statement:
-            Token next = this.tokenizer.peek();
+            // consume first statement; what kind of expression it is depends on what comes after
+            StatementNode firstStatement = this.parseStatement();
 
             if(this.tokenizer.confirm(Symbol.COLON.token) != null) {
                 // colon: struct literal (first statement must be IdentifierNode)
 
+                if(!(firstStatement instanceof IdentifierNode)) {
+                    System.err.println("Expected IdentifierNode for first entry in struct literal.");
+                    System.exit(1);
+                    return null;
+                }
+
+                return this.parseStructLiteral(((IdentifierNode) firstStatement).name);
             } else if(this.tokenizer.confirm(Symbol.SEMICOLON.token) != null) {
                 // semicolon: code block
 
+                return this.parseBlock(firstStatement);
+            } else {
+                // another expression: struct type literal
+
+                if(!(firstStatement instanceof ExpressionNode)) {
+                    System.err.println("Expected expression for first type in struct type literal.");
+                    System.exit(1);
+                    return null;
+                }
+
+                return this.parseStructTypeLiteral((ExpressionNode) firstStatement);
             }
 
 
-            // another expression:
         }
 
         if (this.tokenizer.confirm(Symbol.OPEN_BRACKET.token) != null) {
@@ -241,10 +257,14 @@ public final class Parser {
         return null;
     }
 
-    private BlockNode parseBlock() {
-        this.tokenizer.consume(Symbol.OPEN_BRACE.token);
-
+    // sometimes parseBlock will be called with the first statement already parsed
+    private BlockNode parseBlock(StatementNode firstStatement) {
         List<StatementNode> body = new ArrayList<>();
+
+        body.add(firstStatement);
+
+        // TODO optional semi
+        this.tokenizer.consume(Symbol.SEMICOLON.token);
 
         while (this.tokenizer.confirm(Symbol.CLOSE_BRACE.token) == null) {
             loadStatement(body);
@@ -254,6 +274,15 @@ public final class Parser {
 
         return new BlockNode(body);
     }
+
+    private BlockNode parseBlock() {
+        this.tokenizer.consume(Symbol.OPEN_BRACE.token);
+
+        StatementNode firstStatement = this.parseStatement();
+
+        return parseBlock(firstStatement);
+    }
+
 
     private void loadStatement(List<StatementNode> statements) {
         StatementNode st = this.parseStatement();
@@ -368,7 +397,7 @@ public final class Parser {
 
         boolean firstRun = true;
 
-        while(this.tokenizer.confirm(Symbol.CLOSE_BRACE.token) != null) {
+        while(this.tokenizer.confirm(Symbol.CLOSE_BRACE.token) == null) {
             ExpressionNode typeExp;
             if(firstRun) {
                 typeExp = firstTypeExp;
@@ -376,6 +405,7 @@ public final class Parser {
             } else {
                 typeExp = this.parseExpression(true);
             }
+
             String entryKey = this.tokenizer.next().value;
 
             this.tokenizer.consume(Symbol.COMMA.token);
