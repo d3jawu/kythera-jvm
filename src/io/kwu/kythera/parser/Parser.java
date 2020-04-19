@@ -18,6 +18,16 @@ public final class Parser {
 
         this.currentScope = new Scope();
 
+        // load primitive type literals into scope
+        this.currentScope.create("bool", BaseType.BOOL.typeLiteral);
+        this.currentScope.create("unit", BaseType.UNIT.typeLiteral);
+        this.currentScope.create("int", BaseType.INT.typeLiteral);
+        this.currentScope.create("double", BaseType.DOUBLE.typeLiteral);
+        this.currentScope.create("char", BaseType.CHAR.typeLiteral);
+        this.currentScope.create("struct", BaseType.CHAR.typeLiteral);
+        this.currentScope.create("fn", BaseType.FN.typeLiteral);
+        this.currentScope.create("type", BaseType.TYPE.typeLiteral);
+
         InputStream inputStream = new InputStream(input);
         this.tokenizer = new Tokenizer(inputStream);
     }
@@ -239,15 +249,7 @@ public final class Parser {
                     case "unit":
                         return UnitLiteral.UNIT;
                     default:
-                        // try type literal
-                        TypeLiteralNode tl = BaseType.typeLiteralOf(nextToken.value);
-
-                        // otherwise, it's a normal identifier
-                        if (tl == null) {
-                            return new IdentifierNode(nextToken.value, this.currentScope.getTypeOf(nextToken.value));
-                        } else {
-                            return tl;
-                        }
+                        return new IdentifierNode(nextToken.value, this.currentScope.getTypeOf(nextToken.value));
                 }
         }
 
