@@ -1,7 +1,7 @@
 package io.kwu.kythera;
 
-import io.kwu.kythera.parser.Parser;
-import io.kwu.kythera.parser.node.StatementNode;
+import io.kwu.kythera.frontend.Parser;
+import io.kwu.kythera.frontend.node.StatementNode;
 
 import java.io.PrintStream;
 import java.nio.file.Files;

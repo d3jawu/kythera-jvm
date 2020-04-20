@@ -1,6 +1,6 @@
 package io.kwu.kythera;
 
-import io.kwu.kythera.parser.node.ExpressionNode;
+import io.kwu.kythera.frontend.node.ExpressionNode;
 
 import java.util.HashMap;
 
