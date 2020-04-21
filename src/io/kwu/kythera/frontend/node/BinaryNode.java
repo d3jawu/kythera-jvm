@@ -16,7 +16,8 @@ public final class BinaryNode extends ExpressionNode {
         super(NodeKind.BINARY);
 
         if (!(op.kind == SymbolKind.ARITHMETIC || op.kind == SymbolKind.LOGICAL || op.kind == SymbolKind.COMPARE)) {
-            System.err.println("Invalid operator: " + op.symbol + " cannot be used in a binary expression.");
+            System.err.println("Invalid operator: " + op.symbol + " cannot be" +
+                " used in a binary expression.");
             System.exit(1);
         }
 

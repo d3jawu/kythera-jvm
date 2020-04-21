@@ -1,6 +1,6 @@
 package io.kwu.kythera.frontend.node;
 
-enum NodeKind {
+public enum NodeKind {
     UNARY,
     BINARY,
     ASSIGN,

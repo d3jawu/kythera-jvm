@@ -33,7 +33,8 @@ public enum BaseType {
         this.name = name;
         this.scalar = scalar;
 
-        // all types have a base type literal for their primitive case, even non-scalar types
+        // all types have a base type literal for their primitive case, even
+        // non-scalar types
         this.typeLiteral = new TypeLiteralNode(this);
     }
 

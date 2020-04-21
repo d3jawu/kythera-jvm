@@ -14,7 +14,8 @@ public class IfNode extends ExpressionNode {
         super(NodeKind.IF);
 
         if (!condition.typeExp.equals(BaseType.BOOL.typeLiteral)) {
-            System.err.println("Type error: If-expression condition must evaluate to bool.");
+            System.err.println("Type error: If-expression condition must " +
+                "evaluate to bool.");
             System.exit(1);
         }
 
@@ -25,17 +26,20 @@ public class IfNode extends ExpressionNode {
         this.elseBody = null;
     }
 
-    public IfNode(ExpressionNode condition, BlockNode body, ExpressionNode elseBody) {
+    public IfNode(ExpressionNode condition, BlockNode body,
+                  ExpressionNode elseBody) {
         super(NodeKind.IF);
 
         // else body can be either an if or a block
         if (!(elseBody instanceof IfNode) && !(elseBody instanceof BlockNode)) {
-            System.err.println("'else' must be followed by either a block or an if statement.");
+            System.err.println("'else' must be followed by either a block or " +
+                "an if statement.");
             System.exit(1);
         }
 
         if (!condition.typeExp.equals(BaseType.BOOL.typeLiteral)) {
-            System.err.println("Type error: If-expression condition must evaluate to bool.");
+            System.err.println("Type error: If-expression condition must " +
+                "evaluate to bool.");
             System.exit(1);
         }
 

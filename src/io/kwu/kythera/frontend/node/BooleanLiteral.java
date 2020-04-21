@@ -6,7 +6,8 @@ import io.kwu.kythera.frontend.BaseType;
 import java.io.PrintStream;
 
 public class BooleanLiteral {
-    // since there are only two boolean values we just pre-generate their nodes and just reuse them
+    // since there are only two boolean values we just pre-generate their
+    // nodes and just reuse them
 
     public static final BooleanLiteralNode TRUE;
     public static final BooleanLiteralNode FALSE;
@@ -27,7 +28,8 @@ public class BooleanLiteral {
 
         @Override
         public void print(int indent, PrintStream stream) {
-            Main.printlnWithIndent("BooleanLiteralNode { " + this.value + " }", indent, stream);
+            Main.printlnWithIndent("BooleanLiteralNode { " + this.value + " " +
+                "}", indent, stream);
         }
     }
 }

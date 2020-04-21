@@ -14,7 +14,8 @@ public class UnaryNode extends ExpressionNode {
         super(NodeKind.UNARY, target.typeExp);
 
         if (op != Symbol.BANG) {
-            System.err.println("Invalid operator: " + op.symbol + " cannot be used as a unary operator.");
+            System.err.println("Invalid operator: " + op.symbol + " cannot be" +
+                " used as a unary operator.");
         }
 
         this.operator = op;

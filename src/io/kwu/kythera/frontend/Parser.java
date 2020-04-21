@@ -7,16 +7,14 @@ import io.kwu.kythera.frontend.tokenizer.*;
 import java.util.*;
 
 public final class Parser {
-    private List<StatementNode> program;
+    private final List<StatementNode> program;
 
-    private Scope currentScope;
+    private Scope currentScope = new Scope();
 
-    private Tokenizer tokenizer;
+    private final Tokenizer tokenizer;
 
     public Parser(String input) {
         this.program = new ArrayList<>();
-
-        this.currentScope = new Scope();
 
         // load primitive type literals into scope
         this.currentScope.create("bool", BaseType.BOOL.typeLiteral);
@@ -80,11 +78,15 @@ public final class Parser {
         ExpressionNode exp = parseExpressionAtom();
 
         while (
-            (canSplit && this.tokenizer.confirm(TokenType.OP) != null) || // can start binary
-                (this.tokenizer.confirm(Symbol.OPEN_PAREN.token) != null) || // can start call
+            (canSplit && this.tokenizer.confirm(TokenType.OP) != null) || //
+                // can start binary
+                (this.tokenizer.confirm(Symbol.OPEN_PAREN.token) != null) ||
+                // can start call
                 (this.tokenizer.confirm(Keyword.AS.toString(), TokenType.KW) != null) || // can make as
-                (this.tokenizer.confirm(Symbol.DOT.token) != null) // can make dot access
-//                      || (canSplit && this.tokenizer.confirm(Symbol.OPEN_BRACKET.token) != null) // can make bracket access
+                (this.tokenizer.confirm(Symbol.DOT.token) != null) // can
+            // make dot access
+//                      || (canSplit && this.tokenizer.confirm(Symbol
+//                      .OPEN_BRACKET.token) != null) // can make bracket access
         ) {
             if (canSplit && this.tokenizer.confirm(TokenType.OP) != null) {
                 exp = makeBinary(exp, 0);
@@ -112,7 +114,8 @@ public final class Parser {
             ExpressionNode contents = this.parseExpression(true);
 
             if (this.tokenizer.confirm(TokenType.VAR) != null) {
-                // if the next token is a var value, it's the beginning of a fn literal
+                // if the next token is a var value, it's the beginning of a
+                // fn literal
                 return this.parseFnLiteral(contents);
             }
 
@@ -128,14 +131,17 @@ public final class Parser {
 
             this.tokenizer.consume(Symbol.OPEN_BRACE.token);
 
-            // consume first statement; what kind of expression it is depends on what comes after
+            // consume first statement; what kind of expression it is depends
+            // on what comes after
             StatementNode firstStatement = this.parseStatement();
 
             if (this.tokenizer.confirm(Symbol.COLON.token) != null) {
-                // colon: struct literal (first statement must be IdentifierNode)
+                // colon: struct literal (first statement must be
+                // IdentifierNode)
 
                 if (!(firstStatement instanceof IdentifierNode)) {
-                    System.err.println("Expected IdentifierNode for first entry in struct literal.");
+                    System.err.println("Expected IdentifierNode for first " +
+                        "entry in struct literal.");
                     System.exit(1);
                     return null;
                 }
@@ -149,7 +155,8 @@ public final class Parser {
                 // another expression: struct type literal
 
                 if (!(firstStatement instanceof ExpressionNode)) {
-                    System.err.println("Expected expression for first type in struct type literal.");
+                    System.err.println("Expected expression for first type in" +
+                        " struct type literal.");
                     System.exit(1);
                     return null;
                 }
@@ -172,7 +179,8 @@ public final class Parser {
             return new UnaryNode(Symbol.BANG, this.parseExpression(false));
         }
 
-        // in Kythera-JS type literals were read in at this point; in the JVM implementation
+        // in Kythera-JS type literals were read in at this point; in the JVM
+        // implementation
         // they are inserted with the runtime and not part of the parser
 
         if (this.tokenizer.confirm(null, TokenType.KW) != null) {
@@ -184,7 +192,8 @@ public final class Parser {
                 case IF:
                     ExpressionNode ifCondition = this.parseExpression(true);
 
-                    this.currentScope = new Scope(this.currentScope, Scope.ScopeType.CONTROL_FLOW, null);
+                    this.currentScope = new Scope(this.currentScope,
+                        Scope.ScopeType.CONTROL_FLOW, null);
 
                     BlockNode ifBody = this.parseBlock();
 
@@ -198,7 +207,8 @@ public final class Parser {
 
                         if (this.tokenizer.confirm(Symbol.OPEN_BRACE.token) != null) {
                             // else only, block follows
-                            this.currentScope = new Scope(this.currentScope, Scope.ScopeType.CONTROL_FLOW, null);
+                            this.currentScope = new Scope(this.currentScope,
+                                Scope.ScopeType.CONTROL_FLOW, null);
                             ifElse = this.parseBlock();
                             this.currentScope = this.currentScope.parent;
                         } else if (this.tokenizer.confirm(Keyword.IF.token) != null) {
@@ -218,7 +228,8 @@ public final class Parser {
                 case WHILE:
                     ExpressionNode whileCondition = this.parseExpression(true);
 
-                    this.currentScope = new Scope(this.currentScope, Scope.ScopeType.CONTROL_FLOW, null);
+                    this.currentScope = new Scope(this.currentScope,
+                        Scope.ScopeType.CONTROL_FLOW, null);
                     BlockNode whileBody = this.parseBlock();
                     this.currentScope = this.currentScope.parent;
 
@@ -249,7 +260,8 @@ public final class Parser {
                     case "unit":
                         return UnitLiteral.UNIT;
                     default:
-                        return new IdentifierNode(nextToken.value, this.currentScope.getTypeOf(nextToken.value));
+                        return new IdentifierNode(nextToken.value,
+                            this.currentScope.getTypeOf(nextToken.value));
                 }
         }
 
@@ -259,7 +271,8 @@ public final class Parser {
         return null;
     }
 
-    // sometimes parseBlock will be called with the first statement already parsed
+    // sometimes parseBlock will be called with the first statement already
+    // parsed
     private BlockNode parseBlock(StatementNode firstStatement) {
         List<StatementNode> body = new ArrayList<>();
 
@@ -303,14 +316,18 @@ public final class Parser {
     }
 
     private FnLiteralNode parseFnLiteral(ExpressionNode firstTypeExpression) {
-        // because of the way functions are read in, the parser has already consumed the first type expression and can just pass it in here.
+        // because of the way functions are read in, the parser has already
+        // consumed the first type expression and can just pass it in here.
 
         boolean firstRun = true;
-        SortedMap<String, ExpressionNode> parameters = new TreeMap<String, ExpressionNode>();
+        SortedMap<String, ExpressionNode> parameters = new TreeMap<String,
+            ExpressionNode>();
 
-        this.currentScope = new Scope(this.currentScope, Scope.ScopeType.FUNCTION, null);
+        this.currentScope = new Scope(this.currentScope,
+            Scope.ScopeType.FUNCTION, null);
 
-        // opening parentheses and first type expression have already been consumed
+        // opening parentheses and first type expression have already been
+        // consumed
 
         while (this.tokenizer.confirm(Symbol.CLOSE_PAREN.token) == null) {
             ExpressionNode paramTypeExp;
@@ -341,7 +358,8 @@ public final class Parser {
         return new FnLiteralNode(parameters, body);
     }
 
-    // sometimes parseStructLiteral is called with the first identifier already consumed
+    // sometimes parseStructLiteral is called with the first identifier
+    // already consumed
     private StructLiteralNode parseStructLiteral(String firstIdentifier) {
         StructTypeLiteralNode structType = new StructTypeLiteralNode();
         StructLiteralNode structResult = new StructLiteralNode(structType);
@@ -349,7 +367,8 @@ public final class Parser {
         HashMap<String, ExpressionNode> typeContents = structType.entries;
         HashMap<String, ExpressionNode> resultContents = structResult.entries;
 
-        this.currentScope = new Scope(this.currentScope, Scope.ScopeType.FUNCTION, structType);
+        this.currentScope = new Scope(this.currentScope,
+            Scope.ScopeType.FUNCTION, structType);
 
         boolean firstRun = true;
 
@@ -385,7 +404,8 @@ public final class Parser {
         Token t = this.tokenizer.next();
 
         if (t.tokentype != TokenType.VAR) {
-            System.err.println("Expecting identifier for struct literal but got " + t.toString());
+            System.err.println("Expecting identifier for struct literal but " +
+                "got " + t.toString());
             System.exit(1);
         }
 
@@ -428,14 +448,17 @@ public final class Parser {
         return this.parseStructTypeLiteral(firstTypeExp);
     }
 
-    private ExpressionNode makeBinary(ExpressionNode left, int currentPrecedence) {
+    private ExpressionNode makeBinary(ExpressionNode left,
+                                      int currentPrecedence) {
         Token token = this.tokenizer.confirm(TokenType.OP);
         if (token != null) {
             Symbol op = Symbol.symbolOf(token.value);
             int nextPrecedence = op.precedence;
             if (nextPrecedence > currentPrecedence) {
                 this.tokenizer.next();
-                ExpressionNode right = this.makeBinary(this.parseExpression(false), nextPrecedence);
+                ExpressionNode right =
+                    this.makeBinary(this.parseExpression(false),
+                        nextPrecedence);
 
                 ExpressionNode binary;
 
@@ -449,7 +472,8 @@ public final class Parser {
                         binary = new BinaryNode(op, left, right);
                         break;
                     default:
-                        System.err.println("Invalid operator for binary operation: " + op.symbol);
+                        System.err.println("Invalid operator for binary " +
+                            "operation: " + op.symbol);
                         System.exit(0);
                         binary = null;
                 }

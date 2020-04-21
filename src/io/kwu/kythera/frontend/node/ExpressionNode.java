@@ -1,10 +1,12 @@
 package io.kwu.kythera.frontend.node;
 
 /**
- * ExpressionNodes are statements that evaluate to a value and therefore also have a type.
+ * ExpressionNodes are statements that evaluate to a value and therefore also
+ * have a type.
  */
 public abstract class ExpressionNode extends StatementNode {
-    public ExpressionNode typeExp; // expression that actually gave this value its type
+    public ExpressionNode typeExp; // expression that actually gave this
+    // value its type
 
     ExpressionNode(NodeKind kind) {
         super(kind);

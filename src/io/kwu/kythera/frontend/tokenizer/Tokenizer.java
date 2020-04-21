@@ -124,7 +124,8 @@ public final class Tokenizer {
             return new Token(this.readWhile(Tokenizer::isOp), OP);
         }
 
-        // TODO make error handling more informative, use proper Exceptions, show line/col numbers
+        // TODO make error handling more informative, use proper Exceptions,
+        //  show line/col numbers
         System.err.println("Error: cannot handle character: " + c);
         System.exit(1);
         return null;
@@ -243,7 +244,8 @@ public final class Tokenizer {
     // the tokenizer treats ops and puncs differently
     // in the parser ops and puncs are treated the same, as Symbols
 
-    // from the tokenizer's perspective ops are symbols that may be followed by other symbols, e.g. '+='
+    // from the tokenizer's perspective ops are symbols that may be followed
+    // by other symbols, e.g. '+='
     private static boolean isOp(char c) {
         return "+-*/%=&|<>!~".indexOf(c) >= 0;
     }

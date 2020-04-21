@@ -8,7 +8,8 @@ public class FnTypeLiteralNode extends TypeLiteralNode {
     public final List<ExpressionNode> parameterTypeExps;
     public final ExpressionNode returnTypeExp;
 
-    public FnTypeLiteralNode(List<ExpressionNode> parameterTypeExps, ExpressionNode returnTypeExp) {
+    public FnTypeLiteralNode(List<ExpressionNode> parameterTypeExps,
+                             ExpressionNode returnTypeExp) {
         super(BaseType.FN);
 
         this.parameterTypeExps = parameterTypeExps;

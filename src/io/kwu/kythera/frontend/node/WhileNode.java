@@ -12,7 +12,8 @@ public class WhileNode extends ExpressionNode {
     public WhileNode(ExpressionNode condition, BlockNode body) {
         super(NodeKind.WHILE);
         if (!condition.typeExp.equals(BaseType.BOOL.typeLiteral)) {
-            System.err.println("Type error: while-statement condition must evaluate to boolean.");
+            System.err.println("Type error: while-statement condition must " +
+                "evaluate to boolean.");
             System.exit(1);
         }
 

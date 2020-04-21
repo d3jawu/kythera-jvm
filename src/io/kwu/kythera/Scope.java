@@ -65,7 +65,8 @@ public class Scope {
     }
 
     /**
-     * true if variable is accessible in this scope (including its parents), false otherwise
+     * true if variable is accessible in this scope (including its parents),
+     * false otherwise
      */
     public boolean has(String name) {
         if (symbols.containsKey(name)) {

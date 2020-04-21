@@ -3,8 +3,10 @@ package io.kwu.kythera.frontend.node;
 import java.io.PrintStream;
 
 /**
- * All nodes extend StatementNode. Statements do not evaluate to a value, so they have no type.
- * Most StatementNodes extend ExpressionNode. Exceptions include "let" and "return".
+ * All nodes extend StatementNode. Statements do not evaluate to a value, so
+ * they have no type.
+ * Most StatementNodes extend ExpressionNode. Exceptions include "let" and
+ * "return".
  */
 // TODO this could be a good place to send line/col numbers for debugging
 public abstract class StatementNode {
