@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) {
         String entryPoint;
 
-        if(args.length != 1) {
+        if (args.length != 1) {
             entryPoint = "scratch";
         } else {
             entryPoint = args[0];
@@ -28,8 +28,8 @@ public class Main {
                 st.print(0, System.out);
             }
 
-            Compiler compiler = new Compiler(program);
-            byte[] output = compiler.compile(entryPoint);
+            Compiler compiler = new Compiler(program, entryPoint);
+            byte[] output = compiler.compile();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);

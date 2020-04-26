@@ -14,6 +14,5 @@ public enum NodeKind {
     TYPEOF,
     CALL,
     ACCESS,
-    THIS,
     BLOCK,
 }

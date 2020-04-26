@@ -16,7 +16,6 @@ public class IntLiteralNode extends LiteralNode {
 
     @Override
     public void print(int indent, PrintStream stream) {
-        Main.printlnWithIndent("IntLiteralNode { " + value + " }", indent,
-            stream);
+        Main.printlnWithIndent("IntLiteralNode { " + value + " }", indent, stream);
     }
 }
