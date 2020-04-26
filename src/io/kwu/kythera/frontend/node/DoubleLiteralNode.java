@@ -15,7 +15,6 @@ public class DoubleLiteralNode extends LiteralNode {
 
     @Override
     public void print(int indent, PrintStream stream) {
-        Main.printlnWithIndent("DoubleLiteralNode { " + value + " }", indent,
-            stream);
+        Main.printlnWithIndent("DoubleLiteralNode { " + value + " }", indent, stream);
     }
 }

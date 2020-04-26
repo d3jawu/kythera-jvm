@@ -21,8 +21,7 @@ public class AssignNode extends ExpressionNode {
         // TODO ensure that left node is a valid identifier or object member
 
         if (op.kind != SymbolKind.ASSIGN) {
-            System.err.println("Invalid operator: '" + op.symbol + "' is not " +
-                "a valid assignment operator.");
+            System.err.println("Invalid operator: '" + op.symbol + "' is not " + "a valid assignment operator.");
             System.exit(1);
         }
 

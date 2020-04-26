@@ -6,7 +6,7 @@ package io.kwu.kythera.frontend.tokenizer;
  * made more Java-idiomatic
  */
 public final class InputStream {
-    private String input;
+    private final String input;
 
     private int pos;
 

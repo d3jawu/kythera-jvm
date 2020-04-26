@@ -14,7 +14,7 @@ public class Scope {
     }
 
     public final Scope parent;
-    private HashMap<String, ExpressionNode> symbols = new HashMap<>();
+    private final HashMap<String, ExpressionNode> symbols = new HashMap<>();
 
     public final ScopeType scopeType;
 

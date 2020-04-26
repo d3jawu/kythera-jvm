@@ -47,8 +47,7 @@ public enum Symbol {
     OPEN_PAREN("(", 16, SymbolKind.ACCESS, TokenType.PUNC),
     CLOSE_PAREN(")", 16, SymbolKind.ACCESS, TokenType.PUNC),
     OPEN_BRACKET("[", 16, SymbolKind.ACCESS, TokenType.PUNC),
-    CLOSE_BRACKET("]", 16, SymbolKind.ACCESS, TokenType.PUNC),
-    // TODO maybe the braces should have precedence 13 since they are used
+    CLOSE_BRACKET("]", 16, SymbolKind.ACCESS, TokenType.PUNC), // TODO maybe the braces should have precedence 13 since they are used
     //  for object creation, not access?
     OPEN_BRACE("{", 16, SymbolKind.ACCESS, TokenType.PUNC),
     CLOSE_BRACE("}", 16, SymbolKind.ACCESS, TokenType.PUNC),
@@ -63,8 +62,7 @@ public enum Symbol {
     public final SymbolKind kind;
     public final Token token;
 
-    Symbol(String symbol, int precedence, SymbolKind kind,
-           TokenType tokenType) {
+    Symbol(String symbol, int precedence, SymbolKind kind, TokenType tokenType) {
         this.symbol = symbol;
         this.precedence = precedence;
         this.kind = kind;

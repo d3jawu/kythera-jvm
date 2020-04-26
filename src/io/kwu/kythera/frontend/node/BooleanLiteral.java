@@ -28,8 +28,7 @@ public class BooleanLiteral {
 
         @Override
         public void print(int indent, PrintStream stream) {
-            Main.printlnWithIndent("BooleanLiteralNode { " + this.value + " " +
-                "}", indent, stream);
+            Main.printlnWithIndent("BooleanLiteralNode { " + this.value + " " + "}", indent, stream);
         }
     }
 }

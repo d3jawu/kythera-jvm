@@ -37,10 +37,8 @@ public class Main {
 
     }
 
-    public static void printlnWithIndent(String message, int indent,
-                                         PrintStream stream) {
-        String output = "\t".repeat(Math.max(0, indent)) +
-            message;
+    public static void printlnWithIndent(String message, int indent, PrintStream stream) {
+        String output = "\t".repeat(Math.max(0, indent)) + message;
         stream.println(output);
     }
 }

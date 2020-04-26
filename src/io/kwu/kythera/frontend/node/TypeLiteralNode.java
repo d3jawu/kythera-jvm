@@ -16,8 +16,7 @@ public class TypeLiteralNode extends LiteralNode {
 
     @Override
     public void print(int indent, PrintStream stream) {
-        Main.printlnWithIndent("TypeLiteralNode { " + baseType.name + " }",
-            indent, stream);
+        Main.printlnWithIndent("TypeLiteralNode { " + baseType.name + " }", indent, stream);
     }
 
     // for type values, equals means an *exact* match

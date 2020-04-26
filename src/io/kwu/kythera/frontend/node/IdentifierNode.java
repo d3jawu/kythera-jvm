@@ -15,7 +15,6 @@ public class IdentifierNode extends ExpressionNode {
 
     @Override
     public void print(int indent, PrintStream stream) {
-        Main.printlnWithIndent("IdentifierNode { name: " + name + " }",
-            indent, stream);
+        Main.printlnWithIndent("IdentifierNode { name: " + name + " }", indent, stream);
     }
 }

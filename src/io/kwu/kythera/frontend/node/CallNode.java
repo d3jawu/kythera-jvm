@@ -14,8 +14,7 @@ public class CallNode extends ExpressionNode {
         super(NodeKind.CALL);
 
         if (!(target.typeExp.equals(BaseType.FN.typeLiteral))) {
-            System.err.println("Type error: Call must be performed on a " +
-                "function type.");
+            System.err.println("Type error: Call must be performed on a " + "function type.");
             System.exit(1);
         }
 

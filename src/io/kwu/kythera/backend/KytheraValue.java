@@ -21,6 +21,7 @@ public class KytheraValue<T> {
         this.value = value;
         this.typeValue = this;
     }
+
     // type literals
     public static KytheraValue<BaseType> TYPE = new KytheraValue<>(BaseType.TYPE);
     public static KytheraValue<BaseType> UNIT = new KytheraValue<>(BaseType.UNIT, TYPE);

@@ -11,10 +11,8 @@ public class FnLiteralNode extends LiteralNode {
     public final SortedMap<String, ExpressionNode> parameters;
     public final BlockNode body;
 
-    public FnLiteralNode(SortedMap<String, ExpressionNode> parameters,
-                         BlockNode body) {
-        super(new FnTypeLiteralNode(new ArrayList<>(parameters.values()),
-            body.typeExp));
+    public FnLiteralNode(SortedMap<String, ExpressionNode> parameters, BlockNode body) {
+        super(new FnTypeLiteralNode(new ArrayList<>(parameters.values()), body.typeExp));
 
         this.parameters = parameters;
         this.body = body;
@@ -28,8 +26,7 @@ public class FnLiteralNode extends LiteralNode {
         int n = 0;
 
         for (Map.Entry<String, ExpressionNode> entry : parameters.entrySet()) {
-            Main.printlnWithIndent("\t\tparam " + n + ": " + entry.getKey(),
-                indent, stream);
+            Main.printlnWithIndent("\t\tparam " + n + ": " + entry.getKey(), indent, stream);
             Main.printlnWithIndent("\t\ttype exp:", indent, stream);
             entry.getValue().print(indent + 3, stream);
 

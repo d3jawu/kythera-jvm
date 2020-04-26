@@ -24,7 +24,7 @@ public class Compiler {
 
     // TODO this will eventually need to be more sophisticated; right now everything is
     //  in one global scope
-    private HashMap<String, Integer> symbolTable = new HashMap<>();
+    private final HashMap<String, Integer> symbolTable = new HashMap<>();
 
     public Compiler(List<StatementNode> program, String outputName) {
         this.program = program;
@@ -35,8 +35,7 @@ public class Compiler {
     }
 
     public byte[] compile() {
-        this.mv = this.tcv.visitMethod(ACC_PUBLIC | ACC_STATIC,
-            "main", "([Ljava/lang/String;)V", null, null);
+        this.mv = this.tcv.visitMethod(ACC_PUBLIC | ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
 
         for (StatementNode st : this.program) {
             this.visitStatement(st);

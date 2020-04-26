@@ -10,7 +10,7 @@ public final class Tokenizer {
     }
 
     private Token currentToken;
-    private InputStream inputStream;
+    private final InputStream inputStream;
 
     public Tokenizer(InputStream is) {
         this.currentToken = null;

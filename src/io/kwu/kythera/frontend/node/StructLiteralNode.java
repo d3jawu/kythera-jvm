@@ -21,8 +21,7 @@ public class StructLiteralNode extends LiteralNode {
         Main.printlnWithIndent("\tentries:", indent, stream);
 
         for (Map.Entry<String, ExpressionNode> entry : entries.entrySet()) {
-            Main.printlnWithIndent("\t\t" + entry.getKey() + ":", indent,
-                stream);
+            Main.printlnWithIndent("\t\t" + entry.getKey() + ":", indent, stream);
             entry.getValue().print(indent + 3, stream);
         }
 
