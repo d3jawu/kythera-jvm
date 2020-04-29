@@ -22,26 +22,28 @@ public class Compiler {
     // this allows Kythera to have a global scope while Java does not.
     private MethodVisitor mv;
 
-    // TODO this will eventually need to be more sophisticated; right now everything is
-    //  in one global scope
-    private final HashMap<String, Integer> symbolTable = new HashMap<>();
+    private SymbolTable symbolTable;
 
     public Compiler(List<StatementNode> program, String outputName) {
         this.program = program;
         this.cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         this.tcv = new TraceClassVisitor(this.cw, new PrintWriter(System.out, true));
 
-        this.tcv.visit(V11, ACC_PUBLIC | ACC_SUPER, "pkg/" + outputName, null, "java/lang/Object", null);
+        this.tcv.visit(V11, ACC_PUBLIC | ACC_SUPER, outputName, null, "java/lang/Object", null);
     }
 
     public byte[] compile() {
         this.mv = this.tcv.visitMethod(ACC_PUBLIC | ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
+        this.mv.visitCode();
+
+        this.symbolTable = new SymbolTable(this.mv);
 
         for (StatementNode st : this.program) {
             this.visitStatement(st);
         }
 
         // cleanup
+        this.mv.visitMaxs(0, 0);
         this.tcv.visitEnd();
         return this.cw.toByteArray();
     }
@@ -63,11 +65,7 @@ public class Compiler {
     public void visitLet(LetNode node) {
         // evaluate the RHS first to get the reference to that value
         this.visitExpression(node.value);
-
-        // find the next open local variable slot, remember it, and store the reference there
-        final int slot = this.symbolTable.size();
-        this.symbolTable.put(node.identifier, slot);
-        mv.visitVarInsn(ASTORE, slot);
+        this.symbolTable.addSymbol(node.identifier);
     }
 
     public void visitReturn() {
@@ -98,13 +96,13 @@ public class Compiler {
                     this.visitIntLiteral((IntLiteralNode) node);
                     return;
                 } else if (node instanceof DoubleLiteralNode) {
-                    return;
+                    break;
                 } else if (node instanceof StructLiteralNode) {
-                    return;
+                    break;
                 } else if (node instanceof FnLiteralNode) {
-                    return;
+                    break;
                 } else if (node instanceof TypeLiteralNode) {
-                    return;
+                    break;
                 }
                 return;
             case IDENTIFIER:
@@ -154,11 +152,18 @@ public class Compiler {
 
     // pull value from slot and push it onto the stack
     public void visitIdentifier(IdentifierNode node) {
-        final int slot = this.symbolTable.get(node.name);
-        mv.visitVarInsn(ALOAD, slot);
+        this.symbolTable.loadSymbol(node.name);
     }
 
+    // TODO reuse int literal instances
     public void visitIntLiteral(IntLiteralNode node) {
+        // create uninitialized KytheraValue object
+        this.mv.visitTypeInsn(NEW, "me/dejawu/kythera/runtime/KytheraValue");
+
+        // copy it (one is consumed by the constructor call)
+        this.mv.visitInsn(DUP);
+
+        // push int value on local stack
         if (node.value == -1) {
             this.mv.visitInsn(ICONST_M1);
         } else if (node.value == 0) {
@@ -176,6 +181,17 @@ public class Compiler {
         } else {
             this.mv.visitIntInsn(BIPUSH, node.value);
         }
+
+        // convert int to Integer
+        this.mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
+
+        // load reference to INT type literal constant
+        this.mv.visitFieldInsn(GETSTATIC, "me/dejawu/kythera/runtime/KytheraValue", "INT", "Lme/dejawu/kythera/runtime/KytheraValue;");
+
+        // call KytheraValue constructor
+        this.mv.visitMethodInsn(INVOKESPECIAL, "me/dejawu/kythera/runtime/KytheraValue", "<init>", "(Ljava/lang/Object;Lme/dejawu/kythera/runtime/KytheraValue;)V", false);
+
+        // store in symbol table
     }
 
     public void visitIf(IfNode node) {

@@ -4,6 +4,7 @@ import me.dejawu.kythera.backend.Compiler;
 import me.dejawu.kythera.frontend.Parser;
 import me.dejawu.kythera.frontend.node.StatementNode;
 
+import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -29,7 +30,13 @@ public class Main {
             }
 
             Compiler compiler = new Compiler(program, entryPoint);
+
+            System.out.println("Code generation succeeded, writing to: " + entryPoint + ".class");
+
             byte[] output = compiler.compile();
+            FileOutputStream fos = new FileOutputStream("out/" + entryPoint + ".class");
+            fos.write(output);
+            fos.close();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
