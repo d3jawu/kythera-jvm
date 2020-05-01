@@ -14,7 +14,7 @@ public class KytheraValue<T> {
     // self-referencing value, used only by TYPE literal
     private KytheraValue(T value) {
         if (!(value instanceof BaseType)) {
-            System.err.println("Invalid use of self-referencing value constructor.");
+            System.err.println("Invalid use of self-referencing value constructor on: " + value.toString());
             System.exit(1);
         }
 
@@ -36,9 +36,9 @@ public class KytheraValue<T> {
 
 
     // unit literal
-    public static KytheraValue<Void> UNIT_VAL = new KytheraValue<>(null);
+    public static KytheraValue<Void> UNIT_VAL = new KytheraValue<>(null, UNIT);
 
     // boolean literals
     public static KytheraValue<Boolean> TRUE = new KytheraValue<>(true, BOOL);
-    public static KytheraValue<Boolean> FALSE = new KytheraValue<>(false);
+    public static KytheraValue<Boolean> FALSE = new KytheraValue<>(false, BOOL);
 }

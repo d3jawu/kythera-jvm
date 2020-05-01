@@ -6,7 +6,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.List;
 
 import static org.objectweb.asm.Opcodes.*;
@@ -43,6 +42,7 @@ public class Compiler {
         }
 
         // cleanup
+        this.mv.visitInsn(RETURN);
         this.mv.visitMaxs(0, 0);
         this.tcv.visitEnd();
         return this.cw.toByteArray();
@@ -190,8 +190,6 @@ public class Compiler {
 
         // call KytheraValue constructor
         this.mv.visitMethodInsn(INVOKESPECIAL, "me/dejawu/kythera/runtime/KytheraValue", "<init>", "(Ljava/lang/Object;Lme/dejawu/kythera/runtime/KytheraValue;)V", false);
-
-        // store in symbol table
     }
 
     public void visitIf(IfNode node) {
