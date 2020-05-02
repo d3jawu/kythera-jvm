@@ -20,6 +20,7 @@ public final class Parser {
         this.currentScope.create("bool", BaseType.BOOL.typeLiteral);
         this.currentScope.create("unit", BaseType.UNIT.typeLiteral);
         this.currentScope.create("int", BaseType.INT.typeLiteral);
+        this.currentScope.create("float", BaseType.FLOAT.typeLiteral);
         this.currentScope.create("double", BaseType.DOUBLE.typeLiteral);
         this.currentScope.create("char", BaseType.CHAR.typeLiteral);
         this.currentScope.create("struct", BaseType.CHAR.typeLiteral);
@@ -238,7 +239,8 @@ public final class Parser {
         switch (nextToken.tokentype) {
             case NUM:
                 if (nextToken.value.contains(".")) {
-                    return new DoubleLiteralNode(Double.parseDouble(nextToken.value));
+//                    return new DoubleLiteralNode(Double.parseDouble(nextToken.value));
+                    return new FloatLiteralNode(Float.parseFloat(nextToken.value));
                 } else {
                     return new IntLiteralNode(Integer.parseInt(nextToken.value));
                 }

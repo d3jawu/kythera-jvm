@@ -39,7 +39,7 @@ public class KytheraValue<T> {
     public static KytheraValue<BaseType> UNIT = new KytheraValue<>(BaseType.UNIT, TYPE);
     public static KytheraValue<BaseType> BOOL = new KytheraValue<>(BaseType.BOOL, TYPE);
     public static KytheraValue<BaseType> INT = new KytheraValue<>(BaseType.INT, TYPE);
-    public static KytheraValue<BaseType> DOUBLE = new KytheraValue<>(BaseType.DOUBLE, TYPE);
+//    public static KytheraValue<BaseType> DOUBLE = new KytheraValue<>(BaseType.DOUBLE, TYPE);
     public static KytheraValue<BaseType> CHAR = new KytheraValue<>(BaseType.CHAR, TYPE);
 //     public static KytheraValue<BaseType> STRUCT = new KytheraValue<>
 //     (BaseType.STRUCT, TYPE);

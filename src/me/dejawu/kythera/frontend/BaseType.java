@@ -12,7 +12,7 @@ public enum BaseType {
     BOOL("bool", true), //    BYTE("byte", true),
     //    SHORT("short", true),
     INT("int", true), //    LONG("long", true),
-    //    FLOAT("float", true),
+    FLOAT("float", true),
     DOUBLE("double", true),
     CHAR("char", true),
     STRUCT("struct", false), //    TUPLE("tuple", false),
