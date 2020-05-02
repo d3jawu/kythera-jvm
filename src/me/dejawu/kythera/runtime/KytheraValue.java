@@ -2,16 +2,27 @@ package me.dejawu.kythera.runtime;
 
 import me.dejawu.kythera.frontend.BaseType;
 
+import java.util.HashMap;
+
 public class KytheraValue<T> {
     public final T value;
-    public final KytheraValue typeValue;
+    public final HashMap<String, KytheraValue<?>> fields;
+    public final KytheraValue<?> typeValue;
 
-    public KytheraValue(T value, KytheraValue typeValue) {
+    public KytheraValue(T value, KytheraValue<?> typeValue) {
         this.value = value;
         this.typeValue = typeValue;
+        this.fields = new HashMap<>();
     }
 
-    // self-referencing value, used only by TYPE literal
+    // constructor for structs, which use their fields as their value
+    public KytheraValue(KytheraValue<?> typeValue) {
+        this.typeValue = typeValue;
+        this.fields = new HashMap<>();
+        this.value = (T) this.fields;
+    }
+
+    // self-referencing value, used only by TYPE root literal
     private KytheraValue(T value) {
         if (!(value instanceof BaseType)) {
             System.err.println("Invalid use of self-referencing value constructor on: " + value.toString());
@@ -20,6 +31,7 @@ public class KytheraValue<T> {
 
         this.value = value;
         this.typeValue = this;
+        this.fields = null;
     }
 
     // type literals

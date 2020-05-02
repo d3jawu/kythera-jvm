@@ -11,21 +11,21 @@ import static me.dejawu.kythera.frontend.tokenizer.Symbol.SymbolKind;
  * Node for any assignment symbol
  */
 public class AssignNode extends ExpressionNode {
-    public final Symbol op;
+    public final Symbol operator;
     public final ExpressionNode left;
     public final ExpressionNode right;
 
-    public AssignNode(Symbol op, ExpressionNode left, ExpressionNode right) {
+    public AssignNode(Symbol operator, ExpressionNode left, ExpressionNode right) {
         super(NodeKind.ASSIGN, right.typeExp);
 
         // TODO ensure that left node is a valid identifier or object member
 
-        if (op.kind != SymbolKind.ASSIGN) {
-            System.err.println("Invalid operator: '" + op.symbol + "' is not " + "a valid assignment operator.");
+        if (operator.kind != SymbolKind.ASSIGN) {
+            System.err.println("Invalid operator: '" + operator.symbol + "' is not " + "a valid assignment operator.");
             System.exit(1);
         }
 
-        this.op = op;
+        this.operator = operator;
 
         this.left = left;
         this.right = right;

@@ -1,6 +1,7 @@
 package me.dejawu.kythera;
 
 import me.dejawu.kythera.backend.Compiler;
+import me.dejawu.kythera.frontend.Desugarer;
 import me.dejawu.kythera.frontend.Parser;
 import me.dejawu.kythera.frontend.node.StatementNode;
 
@@ -23,17 +24,31 @@ public class Main {
 
         try {
             String content = Files.readString(Paths.get("./" + entryPoint + ".ky"));
+
+            // generate initial AST
             Parser parser = new Parser(content);
-            List<StatementNode> program = parser.parse();
-            for (StatementNode st : program) {
+            List<StatementNode> ast = parser.parse();
+            for (StatementNode st : ast) {
                 st.print(0, System.out);
             }
 
-            Compiler compiler = new Compiler(program, entryPoint);
+            // remove syntactic sugar
+            Desugarer desugarer = new Desugarer(ast);
+            ast = desugarer.desugar();
+
+            // TODO type check on final AST
+
+            // TODO optimize constants
+
+            // TODO optimize statically known types
+
+            // TODO optimize primitives
+
+            // generate bytecode
+            Compiler compiler = new Compiler(ast, entryPoint);
+            byte[] output = compiler.compile();
 
             System.out.println("Code generation succeeded, writing to: " + entryPoint + ".class");
-
-            byte[] output = compiler.compile();
             FileOutputStream fos = new FileOutputStream("out/" + entryPoint + ".class");
             fos.write(output);
             fos.close();

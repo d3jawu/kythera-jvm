@@ -10,7 +10,6 @@ public class UnaryNode extends ExpressionNode {
     public final ExpressionNode target;
 
     public UnaryNode(Symbol op, ExpressionNode target) {
-        // TODO look up op in symbol table for target
         super(NodeKind.UNARY, target.typeExp);
 
         if (op != Symbol.BANG) {

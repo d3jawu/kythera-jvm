@@ -75,12 +75,8 @@ public class Compiler {
     // all expressions leave their result value(s) on the top of the stack
     public void visitExpression(ExpressionNode node) {
         switch (node.kind) {
-            case UNARY:
-                this.visitUnary((UnaryNode) node);
-                return;
-            case BINARY:
-                return;
             case ASSIGN:
+                // TODO make sure op is = with no other operator
                 return;
             case LITERAL:
                 // switch depending on which kind of literal
@@ -124,22 +120,14 @@ public class Compiler {
                 // switch depending on type of access
                 return;
             case BLOCK:
-                this.visitBlock((BlockNode) node);
-                return;
             case TYPEOF:
+            case UNARY:
+            case BINARY:
             default:
         }
 
         System.err.println("Unsupported or not implemented: " + node.kind.name());
         System.exit(1);
-    }
-
-    public void visitUnary(UnaryNode node) {
-
-    }
-
-    private void visitBlock(BlockNode node) {
-
     }
 
     private void visitCall(CallNode node) {
