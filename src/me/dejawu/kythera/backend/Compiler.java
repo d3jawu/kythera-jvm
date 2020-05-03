@@ -146,7 +146,6 @@ public class Compiler {
         this.symbolTable.loadSymbol(node.name);
     }
 
-    // TODO reuse int literal instances
     public void visitIntLiteral(IntLiteralNode node) {
         // create uninitialized KytheraValue object
         this.mv.visitTypeInsn(NEW, "me/dejawu/kythera/runtime/KytheraValue");

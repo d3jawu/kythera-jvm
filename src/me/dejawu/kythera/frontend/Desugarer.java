@@ -15,6 +15,7 @@ public class Desugarer {
     }
 
     // returns AST with syntactic sugar nodes removed
+    // Walter Bright calls this "lowering"
     public List<StatementNode> desugar() {
         List<StatementNode> desugared = new ArrayList<>();
 

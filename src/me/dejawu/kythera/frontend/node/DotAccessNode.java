@@ -15,13 +15,6 @@ public class DotAccessNode extends ExpressionNode {
     public DotAccessNode(ExpressionNode target, String key) {
         super(NodeKind.ACCESS);
 
-        // TODO read from symbol table
-        /*if (target) {
-            System.err.println("Expected struct with field " + key + ", but
-            found " + target.typeConstraint.toString());
-            System.exit(1);
-        }*/
-
         this.target = target;
         this.key = key;
     }

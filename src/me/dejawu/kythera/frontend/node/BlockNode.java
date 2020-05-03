@@ -35,12 +35,6 @@ public class BlockNode extends ExpressionNode {
 
                 if (typeExp == null) {
                     typeExp = ret.exp.typeExp;
-                } else if (!ret.exp.typeExp.equals(typeExp)) {
-                    System.err.println("Type mismatch: Block returned ");
-                    typeExp.print(0, System.err);
-                    System.err.println("but later also returned ");
-                    ret.exp.typeExp.print(0, System.err);
-                    System.exit(1);
                 }
             }
         }
@@ -48,16 +42,6 @@ public class BlockNode extends ExpressionNode {
         if (typeExp == null) {
             // if no return statements, use last expression as value
             this.typeExp = ((ExpressionNode) lastNode).typeExp;
-        } else {
-            // check last expression against return types
-            if (lastNode instanceof ExpressionNode) {
-                if (!((ExpressionNode) lastNode).typeExp.equals(typeExp)) {
-                    System.err.println("Type mismatch between last expression" + " and return type;");
-                    ((ExpressionNode) lastNode).typeExp.print(0, System.err);
-                    this.typeExp.print(0, System.err);
-                    System.exit(1);
-                }
-            }
         }
     }
 

@@ -24,17 +24,7 @@ public final class BinaryNode extends ExpressionNode {
         this.left = left;
         this.right = right;
 
-        // type comparison is simply (typeof LHS).equals(typeof RHS)
-        // where typeof is Kythera's typeof implementation, not Java's
-        if (!left.typeExp.equals(right.typeExp)) {
-            System.err.println("LHS and RHS types do not match.");
-            System.err.println("left:");
-            left.typeExp.print(0, System.err);
-            System.err.println("right:");
-            right.typeExp.print(0, System.err);
-            System.exit(1);
-        }
-
+        // type-checking is done later
         this.typeExp = left.typeExp;
     }
 

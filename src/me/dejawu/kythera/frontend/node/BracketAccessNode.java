@@ -15,8 +15,6 @@ public class BracketAccessNode extends ExpressionNode {
 
         this.target = target;
         this.key = key;
-
-        // TODO find out type
     }
 
     @Override

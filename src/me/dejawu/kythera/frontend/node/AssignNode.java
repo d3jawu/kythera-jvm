@@ -18,8 +18,6 @@ public class AssignNode extends ExpressionNode {
     public AssignNode(Symbol operator, ExpressionNode left, ExpressionNode right) {
         super(NodeKind.ASSIGN, right.typeExp);
 
-        // TODO ensure that left node is a valid identifier or object member
-
         if (operator.kind != SymbolKind.ASSIGN) {
             System.err.println("Invalid operator: '" + operator.symbol + "' is not " + "a valid assignment operator.");
             System.exit(1);
@@ -29,11 +27,6 @@ public class AssignNode extends ExpressionNode {
 
         this.left = left;
         this.right = right;
-
-        if (!left.typeExp.equals(right.typeExp)) {
-            System.err.println("Left and right types do not match.");
-            System.exit(1);
-        }
     }
 
     @Override

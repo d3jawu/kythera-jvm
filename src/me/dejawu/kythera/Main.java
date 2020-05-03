@@ -3,6 +3,7 @@ package me.dejawu.kythera;
 import me.dejawu.kythera.backend.Compiler;
 import me.dejawu.kythera.frontend.Desugarer;
 import me.dejawu.kythera.frontend.Parser;
+import me.dejawu.kythera.frontend.TypeChecker;
 import me.dejawu.kythera.frontend.node.StatementNode;
 
 import java.io.FileOutputStream;
@@ -12,7 +13,6 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class Main {
-
     public static void main(String[] args) {
         String entryPoint;
 
@@ -24,6 +24,8 @@ public class Main {
 
         try {
             String content = Files.readString(Paths.get("./" + entryPoint + ".ky"));
+
+            // frontend
 
             // generate initial AST
             Parser parser = new Parser(content);
@@ -37,12 +39,18 @@ public class Main {
             ast = desugarer.desugar();
 
             // TODO type check on final AST
+            TypeChecker typeChecker = new TypeChecker(ast);
+            ast = typeChecker.typeCheck();
 
-            // TODO optimize constants
+            // backend
 
-            // TODO optimize statically known types
+            // TODO optimize constants and reuse literals
 
-            // TODO optimize primitives
+            // TODO optimize statically known types into pre-defined classes
+
+            // TODO optimize KytheraValues for primitives into JVM primitives
+
+            // TODO optimize bytecode
 
             // generate bytecode
             Compiler compiler = new Compiler(ast, entryPoint);
