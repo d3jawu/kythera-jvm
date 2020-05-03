@@ -239,13 +239,14 @@ public final class Parser {
         switch (nextToken.tokentype) {
             case NUM:
                 if (nextToken.value.contains(".")) {
-//                    return new DoubleLiteralNode(Double.parseDouble(nextToken.value));
+                    // TODO implement trailing 'f' syntax for floating points
+                    // return new DoubleLiteralNode(Double.parseDouble(nextToken.value));
                     return new FloatLiteralNode(Float.parseFloat(nextToken.value));
                 } else {
                     return new IntLiteralNode(Integer.parseInt(nextToken.value));
                 }
-//            case STR:
-//                return new StrLiteralNode(nextToken.value);
+            // case STR:
+                // return new StrLiteralNode(nextToken.value);
             case VAR:
                 // insert built-in values
                 switch (nextToken.value) {

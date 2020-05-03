@@ -91,6 +91,9 @@ public class Compiler {
                 } else if (node instanceof IntLiteralNode) {
                     this.visitIntLiteral((IntLiteralNode) node);
                     return;
+                } else if (node instanceof FloatLiteralNode) {
+                    this.visitFloatLiteral((FloatLiteralNode) node);
+                    return;
                 } else if (node instanceof DoubleLiteralNode) {
                     break;
                 } else if (node instanceof StructLiteralNode) {
@@ -177,6 +180,28 @@ public class Compiler {
         this.mv.visitFieldInsn(GETSTATIC, "me/dejawu/kythera/runtime/KytheraValue", "INT", "Lme/dejawu/kythera/runtime/KytheraValue;");
 
         // call KytheraValue constructor
+        this.mv.visitMethodInsn(INVOKESPECIAL, "me/dejawu/kythera/runtime/KytheraValue", "<init>", "(Ljava/lang/Object;Lme/dejawu/kythera/runtime/KytheraValue;)V", false);
+    }
+
+    public void visitFloatLiteral(FloatLiteralNode node) {
+        this.mv.visitTypeInsn(NEW, "me/dejawu/kythera/runtime/KytheraValue");
+
+        this.mv.visitInsn(DUP);
+
+        if (node.value == 0) {
+            this.mv.visitInsn(FCONST_0);
+        } else if(node.value == 1.0) {
+            this.mv.visitInsn(FCONST_1);
+        } else if(node.value == 2.0) {
+            this.mv.visitInsn(FCONST_2);
+        } else {
+            this.mv.visitLdcInsn(node.value);
+        }
+
+        this.mv.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;", false);
+
+        this.mv.visitFieldInsn(GETSTATIC, "me/dejawu/kythera/runtime/KytheraValue", "FLOAT", "Lme/dejawu/kythera/runtime/KytheraValue;");
+
         this.mv.visitMethodInsn(INVOKESPECIAL, "me/dejawu/kythera/runtime/KytheraValue", "<init>", "(Ljava/lang/Object;Lme/dejawu/kythera/runtime/KytheraValue;)V", false);
     }
 
