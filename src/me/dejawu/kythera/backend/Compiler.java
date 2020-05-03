@@ -204,6 +204,10 @@ public class Compiler {
         this.mv.visitMethodInsn(INVOKESPECIAL, "me/dejawu/kythera/runtime/KytheraValue", "<init>", "(Ljava/lang/Object;Lme/dejawu/kythera/runtime/KytheraValue;)V", false);
     }
 
+    public void visitFnLiteral(FnLiteralNode node) {
+
+    }
+
     public void visitIf(IfNode node) {
 
     }

@@ -358,7 +358,7 @@ public final class Parser {
         StructTypeLiteralNode structType = new StructTypeLiteralNode();
         StructLiteralNode structResult = new StructLiteralNode(structType);
 
-        HashMap<String, ExpressionNode> typeContents = structType.entries;
+        HashMap<String, ExpressionNode> typeContents = structType.entryTypes;
         HashMap<String, ExpressionNode> resultContents = structResult.entries;
 
         this.currentScope = new Scope(this.currentScope, Scope.ScopeType.FUNCTION, structType);
@@ -407,7 +407,7 @@ public final class Parser {
     private StructTypeLiteralNode parseStructTypeLiteral(ExpressionNode firstTypeExp) {
         StructTypeLiteralNode structType = new StructTypeLiteralNode();
 
-        HashMap<String, ExpressionNode> entries = structType.entries;
+        HashMap<String, ExpressionNode> entries = structType.entryTypes;
 
         boolean firstRun = true;
 

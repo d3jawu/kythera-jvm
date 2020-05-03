@@ -27,20 +27,24 @@ public class Main {
 
             // frontend
 
-            // generate initial AST
+            System.out.println("Generating initial AST");
             Parser parser = new Parser(content);
             List<StatementNode> ast = parser.parse();
+
+            System.out.println("Desugaring");
+            Desugarer desugarer = new Desugarer(ast);
+            ast = desugarer.visit();
+
+            // typeExps on ExpressionNodes may still be null at this point
+
+            System.out.println("Type-checking");
+            TypeChecker typeChecker = new TypeChecker(ast);
+            ast = typeChecker.visit();
+
+            System.out.println("Final AST:");
             for (StatementNode st : ast) {
                 st.print(0, System.out);
             }
-
-            // remove syntactic sugar
-            Desugarer desugarer = new Desugarer(ast);
-            ast = desugarer.desugar();
-
-            // TODO type check on final AST
-            TypeChecker typeChecker = new TypeChecker(ast);
-            ast = typeChecker.typeCheck();
 
             // backend
 
@@ -52,11 +56,11 @@ public class Main {
 
             // TODO optimize bytecode
 
-            // generate bytecode
+            System.out.println("Generating bytecode");
             Compiler compiler = new Compiler(ast, entryPoint);
             byte[] output = compiler.compile();
 
-            System.out.println("Code generation succeeded, writing to: " + entryPoint + ".class");
+            System.out.println("Writing to: " + entryPoint + ".class");
             FileOutputStream fos = new FileOutputStream("out/" + entryPoint + ".class");
             fos.write(output);
             fos.close();

@@ -8,16 +8,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class StructTypeLiteralNode extends TypeLiteralNode {
-    public final HashMap<String, ExpressionNode> entries;
+    public final HashMap<String, ExpressionNode> entryTypes;
 
     public StructTypeLiteralNode() {
         super(BaseType.STRUCT);
-        this.entries = new HashMap<>();
+        this.entryTypes = new HashMap<>();
     }
 
-    public StructTypeLiteralNode(HashMap<String, ExpressionNode> entries) {
+    public StructTypeLiteralNode(HashMap<String, ExpressionNode> entryTypes) {
         super(BaseType.STRUCT);
-        this.entries = entries;
+        this.entryTypes = entryTypes;
     }
 
     @Override
@@ -25,7 +25,7 @@ public class StructTypeLiteralNode extends TypeLiteralNode {
         Main.printlnWithIndent("StructTypeLiteralNode {", indent, stream);
         Main.printlnWithIndent("\tentries:", indent, stream);
 
-        for (Map.Entry<String, ExpressionNode> entry : entries.entrySet()) {
+        for (Map.Entry<String, ExpressionNode> entry : entryTypes.entrySet()) {
             Main.printlnWithIndent("\t\t" + entry.getKey() + ":", indent, stream);
             Main.printlnWithIndent("\t\t\ttypeExp:", indent, stream);
             entry.getValue().print(indent + 3, stream);

@@ -54,9 +54,6 @@ public class BlockNode extends ExpressionNode {
             st.print(indent + 2, stream);
         }
 
-        Main.printlnWithIndent("\treturn type exp:", indent, stream);
-        typeExp.print(indent + 2, stream);
-
         Main.printlnWithIndent("} BlockNode", indent, stream);
     }
 }
