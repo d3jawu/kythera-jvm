@@ -5,7 +5,21 @@ import me.dejawu.kythera.frontend.BaseType;
 import java.util.HashMap;
 
 public class KytheraValue<T> {
+    /*
+    value stores the actual value this KytheraValue is supposed to represent/expose.
+
+    Kythera values are internally represented by the following Java types:
+    unit: null
+    bool: Boolean
+    int: Integer
+    float: Float
+    char: Char
+    struct: reference to fields (value's own fields are the exposed value)
+    fn: InternalFnValue
+    type: InternalTypeValue
+     */
     public final T value;
+    // fields stores the concrete members of the value
     public final HashMap<String, KytheraValue<?>> fields;
     public final KytheraValue<?> typeValue;
 

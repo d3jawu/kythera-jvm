@@ -120,11 +120,15 @@ public class Desugarer extends Visitor {
                 (BlockNode) visitExpression(fnLiteralNode.body)
             );
         } else if(literalNode instanceof StructLiteralNode) {
-            System.out.println("Warning: desugaring for struct literal nodes not yet implemented");
-//            StructLiteralNode structLiteralNode = (StructLiteralNode) literalNode;
+            StructLiteralNode structLiteralNode = (StructLiteralNode) literalNode;
 
-//            return new StructLiteralNode()
-            return literalNode;
+            HashMap<String, ExpressionNode> entries = new HashMap<>();
+
+            for(Map.Entry<String, ExpressionNode> e : structLiteralNode.entries.entrySet()) {
+                entries.put(e.getKey(), visitExpression(e.getValue()));
+            }
+
+            return new StructLiteralNode((StructTypeLiteralNode) structLiteralNode.typeExp, entries);
         } else if(literalNode instanceof TypeLiteralNode) {
             System.out.println("Warning: desugaring for type literal nodes not yet implemented");
             return literalNode;

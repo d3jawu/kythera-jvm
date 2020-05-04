@@ -5,8 +5,8 @@ package me.dejawu.kythera.frontend.node;
  * have a type.
  */
 public abstract class ExpressionNode extends StatementNode {
-    public ExpressionNode typeExp; // expression that actually gave this
-    // value its type
+    // holds expression that gave this value its type
+    public ExpressionNode typeExp;
 
     ExpressionNode(NodeKind kind) {
         super(kind);

@@ -15,6 +15,11 @@ public class StructLiteralNode extends LiteralNode {
         this.entries = new HashMap<>();
     }
 
+    public StructLiteralNode(StructTypeLiteralNode typeExp, HashMap<String, ExpressionNode> entries) {
+        super(typeExp);
+        this.entries = entries;
+    }
+
     @Override
     public void print(int indent, PrintStream stream) {
         Main.printlnWithIndent("StructLiteralNode {", indent, stream);

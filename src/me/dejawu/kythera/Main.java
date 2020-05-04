@@ -37,6 +37,10 @@ public class Main {
 
             // typeExps on ExpressionNodes may still be null at this point
 
+            // TODO link types to expressions (no null typeExps)
+
+            // TODO mark types as dynamic or statically known
+
             System.out.println("Type-checking");
             TypeChecker typeChecker = new TypeChecker(ast);
             ast = typeChecker.visit();
