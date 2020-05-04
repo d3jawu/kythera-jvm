@@ -1,6 +1,5 @@
 package me.dejawu.kythera.frontend;
 
-import me.dejawu.kythera.Scope;
 import me.dejawu.kythera.frontend.node.*;
 import me.dejawu.kythera.frontend.tokenizer.*;
 
@@ -9,23 +8,10 @@ import java.util.*;
 public final class Parser {
     private final List<StatementNode> program;
 
-    private Scope currentScope = new Scope();
-
     private final Tokenizer tokenizer;
 
     public Parser(String input) {
         this.program = new ArrayList<>();
-
-        // load primitive type literals into scope
-        this.currentScope.create("bool", BaseType.BOOL.typeLiteral);
-        this.currentScope.create("unit", BaseType.UNIT.typeLiteral);
-        this.currentScope.create("int", BaseType.INT.typeLiteral);
-        this.currentScope.create("float", BaseType.FLOAT.typeLiteral);
-        this.currentScope.create("double", BaseType.DOUBLE.typeLiteral);
-        this.currentScope.create("char", BaseType.CHAR.typeLiteral);
-        this.currentScope.create("struct", BaseType.CHAR.typeLiteral);
-        this.currentScope.create("fn", BaseType.FN.typeLiteral);
-        this.currentScope.create("type", BaseType.TYPE.typeLiteral);
 
         InputStream inputStream = new InputStream(input);
         this.tokenizer = new Tokenizer(inputStream);
@@ -59,8 +45,6 @@ public final class Parser {
                 this.tokenizer.consume(Symbol.EQUALS.token);
 
                 ExpressionNode value = this.parseExpression(true);
-
-                this.currentScope.create(identifierToken.value, value.typeExp);
 
                 return new LetNode(identifierToken.value, value);
             }
@@ -190,11 +174,7 @@ public final class Parser {
                 case IF:
                     ExpressionNode ifCondition = this.parseExpression(true);
 
-                    this.currentScope = new Scope(this.currentScope, Scope.ScopeType.CONTROL_FLOW, null);
-
                     BlockNode ifBody = this.parseBlock();
-
-                    this.currentScope = this.currentScope.parent;
 
                     if (this.tokenizer.confirm(Keyword.ELSE.token) != null) {
                         // else block present
@@ -204,9 +184,7 @@ public final class Parser {
 
                         if (this.tokenizer.confirm(Symbol.OPEN_BRACE.token) != null) {
                             // else only, block follows
-                            this.currentScope = new Scope(this.currentScope, Scope.ScopeType.CONTROL_FLOW, null);
                             ifElse = this.parseBlock();
-                            this.currentScope = this.currentScope.parent;
                         } else if (this.tokenizer.confirm(Keyword.IF.token) != null) {
                             // else-if, if follows
                             ifElse = this.parseExpression(true);
@@ -224,9 +202,7 @@ public final class Parser {
                 case WHILE:
                     ExpressionNode whileCondition = this.parseExpression(true);
 
-                    this.currentScope = new Scope(this.currentScope, Scope.ScopeType.CONTROL_FLOW, null);
                     BlockNode whileBody = this.parseBlock();
-                    this.currentScope = this.currentScope.parent;
 
                     return new WhileNode(whileCondition, whileBody);
             }
@@ -257,7 +233,7 @@ public final class Parser {
                     case "unit":
                         return UnitLiteral.UNIT;
                     default:
-                        return new IdentifierNode(nextToken.value, this.currentScope.getTypeOf(nextToken.value));
+                        return new IdentifierNode(nextToken.value, null);
                 }
         }
 
@@ -318,8 +294,6 @@ public final class Parser {
         boolean firstRun = true;
         SortedMap<String, ExpressionNode> parameters = new TreeMap<String, ExpressionNode>();
 
-        this.currentScope = new Scope(this.currentScope, Scope.ScopeType.FUNCTION, null);
-
         // opening parentheses and first type expression have already been
         // consumed
 
@@ -336,8 +310,6 @@ public final class Parser {
             this.tokenizer.consume(TokenType.VAR);
 
             parameters.put(paramName, paramTypeExp);
-            this.currentScope.create(paramName, paramTypeExp);
-
             if (this.tokenizer.confirm(Symbol.CLOSE_PAREN.token) == null) {
                 this.tokenizer.consume(Symbol.COMMA.token);
             }
@@ -346,8 +318,6 @@ public final class Parser {
         this.tokenizer.consume(Symbol.CLOSE_PAREN.token);
 
         BlockNode body = this.parseBlock();
-
-        this.currentScope = this.currentScope.parent;
 
         return new FnLiteralNode(parameters, body);
     }
@@ -360,8 +330,6 @@ public final class Parser {
 
         HashMap<String, ExpressionNode> typeContents = structType.entryTypes;
         HashMap<String, ExpressionNode> resultContents = structResult.entries;
-
-        this.currentScope = new Scope(this.currentScope, Scope.ScopeType.FUNCTION, structType);
 
         boolean firstRun = true;
 
@@ -385,8 +353,6 @@ public final class Parser {
         }
 
         this.tokenizer.consume(Symbol.CLOSE_BRACE.token);
-
-        this.currentScope = this.currentScope.parent;
 
         return structResult;
     }
