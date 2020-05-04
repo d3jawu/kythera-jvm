@@ -1,4 +1,4 @@
-package me.dejawu.kythera.frontend.node;
+package me.dejawu.kythera.ast;
 
 import java.io.PrintStream;
 

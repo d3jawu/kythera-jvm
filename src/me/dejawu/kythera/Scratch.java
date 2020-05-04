@@ -1,4 +1,4 @@
-package me.dejawu.kythera.backend;
+package me.dejawu.kythera;
 
 import me.dejawu.kythera.runtime.KytheraValue;
 

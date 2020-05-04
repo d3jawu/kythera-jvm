@@ -1,6 +1,6 @@
 package me.dejawu.kythera.frontend;
 
-import me.dejawu.kythera.frontend.node.*;
+import me.dejawu.kythera.ast.*;
 import me.dejawu.kythera.frontend.tokenizer.*;
 
 import java.util.*;

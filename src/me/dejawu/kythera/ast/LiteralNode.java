@@ -1,4 +1,4 @@
-package me.dejawu.kythera.frontend.node;
+package me.dejawu.kythera.ast;
 
 public abstract class LiteralNode extends ExpressionNode {
     // we should always be able to determine the type for a literal

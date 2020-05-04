@@ -1,6 +1,6 @@
 package me.dejawu.kythera.frontend;
 
-import me.dejawu.kythera.frontend.node.TypeLiteralNode;
+import me.dejawu.kythera.ast.TypeLiteralNode;
 
 /**
  * Enum for core types.

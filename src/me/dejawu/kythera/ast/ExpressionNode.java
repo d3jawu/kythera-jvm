@@ -1,4 +1,4 @@
-package me.dejawu.kythera.frontend.node;
+package me.dejawu.kythera.ast;
 
 /**
  * ExpressionNodes are statements that evaluate to a value and therefore also

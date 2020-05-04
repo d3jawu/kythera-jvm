@@ -1,7 +1,6 @@
-package me.dejawu.kythera.frontend.node;
+package me.dejawu.kythera.ast;
 
 import me.dejawu.kythera.Main;
-import me.dejawu.kythera.frontend.BaseType;
 
 import java.io.PrintStream;
 import java.util.List;

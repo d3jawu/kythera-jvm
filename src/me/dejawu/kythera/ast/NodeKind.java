@@ -1,4 +1,4 @@
-package me.dejawu.kythera.frontend.node;
+package me.dejawu.kythera.ast;
 
 public enum NodeKind {
     ACCESS,

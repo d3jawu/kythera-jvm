@@ -4,7 +4,7 @@ import me.dejawu.kythera.backend.Compiler;
 import me.dejawu.kythera.frontend.Desugarer;
 import me.dejawu.kythera.frontend.Parser;
 import me.dejawu.kythera.frontend.TypeChecker;
-import me.dejawu.kythera.frontend.node.StatementNode;
+import me.dejawu.kythera.ast.StatementNode;
 
 import java.io.FileOutputStream;
 import java.io.PrintStream;
