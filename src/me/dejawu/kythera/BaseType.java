@@ -1,4 +1,4 @@
-package me.dejawu.kythera.frontend;
+package me.dejawu.kythera;
 
 import me.dejawu.kythera.ast.TypeLiteralNode;
 

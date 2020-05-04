@@ -1,7 +1,7 @@
 package me.dejawu.kythera.ast;
 
 import me.dejawu.kythera.Main;
-import me.dejawu.kythera.frontend.BaseType;
+import me.dejawu.kythera.BaseType;
 
 import java.io.PrintStream;
 import java.util.HashMap;

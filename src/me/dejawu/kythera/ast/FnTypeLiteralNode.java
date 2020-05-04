@@ -1,6 +1,6 @@
 package me.dejawu.kythera.ast;
 
-import me.dejawu.kythera.frontend.BaseType;
+import me.dejawu.kythera.BaseType;
 
 import java.util.List;
 
