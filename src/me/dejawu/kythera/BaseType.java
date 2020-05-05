@@ -17,7 +17,7 @@ public enum BaseType {
     CHAR("char", true),
     STRUCT("struct", false), //    TUPLE("tuple", false),
     // MAP("map", false),
-    // LIST("list", false),
+    LIST("list", false),
     // TUPLE("tuple", false),
     // STR("str", false),
     FN("fn", false),

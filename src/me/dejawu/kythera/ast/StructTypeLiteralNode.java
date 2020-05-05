@@ -7,6 +7,8 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
+// just as struct is the one "true" type, the struct type literal is the one "true" type literal
+// in other words, for everything user-definable, this /is/ the "TypeLiteralNode"
 public class StructTypeLiteralNode extends TypeLiteralNode {
     public final HashMap<String, ExpressionNode> entryTypes;
 
