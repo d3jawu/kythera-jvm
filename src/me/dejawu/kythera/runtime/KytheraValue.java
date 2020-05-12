@@ -1,8 +1,5 @@
 package me.dejawu.kythera.runtime;
 
-import me.dejawu.kythera.BaseType;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class KytheraValue<T> {
@@ -22,6 +19,7 @@ public class KytheraValue<T> {
     public final T value;
     // fields stores the concrete members of this value
     public final HashMap<String, KytheraValue<?>> fields;
+    // a reference to the value that represents this value's type
     public final KytheraValue<?> typeValue;
 
     public KytheraValue(T value, KytheraValue<?> typeValue) {
@@ -46,7 +44,7 @@ public class KytheraValue<T> {
 
     // self-referencing value, used only by TYPE root literal
     private KytheraValue(T value) {
-        if (!(value instanceof BaseType)) {
+        if (!(value instanceof InternalTypeValue)) {
             System.err.println("Invalid use of self-referencing value constructor on: " + value.toString());
             System.exit(1);
         }
@@ -57,19 +55,19 @@ public class KytheraValue<T> {
     }
 
     // literals for primitive types (i.e. only one type value is needed to describe all instances of that type)
-    // currently all types point to the raw TYPE for their typeValue.
-    // in the future, this may become more elaborate.
 
     // root type is the simplest possible type: a type with no fields
-    public static KytheraValue<InternalTypeValue> TYPE = new KytheraValue<>(InternalTypeValue.TYPE);
+    public static KytheraValue<InternalTypeValue> TYPE = new KytheraValue<>(InternalTypeValue.ROOT_TYPE);
     // Unit has no fields
     public static KytheraValue<InternalTypeValue> UNIT = new KytheraValue<>(InternalTypeValue.UNIT, TYPE);
     public static KytheraValue<InternalTypeValue> BOOL = new KytheraValue<>(InternalTypeValue.BOOL, TYPE, new HashMap<>());
-    public static KytheraValue<InternalTypeValue> INT = new KytheraValue<>(InternalTypeValue.INT, TYPE);
-    // public static KytheraValue<BaseType> DOUBLE = new KytheraValue<>(BaseType.DOUBLE, TYPE);
-    public static KytheraValue<BaseType> FLOAT = new KytheraValue<>(BaseType.FLOAT, TYPE);
-    public static KytheraValue<BaseType> CHAR = new KytheraValue<>(BaseType.CHAR, TYPE);
+    public static KytheraValue<InternalTypeValue> INT = new KytheraValue<>(InternalTypeValue.INT, TYPE,  new HashMap<>());
 
+    // public static KytheraValue<BaseType> DOUBLE = new KytheraValue<>(BaseType.DOUBLE, TYPE);
+    public static KytheraValue<InternalTypeValue> FLOAT = new KytheraValue<>(InternalTypeValue.FLOAT, TYPE);
+    public static KytheraValue<InternalTypeValue> CHAR = new KytheraValue<>(InternalTypeValue.CHAR, TYPE);
+
+    // TODO hardcode common function types?
 
     // unit literal
     public static KytheraValue<Void> UNIT_VAL = new KytheraValue<>(null, UNIT);

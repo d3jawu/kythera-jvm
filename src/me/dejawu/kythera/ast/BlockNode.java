@@ -39,7 +39,7 @@ public class BlockNode extends ExpressionNode {
             }
         }
 
-        if (typeExp == null) {
+        if (typeExp == null && lastNode.kind != NodeKind.RETURN) {
             // if no return statements, use last expression as value
             this.typeExp = ((ExpressionNode) lastNode).typeExp;
         }
