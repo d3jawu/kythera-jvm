@@ -35,7 +35,6 @@ public class InternalTypeValue {
 
         return this.baseType.equals(internalTypeValue.baseType) && this.typeMeta.equals(internalTypeValue.typeMeta);
     }
-    // scalar types (and the root type) each have a reusable static primitive, declared below
 
     // the root type is a type value whose instances have no fields.
     public static InternalTypeValue ROOT_TYPE = new InternalTypeValue(BaseType.TYPE, new HashMap<>());
@@ -50,74 +49,74 @@ public class InternalTypeValue {
     public static InternalTypeValue INT = new InternalTypeValue(BaseType.INT, new HashMap<>() {
         {
             final KytheraValue<InternalTypeValue> IntToIntFnType = new KytheraValue<>(
-                    new InternalTypeValue(BaseType.FN, new HashMap<>() {
-                        {
-                            // list containing type values
-                            put("params", new KytheraValue<InternalListValue>(
-                                    // list value containing entries
-                                    new InternalListValue() {
-                                        {
-                                            add(KytheraValue.INT);
-                                        }
-                                    },
-                                    // type value for this list
-                                    new KytheraValue<>(
-                                            new InternalTypeValue(BaseType.LIST, new HashMap<>() {
-                                                {
-                                                    put("memberType", KytheraValue.TYPE);
-                                                }
-                                                }),
-                                            null
-                                            ),
-                                    // fields attached to this list
-                                    // TODO list methods
-                                    new HashMap<>()
-                            ));
-                            put("return", KytheraValue.INT);
-                        }
-                    }),
-                    KytheraValue.TYPE,
-                    null
+                new InternalTypeValue(BaseType.FN, new HashMap<>() {
+                    {
+                        // list containing type values
+                        put("params", new KytheraValue<InternalListValue>(
+                            // list value containing entries
+                            new InternalListValue() {
+                                {
+                                    add(TypeValueStore.INT);
+                                }
+                            },
+                            // type value for this list
+                            new KytheraValue<>(
+                                new InternalTypeValue(BaseType.LIST, new HashMap<>() {
+                                    {
+                                        put("memberType", TypeValueStore.TYPE);
+                                    }
+                                }),
+                                null
+                            ),
+                            // fields attached to this list
+                            // TODO list methods
+                            new HashMap<>()
+                        ));
+                        put("return", TypeValueStore.INT);
+                    }
+                }),
+                TypeValueStore.TYPE,
+                null
             );
 
-            final KytheraValue<InternalTypeValue> IntToBoolFn = new KytheraValue<>(
-                    new InternalTypeValue(BaseType.FN, new HashMap<>() {
-                        {
-                            // list containing type values
-                            put("params", new KytheraValue<InternalListValue>(
-                                    // list value containing entries
-                                    new InternalListValue() {
-                                        {
-                                            add(KytheraValue.INT);
-                                        }
-                                    },
-                                    // type value for this list
-                                    new KytheraValue<>(
-                                            new InternalTypeValue(BaseType.LIST, new HashMap<>() {
-                                                {
-                                                    put("memberType", KytheraValue.TYPE);
-                                                }
-                                            }),
-                                            null
-                                    ),
-                                    // fields attached to this list
-                                    // TODO list methods
-                                    new HashMap<>()
-                            ));
-                            put("return", KytheraValue.BOOL);
-                        }
-                    }),
-                    KytheraValue.TYPE,
-                    null
+            final KytheraValue<InternalTypeValue> IntToBoolFnType = new KytheraValue<>(
+                new InternalTypeValue(BaseType.FN, new HashMap<>() {
+                    {
+                        // list containing type values
+                        put("params", new KytheraValue<InternalListValue>(
+                            // list value containing entries
+                            new InternalListValue() {
+                                {
+                                    add(TypeValueStore.INT);
+                                }
+                            },
+                            // type value for this list
+                            new KytheraValue<>(
+                                new InternalTypeValue(BaseType.LIST, new HashMap<>() {
+                                    {
+                                        put("memberType", TypeValueStore.TYPE);
+                                    }
+                                }),
+                                null
+                            ),
+                            // fields attached to this list
+                            // TODO list methods
+                            new HashMap<>()
+                        ));
+                        put("return", TypeValueStore.BOOL);
+                    }
+                }),
+                TypeValueStore.TYPE,
+                null
             );
 
             // no deep equivalence operations for INT
-            put("==", IntToBoolFn);
-            put("!=", IntToBoolFn);
+            put("==", IntToBoolFnType);
+            put("!=", IntToBoolFnType);
 
             // <= is implemented as x < y || x == y, likewise for >=
-            put("<", IntToBoolFn);
-            put(">", IntToBoolFn);
+            put("<", IntToBoolFnType);
+            put(">", IntToBoolFnType);
 
             // arithmetic assignment (eg +=) is also handled by the operation given here
             put("+", IntToIntFnType);

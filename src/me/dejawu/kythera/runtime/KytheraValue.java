@@ -43,7 +43,7 @@ public class KytheraValue<T> {
     }
 
     // self-referencing value, used only by TYPE root literal
-    private KytheraValue(T value) {
+    public KytheraValue(T value) {
         if (!(value instanceof InternalTypeValue)) {
             System.err.println("Invalid use of self-referencing value constructor on: " + value.toString());
             System.exit(1);
@@ -54,25 +54,12 @@ public class KytheraValue<T> {
         this.fields = null;
     }
 
-    // literals for primitive types (i.e. only one type value is needed to describe all instances of that type)
-
-    // root type is the simplest possible type: a type with no fields
-    public static KytheraValue<InternalTypeValue> TYPE = new KytheraValue<>(InternalTypeValue.ROOT_TYPE);
-    // Unit has no fields
-    public static KytheraValue<InternalTypeValue> UNIT = new KytheraValue<>(InternalTypeValue.UNIT, TYPE);
-    public static KytheraValue<InternalTypeValue> BOOL = new KytheraValue<>(InternalTypeValue.BOOL, TYPE, new HashMap<>());
-    public static KytheraValue<InternalTypeValue> INT = new KytheraValue<>(InternalTypeValue.INT, TYPE,  new HashMap<>());
-
-    // public static KytheraValue<BaseType> DOUBLE = new KytheraValue<>(BaseType.DOUBLE, TYPE);
-    public static KytheraValue<InternalTypeValue> FLOAT = new KytheraValue<>(InternalTypeValue.FLOAT, TYPE);
-    public static KytheraValue<InternalTypeValue> CHAR = new KytheraValue<>(InternalTypeValue.CHAR, TYPE);
-
     // TODO hardcode common function types?
 
     // unit literal
-    public static KytheraValue<Void> UNIT_VAL = new KytheraValue<>(null, UNIT);
+    public static KytheraValue<Void> UNIT_VAL = new KytheraValue<>(null, TypeValueStore.UNIT);
 
     // boolean literals
-    public static KytheraValue<Boolean> TRUE = new KytheraValue<>(true, BOOL);
-    public static KytheraValue<Boolean> FALSE = new KytheraValue<>(false, BOOL);
+    public static KytheraValue<Boolean> TRUE = new KytheraValue<>(true, TypeValueStore.BOOL);
+    public static KytheraValue<Boolean> FALSE = new KytheraValue<>(false, TypeValueStore.BOOL);
 }
