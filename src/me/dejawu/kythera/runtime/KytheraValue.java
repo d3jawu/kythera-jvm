@@ -54,7 +54,11 @@ public class KytheraValue<T> {
         this.fields = null;
     }
 
-    // TODO hardcode common function types?
+    // type that describes types and their operations
+    public static KytheraValue<InternalTypeValue> TYPE = new KytheraValue<InternalTypeValue>(
+        new InternalTypeValue(),
+
+    );
 
     // unit literal
     public static KytheraValue<Void> UNIT_VAL = new KytheraValue<>(null, TypeValueStore.UNIT);
@@ -62,4 +66,13 @@ public class KytheraValue<T> {
     // boolean literals
     public static KytheraValue<Boolean> TRUE = new KytheraValue<>(true, TypeValueStore.BOOL);
     public static KytheraValue<Boolean> FALSE = new KytheraValue<>(false, TypeValueStore.BOOL);
+
+    @Override
+    public String toString() {
+        String out = "KytheraValue {\n";
+        out += "\tValue:\n";
+        out += "\t" + value.toString() + "\n";
+        out += "} KytheraValue";
+        return out;
+    }
 }

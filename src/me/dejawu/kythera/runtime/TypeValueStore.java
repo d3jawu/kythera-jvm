@@ -28,7 +28,9 @@ public class TypeValueStore {
             new InternalTypeValue(
                 BaseType.STRUCT,
                 fields,
-                fields
+                new HashMap<>() {{
+                    put("fields", fields);
+                }}
             ),
             TYPE
         ));

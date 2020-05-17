@@ -8,7 +8,7 @@ public class InternalTypeValue {
     public final BaseType baseType;
     // additional data needed to describe type, e.g. function parameters/return type, list member type
     // don't confuse this with user-accessible/exposed fields! These go in KytheraValue.fields.
-    public final HashMap<String, KytheraValue<?>> typeMeta;
+    public final HashMap<String, Object> typeMeta;
 
     // fields that instance of this type will have
     public final HashMap<String, KytheraValue<?>> instanceFields;
@@ -19,7 +19,7 @@ public class InternalTypeValue {
         this.typeMeta = new HashMap<>();
     }
 
-    public InternalTypeValue(BaseType bt, HashMap<String, KytheraValue<?>> instanceFields, HashMap<String, KytheraValue<?>> typeMeta) {
+    public InternalTypeValue(BaseType bt, HashMap<String, KytheraValue<?>> instanceFields, HashMap<String, Object> typeMeta) {
         this.baseType = bt;
         this.instanceFields = instanceFields;
         this.typeMeta = typeMeta;
@@ -48,36 +48,7 @@ public class InternalTypeValue {
 
     public static InternalTypeValue INT = new InternalTypeValue(BaseType.INT, new HashMap<>() {
         {
-            final KytheraValue<InternalTypeValue> IntToIntFnType = new KytheraValue<>(
-                new InternalTypeValue(BaseType.FN, new HashMap<>() {
-                    {
-                        // list containing type values
-                        put("params", new KytheraValue<InternalListValue>(
-                            // list value containing entries
-                            new InternalListValue() {
-                                {
-                                    add(TypeValueStore.INT);
-                                }
-                            },
-                            // type value for this list
-                            new KytheraValue<>(
-                                new InternalTypeValue(BaseType.LIST, new HashMap<>() {
-                                    {
-                                        put("memberType", TypeValueStore.TYPE);
-                                    }
-                                }),
-                                null
-                            ),
-                            // fields attached to this list
-                            // TODO list methods
-                            new HashMap<>()
-                        ));
-                        put("return", TypeValueStore.INT);
-                    }
-                }),
-                TypeValueStore.TYPE,
-                null
-            );
+            final KytheraValue<InternalTypeValue> IntToIntFnType = TypeValueStore.getListType(TYPE);
 
             final KytheraValue<InternalTypeValue> IntToBoolFnType = new KytheraValue<>(
                 new InternalTypeValue(BaseType.FN, new HashMap<>() {
