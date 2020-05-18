@@ -32,7 +32,7 @@ public class TypeValueStore {
                     put("fields", fields);
                 }}
             ),
-            TYPE
+            KytheraValue.TYPE
         ));
     }
 
@@ -45,12 +45,12 @@ public class TypeValueStore {
                     put("memberType", memberType);
                 }}
             ),
-            TYPE
+            KytheraValue.TYPE
         ));
     }
 
     public static KytheraValue<InternalTypeValue> getFnType(
-        List<KytheraValue<InternalTypeValue>> paramTypes, // maybe take a proper KytheraValue list?
+        KytheraValue<InternalTypeValue>[] paramTypes, // maybe take a proper KytheraValue list?
         KytheraValue<InternalTypeValue> returnType
     ) {
         return intern(new KytheraValue<>(
@@ -63,26 +63,12 @@ public class TypeValueStore {
                                 add(paramType);
                             }
                         }},
-                        getListType(TYPE)
+                        getListType(KytheraValue.TYPE)
                     ));
                     put("returnType", returnType);
                 }}
             ),
-            TYPE
+            KytheraValue.TYPE
         ));
     }
-
-    // literals for primitive types (i.e. only one type value is needed to describe all instances of that type)
-
-    // root type is the simplest possible type: a type with no fields
-    public static KytheraValue<InternalTypeValue> TYPE = new KytheraValue<>(InternalTypeValue.ROOT_TYPE);
-    // Unit has no fields
-    public static KytheraValue<InternalTypeValue> UNIT = new KytheraValue<>(InternalTypeValue.UNIT, TYPE);
-    public static KytheraValue<InternalTypeValue> BOOL = new KytheraValue<>(InternalTypeValue.BOOL, TYPE, new HashMap<>());
-    public static KytheraValue<InternalTypeValue> INT = new KytheraValue<>(InternalTypeValue.INT, TYPE, new HashMap<>());
-
-    // public static KytheraValue<BaseType> DOUBLE = new KytheraValue<>(BaseType.DOUBLE, TYPE);
-    public static KytheraValue<InternalTypeValue> FLOAT = new KytheraValue<>(InternalTypeValue.FLOAT, TYPE);
-    public static KytheraValue<InternalTypeValue> CHAR = new KytheraValue<>(InternalTypeValue.CHAR, TYPE);
-
 }

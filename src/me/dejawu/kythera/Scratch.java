@@ -8,6 +8,8 @@ public class Scratch {
         KytheraValue x = new KytheraValue(3, KytheraValue.INT);
         KytheraValue y = new KytheraValue(4, KytheraValue.INT);
 
+        System.out.println(x);
+
         // type check, later made optional by static type checking
 //        if(!x.typeValue.value.internalFields.containsKey("+")) {
 //            System.exit(1);

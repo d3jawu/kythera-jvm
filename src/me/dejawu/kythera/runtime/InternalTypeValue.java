@@ -36,8 +36,19 @@ public class InternalTypeValue {
         return this.baseType.equals(internalTypeValue.baseType) && this.typeMeta.equals(internalTypeValue.typeMeta);
     }
 
-    // the root type is a type value whose instances have no fields.
+    // the root type is a type value that specifies no fields for its instances.
     public static InternalTypeValue ROOT_TYPE = new InternalTypeValue(BaseType.TYPE, new HashMap<>());
+
+    // type values themselves have operations (and therefore fields), defined here
+    public static InternalTypeValue TYPE = new InternalTypeValue(BaseType.TYPE, new HashMap<>() {{
+        final KytheraValue<InternalTypeValue> TypeToBoolFn = TypeValueStore.getFnType(new KytheraValue[]{KytheraValue.ROOT_TYPE}, KytheraValue.BOOL);
+
+        // isSubtypeOf
+        put("<:", TypeToBoolFn);
+
+        // isSupertypeOf
+        put(">:", TypeToBoolFn);
+    }});
 
     // instances of unit have no fields.
     public static InternalTypeValue UNIT = new InternalTypeValue(BaseType.UNIT, new HashMap<>());
@@ -48,37 +59,12 @@ public class InternalTypeValue {
 
     public static InternalTypeValue INT = new InternalTypeValue(BaseType.INT, new HashMap<>() {
         {
-            final KytheraValue<InternalTypeValue> IntToIntFnType = TypeValueStore.getListType(TYPE);
+            final KytheraValue<InternalTypeValue> IntToIntFnType = TypeValueStore.getFnType(
+                    new KytheraValue[]{KytheraValue.INT}, KytheraValue.INT
+            );
 
-            final KytheraValue<InternalTypeValue> IntToBoolFnType = new KytheraValue<>(
-                new InternalTypeValue(BaseType.FN, new HashMap<>() {
-                    {
-                        // list containing type values
-                        put("params", new KytheraValue<InternalListValue>(
-                            // list value containing entries
-                            new InternalListValue() {
-                                {
-                                    add(TypeValueStore.INT);
-                                }
-                            },
-                            // type value for this list
-                            new KytheraValue<>(
-                                new InternalTypeValue(BaseType.LIST, new HashMap<>() {
-                                    {
-                                        put("memberType", TypeValueStore.TYPE);
-                                    }
-                                }),
-                                null
-                            ),
-                            // fields attached to this list
-                            // TODO list methods
-                            new HashMap<>()
-                        ));
-                        put("return", TypeValueStore.BOOL);
-                    }
-                }),
-                TypeValueStore.TYPE,
-                null
+            final KytheraValue<InternalTypeValue> IntToBoolFnType = TypeValueStore.getFnType(
+                    new KytheraValue[]{KytheraValue.INT}, KytheraValue.BOOL
             );
 
             // no deep equivalence operations for INT
@@ -97,12 +83,11 @@ public class InternalTypeValue {
             put("%", IntToIntFnType);
         }
     });
+
     public static InternalTypeValue FLOAT = new InternalTypeValue(BaseType.FLOAT, new HashMap<>() {
 
     });
     public static InternalTypeValue CHAR = new InternalTypeValue(BaseType.CHAR, new HashMap<>() {
 
     });
-
-    // TODO compound type factories (with reuse)
 }

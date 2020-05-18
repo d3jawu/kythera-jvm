@@ -54,18 +54,44 @@ public class KytheraValue<T> {
         this.fields = null;
     }
 
-    // type that describes types and their operations
-    public static KytheraValue<InternalTypeValue> TYPE = new KytheraValue<InternalTypeValue>(
-        new InternalTypeValue(),
+    // root type: a type that specifies not fields. All values are valid instances of the root type.
+    // used to bootstrap TYPE
+    public static KytheraValue<InternalTypeValue> ROOT_TYPE = new KytheraValue<>(InternalTypeValue.ROOT_TYPE);
 
+    // type that describes types and their operations
+    public static KytheraValue<InternalTypeValue> TYPE = new KytheraValue<>(
+            InternalTypeValue.TYPE,
+            ROOT_TYPE,
+            new HashMap<>() {{
+                put("<:", null);
+                put(">:", null);
+            }}
+    );
+
+    // literals for scalar types (any type for which one type value can describe all instances of that type)
+
+    public static KytheraValue<InternalTypeValue> INT = new KytheraValue<>(
+            InternalTypeValue.INT,
+            TYPE,
+            new HashMap<>() {{
+
+            }}
+    );
+
+    public static KytheraValue<InternalTypeValue> BOOL = new KytheraValue<>(
+            InternalTypeValue.BOOL,
+            TYPE,
+            new HashMap<>() {{
+
+            }}
     );
 
     // unit literal
-    public static KytheraValue<Void> UNIT_VAL = new KytheraValue<>(null, TypeValueStore.UNIT);
+    public static KytheraValue<Void> UNIT_VAL = new KytheraValue<>(null, ROOT_TYPE);
 
     // boolean literals
-    public static KytheraValue<Boolean> TRUE = new KytheraValue<>(true, TypeValueStore.BOOL);
-    public static KytheraValue<Boolean> FALSE = new KytheraValue<>(false, TypeValueStore.BOOL);
+    public static KytheraValue<Boolean> TRUE = new KytheraValue<>(true, BOOL);
+    public static KytheraValue<Boolean> FALSE = new KytheraValue<>(false, BOOL);
 
     @Override
     public String toString() {
