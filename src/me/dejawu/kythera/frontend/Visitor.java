@@ -6,7 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 // template class for traversing AST nodes
-public abstract class Visitor {
+// S and E are separate to allow extending classes to use StatementNode and ExpressionNode
+public abstract class Visitor<S, E extends S> {
     protected final List<StatementNode> input;
 
     public Visitor(List<StatementNode> input) {
@@ -14,8 +15,8 @@ public abstract class Visitor {
     }
 
     // runs operation on all nodes and returns new AST list
-    public List<StatementNode> visit() {
-        List<StatementNode> result = new ArrayList<>();
+    public List<S> visit() {
+        List<S> result = new ArrayList<>();
 
         for(StatementNode st : input) {
             result.add(visitStatement(st));
@@ -24,7 +25,7 @@ public abstract class Visitor {
         return result;
     }
 
-    protected StatementNode visitStatement(StatementNode st) {
+    protected S visitStatement(StatementNode st) {
         switch (st.kind) {
             case LET:
                 return visitLet((LetNode) st);
@@ -35,7 +36,7 @@ public abstract class Visitor {
         }
     }
 
-    protected ExpressionNode visitExpression(ExpressionNode exp) {
+    protected E visitExpression(ExpressionNode exp) {
         switch (exp.kind) {
             case ACCESS:
                 if(exp instanceof DotAccessNode) {
@@ -65,25 +66,27 @@ public abstract class Visitor {
                 return visitUnary((UnaryNode) exp);
             case WHILE:
                 return visitWhile((WhileNode) exp);
-            default: return exp;
+            default:
+                System.err.println("Invalid or unhandled expression: " + exp.kind);
+                return null;
         }
     }
 
 
-    protected abstract StatementNode visitLet(LetNode letNode);
-    protected abstract StatementNode visitReturn(ReturnNode returnNode);
+    protected abstract S visitLet(LetNode letNode);
+    protected abstract S visitReturn(ReturnNode returnNode);
 
-    protected abstract ExpressionNode visitAs(AsNode asNode);
-    protected abstract ExpressionNode visitAssign(AssignNode assignNode);
-    protected abstract ExpressionNode visitBinary(BinaryNode binaryNode);
-    protected abstract ExpressionNode visitBlock(BlockNode blockNode);
-    protected abstract ExpressionNode visitBracketAccess(BracketAccessNode bracketAccessNode);
-    protected abstract ExpressionNode visitCall(CallNode callNode);
-    protected abstract ExpressionNode visitDotAccess(DotAccessNode dotAccessNode);
-    protected abstract ExpressionNode visitLiteral(LiteralNode literalNode);
+    protected abstract E visitAs(AsNode asNode);
+    protected abstract E visitAssign(AssignNode assignNode);
+    protected abstract E visitBinary(BinaryNode binaryNode);
+    protected abstract E visitBlock(BlockNode blockNode);
+    protected abstract E visitBracketAccess(BracketAccessNode bracketAccessNode);
+    protected abstract E visitCall(CallNode callNode);
+    protected abstract E visitDotAccess(DotAccessNode dotAccessNode);
+    protected abstract E visitLiteral(LiteralNode literalNode);
 //    protected abstract ExpressionNode visitTypeof()
-    protected abstract ExpressionNode visitIdentifier(IdentifierNode identifierNode);
-    protected abstract ExpressionNode visitIf(IfNode ifNode);
-    protected abstract ExpressionNode visitUnary(UnaryNode unaryNode);
-    protected abstract ExpressionNode visitWhile(WhileNode whileNode);
+    protected abstract E visitIdentifier(IdentifierNode identifierNode);
+    protected abstract E visitIf(IfNode ifNode);
+    protected abstract E visitUnary(UnaryNode unaryNode);
+    protected abstract E visitWhile(WhileNode whileNode);
 }

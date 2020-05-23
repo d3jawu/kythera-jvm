@@ -45,6 +45,8 @@ public class Main {
             TypeChecker typeChecker = new TypeChecker(ast);
             ast = typeChecker.visit();
 
+            // TODO check and verify scopes; identify capturing lambdas
+
             System.out.println("Final AST:");
             for (StatementNode st : ast) {
                 st.print(0, System.out);

@@ -1,6 +1,7 @@
 package me.dejawu.kythera.backend;
 
 import me.dejawu.kythera.ast.*;
+import me.dejawu.kythera.frontend.Visitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.util.TraceClassVisitor;
@@ -11,10 +12,9 @@ import java.util.List;
 import static org.objectweb.asm.Opcodes.*;
 
 
-public class Compiler {
+public class Compiler extends Visitor<Void, Void> {
     final String CLASSPATH = "me/dejawu/kythera/backend/";
 
-    private final List<StatementNode> program;
     private final ClassWriter cw;
     private final TraceClassVisitor tcv;
     // represents statements in the "global scope" (actually the main() method)
@@ -24,7 +24,7 @@ public class Compiler {
     private SymbolTable symbolTable;
 
     public Compiler(List<StatementNode> program, String outputName) {
-        this.program = program;
+        super(program);
         this.cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         this.tcv = new TraceClassVisitor(this.cw, new PrintWriter(System.out, true));
 
@@ -37,7 +37,7 @@ public class Compiler {
 
         this.symbolTable = new SymbolTable(this.mv);
 
-        for (StatementNode st : this.program) {
+        for (StatementNode st : this.input) {
             this.visitStatement(st);
         }
 
@@ -48,52 +48,54 @@ public class Compiler {
         return this.cw.toByteArray();
     }
 
-    public void visitStatement(StatementNode st) {
+    public Void visitStatement(StatementNode st) {
         switch (st.kind) {
             case LET:
                 visitLet((LetNode) st);
                 break;
             case RETURN:
-                visitReturn();
+                visitReturn((ReturnNode) st);
                 break;
             default:
                 visitExpression((ExpressionNode) st);
         }
+        return null;
     }
 
     // declare a variable, associate it with an entry in the symbol table, and initialize it to the given value.
-    public void visitLet(LetNode node) {
+    public Void visitLet(LetNode node) {
         // evaluate the RHS first to get the reference to that value
         this.visitExpression(node.value);
         this.symbolTable.addSymbol(node.identifier);
+        return null;
     }
 
-    public void visitReturn() {
+    public Void visitReturn(ReturnNode node) {
         this.mv.visitInsn(RETURN);
+        return null;
     }
 
     // all expressions leave their result value(s) on the top of the stack
-    public void visitExpression(ExpressionNode node) {
+    public Void visitExpression(ExpressionNode node) {
         switch (node.kind) {
             case ASSIGN:
-                // TODO make sure op is = with no other operator
-                return;
+                break;
             case LITERAL:
                 // switch depending on which kind of literal
                 if (node.equals(UnitLiteral.UNIT)) {
-                    return;
+                    return null;
                 } else if (node.equals(BooleanLiteral.TRUE)) {
                     this.mv.visitFieldInsn(GETSTATIC, CLASSPATH + "KytheraValue", "TRUE", "L" + CLASSPATH + "KytheraValue;");
-                    return;
+                    return null;
                 } else if (node.equals(BooleanLiteral.FALSE)) {
                     this.mv.visitFieldInsn(GETSTATIC, CLASSPATH + "KytheraValue", "FALSE", "L" + CLASSPATH + "KytheraValue;");
-                    return;
+                    return null;
                 } else if (node instanceof IntLiteralNode) {
                     this.visitIntLiteral((IntLiteralNode) node);
-                    return;
+                    return null;
                 } else if (node instanceof FloatLiteralNode) {
                     this.visitFloatLiteral((FloatLiteralNode) node);
-                    return;
+                    return null;
                 } else if (node instanceof DoubleLiteralNode) {
                     break;
                 } else if (node instanceof StructLiteralNode) {
@@ -103,25 +105,23 @@ public class Compiler {
                 } else if (node instanceof TypeLiteralNode) {
                     break;
                 }
-                return;
             case IDENTIFIER:
                 this.visitIdentifier((IdentifierNode) node);
-                return;
+                return null;
             case IF:
                 this.visitIf((IfNode) node);
-                return;
+                return null;
             case WHILE:
                 this.visitWhile((WhileNode) node);
-                return;
+                return null;
             case AS:
                 this.visitAs((AsNode) node);
-                return;
+                return null;
             case CALL:
                 this.visitCall((CallNode) node);
-                return;
+                return null;
             case ACCESS:
                 // switch depending on type of access
-                return;
             case BLOCK:
             case TYPEOF:
             case UNARY:
@@ -131,21 +131,55 @@ public class Compiler {
 
         System.err.println("Unsupported or not implemented: " + node.kind.name());
         System.exit(1);
+
+        return null;
     }
 
-    private void visitCall(CallNode node) {
-
+    public Void visitCall(CallNode node) {
+        return null;
     }
 
-    private void visitAs(AsNode node) {
+    @Override
+    protected Void visitDotAccess(DotAccessNode dotAccessNode) {
+        return null;
+    }
 
+    @Override
+    protected Void visitLiteral(LiteralNode literalNode) {
+        return null;
+    }
+
+    public Void visitAs(AsNode node) {
+        return null;
+    }
+
+    @Override
+    protected Void visitAssign(AssignNode assignNode) {
+        return null;
+    }
+
+    @Override
+    protected Void visitBinary(BinaryNode binaryNode) {
+        return null;
+    }
+
+    @Override
+    protected Void visitBlock(BlockNode blockNode) {
+        return null;
+    }
+
+    @Override
+    protected Void visitBracketAccess(BracketAccessNode bracketAccessNode) {
+        return null;
     }
 
     // pull value from slot and push it onto the stack
-    public void visitIdentifier(IdentifierNode node) {
+    public Void visitIdentifier(IdentifierNode node) {
         this.symbolTable.loadSymbol(node.name);
+        return null;
     }
 
+    // TODO move into visitLiteral?
     public void visitIntLiteral(IntLiteralNode node) {
         // create uninitialized KytheraValue object
         this.mv.visitTypeInsn(NEW, "me/dejawu/kythera/runtime/KytheraValue");
@@ -208,11 +242,17 @@ public class Compiler {
 
     }
 
-    public void visitIf(IfNode node) {
-
+    public Void visitIf(IfNode node) {
+        return null;
     }
 
-    private void visitWhile(WhileNode node) {
+    @Override
+    protected Void visitUnary(UnaryNode unaryNode) {
+        return null;
+    }
 
+    public Void visitWhile(WhileNode node) {
+
+        return null;
     }
 }

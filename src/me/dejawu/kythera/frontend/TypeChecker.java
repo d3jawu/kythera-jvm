@@ -8,7 +8,7 @@ import java.util.List;
 // links statically known types to type literals
 // marks dynamically known types
 // makes sure identifiers and field accesses are valid
-public class TypeChecker extends Visitor {
+public class TypeChecker extends Visitor<StatementNode, ExpressionNode> {
     public TypeChecker(List<StatementNode> program) {
         super(program);
     }
@@ -33,6 +33,7 @@ public class TypeChecker extends Visitor {
         return null;
     }
 
+    // TODO make sure op is = with no other operator (ie it should be desugared)
     @Override
     protected ExpressionNode visitAssign(AssignNode assignNode) {
         return null;

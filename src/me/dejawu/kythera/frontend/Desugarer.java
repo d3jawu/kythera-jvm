@@ -6,7 +6,7 @@ import me.dejawu.kythera.frontend.tokenizer.Symbol;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Desugarer extends Visitor {
+public class Desugarer extends Visitor<StatementNode, ExpressionNode> {
     public Desugarer(List<StatementNode> program) {
         super(program);
     }
@@ -16,6 +16,7 @@ public class Desugarer extends Visitor {
         return new LetNode(letNode.identifier, visitExpression(letNode.value));
     }
 
+    // TODO desugar "return;" into "return unit;"
     @Override
     protected StatementNode visitReturn(ReturnNode returnNode) {
         return new ReturnNode(visitExpression(returnNode.exp));

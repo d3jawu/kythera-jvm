@@ -2,19 +2,26 @@ package me.dejawu.kythera;
 
 import me.dejawu.kythera.runtime.KytheraValue;
 
+import java.util.function.Function;
+
 // this class is only used for examining its generated assembly with ASMifier
 public class Scratch {
     public static void main(String[] args) {
-        KytheraValue x = new KytheraValue(3, KytheraValue.INT);
-        KytheraValue y = new KytheraValue(4, KytheraValue.INT);
+        Function<KytheraValue[], KytheraValue> noncapturingLambda = (input) -> {
+            return new KytheraValue(2, KytheraValue.INT);
+        };
 
-        System.out.println(x);
+        KytheraValue capturedValue = new KytheraValue(3, KytheraValue.INT);
 
-        // type check, later made optional by static type checking
-//        if(!x.typeValue.value.internalFields.containsKey("+")) {
-//            System.exit(1);
-//        }
+        int capturedInt = 99;
 
-//        x.fields
+        Function<KytheraValue[], KytheraValue> capturingLambda = (input) -> {
+            System.out.println(capturedInt);
+            return capturedValue;
+        };
+
+        // call
+        noncapturingLambda.apply(null);
+        capturingLambda.apply(null);
     }
 }
