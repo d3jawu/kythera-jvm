@@ -10,8 +10,8 @@ import java.util.List;
 
 import static org.objectweb.asm.Opcodes.*;
 
-public class Compiler extends Visitor<Void, Void> {
-    final String CLASSPATH = "me/dejawu/kythera/backend/";
+public class CodeGenerator extends Visitor<Void, Void> {
+    final String KYTHERAVALUE_PATH = "me/dejawu/kythera/runtime/KytheraValue";
 
     private final ClassWriter cw;
     private final TraceClassVisitor tcv;
@@ -21,7 +21,7 @@ public class Compiler extends Visitor<Void, Void> {
 
     private SymbolTable symbolTable;
 
-    public Compiler(List<StatementNode> program, String outputName) {
+    public CodeGenerator(List<StatementNode> program, String outputName) {
         super(program);
         this.cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         this.tcv = new TraceClassVisitor(this.cw, new PrintWriter(System.out, true));
@@ -60,7 +60,7 @@ public class Compiler extends Visitor<Void, Void> {
         return null;
     }
 
-    // declare a variable, associate it with an entry in the symbol table, and initialize it to the given value.
+    // ... => ...
     public Void visitLet(LetNode node) {
         // evaluate the RHS first to get the reference to that value
         this.visitExpression(node.value);
@@ -73,7 +73,7 @@ public class Compiler extends Visitor<Void, Void> {
         return null;
     }
 
-    // all expressions leave their result value(s) on the top of the stack
+    // Generally speaking: ... => ... expression result
     public Void visitExpression(ExpressionNode node) {
         switch (node.kind) {
             case ASSIGN:
@@ -85,19 +85,19 @@ public class Compiler extends Visitor<Void, Void> {
                 this.visitIdentifier((IdentifierNode) node);
                 return null;
             case IF:
-                this.visitIf((IfNode) node);
-                return null;
+                break;
             case WHILE:
-                this.visitWhile((WhileNode) node);
-                return null;
+                break;
             case AS:
-                this.visitAs((AsNode) node);
-                return null;
+                break;
             case CALL:
                 this.visitCall((CallNode) node);
                 return null;
             case ACCESS:
-                // switch depending on type of access
+                if(node instanceof DotAccessNode) {
+                    this.visitDotAccess((DotAccessNode) node);
+                    return null;
+                }
             case BLOCK:
             case TYPEOF:
             case UNARY:
@@ -111,97 +111,103 @@ public class Compiler extends Visitor<Void, Void> {
         return null;
     }
 
-    // calls the function stored in the KytheraValue at the top of the stack
-    public Void visitCall(CallNode node) {
+    // ... fn value => ... result of that fn value
+    public Void visitCall(CallNode callNode) {
+        this.visitExpression(callNode.target);
+
+        // get internal function value
+        this.mv.visitFieldInsn(GETFIELD, KYTHERAVALUE_PATH, "value", "Ljava/lang/Object;");
+        this.mv.visitTypeInsn(CHECKCAST, "java/util/function/Function");
+
+        int argCount = callNode.arguments.size();
+
+        if(callNode.target instanceof DotAccessNode) {
+            // make room for "self" variable
+            argCount += 1;
+        }
+
+        // create array for arguments
+        this.pushInt(argCount);
+        this.mv.visitTypeInsn(ANEWARRAY, KYTHERAVALUE_PATH);
+
+        if(callNode.target instanceof DotAccessNode) {
+            callNode.arguments.add(0, ((DotAccessNode) callNode.target).target);
+        }
+
+        int n = 0;
+        for (ExpressionNode arg : callNode.arguments) {
+            // array reference is consumed by AASTORE, so keep a copy
+            this.mv.visitInsn(DUP);
+            // set position in arg array
+            this.pushInt(n);
+
+            // load argument value to top of stack
+            this.visitExpression(arg);
+
+            // put into arg array
+            this.mv.visitInsn(AASTORE);
+
+            n += 1;
+        }
+
+        // call method
+        this.mv.visitMethodInsn(INVOKEINTERFACE, "java/util/function/Function", "apply", "(Ljava/lang/Object;)Ljava/lang/Object;", true);
+
+        // cast result
+        this.mv.visitTypeInsn(CHECKCAST, KYTHERAVALUE_PATH);
+
         return null;
     }
 
-    // pushes reference to requested field to stack
+    // ... target value => ... value in that field
     @Override
     protected Void visitDotAccess(DotAccessNode dotAccessNode) {
+        this.visitExpression(dotAccessNode.target);
+
+        this.mv.visitFieldInsn(GETFIELD, KYTHERAVALUE_PATH, "fields", "Ljava/util/HashMap;");
+
+        this.mv.visitLdcInsn(dotAccessNode.key);
+
+        this.mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/HashMap", "get", "(Ljava/lang/Object;)Ljava/lang/Object;", false);
+
+        this.mv.visitTypeInsn(CHECKCAST, KYTHERAVALUE_PATH);
+
         return null;
     }
 
+    // ... => ... literal value
     @Override
     protected Void visitLiteral(LiteralNode literalNode) {
         // switch depending on which kind of literal
-        if (literalNode.equals(UnitLiteral.UNIT)) {
-            return null;
-        } else if (literalNode.equals(BooleanLiteral.TRUE)) {
-            this.mv.visitFieldInsn(GETSTATIC, CLASSPATH + "KytheraValue", "TRUE", "L" + CLASSPATH + "KytheraValue;");
+        if (literalNode.equals(BooleanLiteral.TRUE)) {
+            this.mv.visitFieldInsn(GETSTATIC, KYTHERAVALUE_PATH, "TRUE", "L" + KYTHERAVALUE_PATH);
             return null;
         } else if (literalNode.equals(BooleanLiteral.FALSE)) {
-            this.mv.visitFieldInsn(GETSTATIC, CLASSPATH + "KytheraValue", "FALSE", "L" + CLASSPATH + "KytheraValue;");
+            this.mv.visitFieldInsn(GETSTATIC, KYTHERAVALUE_PATH, "FALSE", "L" + KYTHERAVALUE_PATH);
             return null;
         } else if (literalNode instanceof IntLiteralNode) {
             IntLiteralNode intLiteralNode = (IntLiteralNode) literalNode;
 
-            // TODO use factory
-            // create uninitialized KytheraValue object
-            this.mv.visitTypeInsn(NEW, "me/dejawu/kythera/runtime/KytheraValue");
-
-            // copy it (one copy is consumed by the constructor call)
-            this.mv.visitInsn(DUP);
-
             // push int value on local stack
-            if (intLiteralNode.value == -1) {
-                this.mv.visitInsn(ICONST_M1);
-            } else if (intLiteralNode.value == 0) {
-                this.mv.visitInsn(ICONST_0);
-            } else if (intLiteralNode.value == 1) {
-                this.mv.visitInsn(ICONST_1);
-            } else if (intLiteralNode.value == 2) {
-                this.mv.visitInsn(ICONST_2);
-            } else if (intLiteralNode.value == 3) {
-                this.mv.visitInsn(ICONST_3);
-            } else if (intLiteralNode.value == 4) {
-                this.mv.visitInsn(ICONST_4);
-            } else if (intLiteralNode.value == 5) {
-                this.mv.visitInsn(ICONST_5);
-            } else {
-                this.mv.visitIntInsn(BIPUSH, intLiteralNode.value);
-            }
+            this.pushInt(intLiteralNode.value);
 
-            // convert int to Integer
-            this.mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
-
-            // load reference to INT type literal constant
-            this.mv.visitFieldInsn(GETSTATIC, "me/dejawu/kythera/runtime/KytheraValue", "INT", "Lme/dejawu/kythera/runtime/KytheraValue;");
-
-            // call KytheraValue constructor
-            this.mv.visitMethodInsn(INVOKESPECIAL, "me/dejawu/kythera/runtime/KytheraValue", "<init>", "(Ljava/lang/Object;Lme/dejawu/kythera/runtime/KytheraValue;)V", false);
+            this.mv.visitMethodInsn(INVOKESTATIC, KYTHERAVALUE_PATH, "getIntValue", "(I)Lme/dejawu/kythera/runtime/KytheraValue;", false);
 
             return null;
         } else if (literalNode instanceof FloatLiteralNode) {
-            FloatLiteralNode floatLiteralNode = (FloatLiteralNode) literalNode;
+            /*FloatLiteralNode floatLiteralNode = (FloatLiteralNode) literalNode;
 
-            // TODO use factory
-            this.mv.visitTypeInsn(NEW, "me/dejawu/kythera/runtime/KytheraValue");
+            pushFloat(floatLiteralNode.value);
 
-            this.mv.visitInsn(DUP);
-
-            if (floatLiteralNode.value == 0) {
-                this.mv.visitInsn(FCONST_0);
-            } else if(floatLiteralNode.value == 1.0) {
-                this.mv.visitInsn(FCONST_1);
-            } else if(floatLiteralNode.value == 2.0) {
-                this.mv.visitInsn(FCONST_2);
-            } else {
-                this.mv.visitLdcInsn(floatLiteralNode.value);
-            }
-
-            this.mv.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;", false);
-
-            this.mv.visitFieldInsn(GETSTATIC, "me/dejawu/kythera/runtime/KytheraValue", "FLOAT", "Lme/dejawu/kythera/runtime/KytheraValue;");
-
-            this.mv.visitMethodInsn(INVOKESPECIAL, "me/dejawu/kythera/runtime/KytheraValue", "<init>", "(Ljava/lang/Object;Lme/dejawu/kythera/runtime/KytheraValue;)V", false);
-
-            return null;
+            this.mv.visitMethodInsn
+            */
         } else if (literalNode instanceof DoubleLiteralNode) {
         } else if (literalNode instanceof StructLiteralNode) {
         } else if (literalNode instanceof FnLiteralNode) {
         } else if (literalNode instanceof TypeLiteralNode) {
+        } else if (literalNode.equals(UnitLiteral.UNIT)) {
         }
+
 
         System.err.println("Unimplemented literal: ");
         literalNode.print(0, System.err);
@@ -234,7 +240,7 @@ public class Compiler extends Visitor<Void, Void> {
         return null;
     }
 
-    // pull value from slot and push it onto the stack
+    // ... => ... value at identifier
     public Void visitIdentifier(IdentifierNode literalNode) {
         this.symbolTable.loadSymbol(literalNode.name);
         return null;
@@ -252,5 +258,37 @@ public class Compiler extends Visitor<Void, Void> {
     public Void visitWhile(WhileNode literalNode) {
 
         return null;
+    }
+
+    private void pushInt(int value) {
+        if (value == -1) {
+            this.mv.visitInsn(ICONST_M1);
+        } else if (value == 0) {
+            this.mv.visitInsn(ICONST_0);
+        } else if (value == 1) {
+            this.mv.visitInsn(ICONST_1);
+        } else if (value == 2) {
+            this.mv.visitInsn(ICONST_2);
+        } else if (value == 3) {
+            this.mv.visitInsn(ICONST_3);
+        } else if (value == 4) {
+            this.mv.visitInsn(ICONST_4);
+        } else if (value == 5) {
+            this.mv.visitInsn(ICONST_5);
+        } else {
+            this.mv.visitIntInsn(BIPUSH, value);
+        }
+    }
+
+    private void pushFloat(float value) {
+        if (value == 0.0) {
+            this.mv.visitInsn(FCONST_0);
+        } else if (value == 1.0) {
+            this.mv.visitInsn(FCONST_1);
+        } else if (value == 2.0) {
+            this.mv.visitInsn(FCONST_2);
+        } else {
+            this.mv.visitLdcInsn(value);
+        }
     }
 }

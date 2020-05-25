@@ -59,28 +59,28 @@ public class InternalTypeValue {
 
     public static InternalTypeValue INT = new InternalTypeValue(BaseType.INT, new HashMap<>() {
         {
-            final KytheraValue<InternalTypeValue> IntToIntFnType = TypeValueStore.getFnType(
-                    new KytheraValue[]{KytheraValue.INT}, KytheraValue.INT
+            final KytheraValue<InternalTypeValue> IntIntToIntFnType = TypeValueStore.getFnType(
+                    new KytheraValue[]{KytheraValue.INT, KytheraValue.INT}, KytheraValue.INT
             );
 
-            final KytheraValue<InternalTypeValue> IntToBoolFnType = TypeValueStore.getFnType(
-                    new KytheraValue[]{KytheraValue.INT}, KytheraValue.BOOL
+            final KytheraValue<InternalTypeValue> IntIntToBoolFnType = TypeValueStore.getFnType(
+                    new KytheraValue[]{KytheraValue.INT, KytheraValue.INT}, KytheraValue.BOOL
             );
 
             // no deep equivalence operations for INT
-            put("==", IntToBoolFnType);
-            put("!=", IntToBoolFnType);
+            put("==", IntIntToBoolFnType);
+            put("!=", IntIntToBoolFnType);
 
             // <= is implemented as x < y || x == y, likewise for >=
-            put("<", IntToBoolFnType);
-            put(">", IntToBoolFnType);
+            put("<", IntIntToBoolFnType);
+            put(">", IntIntToBoolFnType);
 
             // arithmetic assignment (eg +=) is also handled by the operation given here
-            put("+", IntToIntFnType);
-            put("-", IntToIntFnType);
-            put("*", IntToIntFnType);
-            put("/", IntToIntFnType);
-            put("%", IntToIntFnType);
+            put("+", IntIntToIntFnType);
+            put("-", IntIntToIntFnType);
+            put("*", IntIntToIntFnType);
+            put("/", IntIntToIntFnType);
+            put("%", IntIntToIntFnType);
         }
     });
 

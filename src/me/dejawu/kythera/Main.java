@@ -1,6 +1,6 @@
 package me.dejawu.kythera;
 
-import me.dejawu.kythera.passes.Compiler;
+import me.dejawu.kythera.passes.CodeGenerator;
 import me.dejawu.kythera.passes.Desugarer;
 import me.dejawu.kythera.passes.Parser;
 import me.dejawu.kythera.passes.TypeChecker;
@@ -25,8 +25,6 @@ public class Main {
         try {
             String content = Files.readString(Paths.get("./" + entryPoint + ".ky"));
 
-            // frontend
-
             System.out.println("Generating initial AST");
             Parser parser = new Parser(content);
             List<StatementNode> ast = parser.parse();
@@ -47,12 +45,12 @@ public class Main {
 
             // TODO check and verify scopes; identify capturing lambdas
 
+            // TODO attach struct as first parameter to member methods
+
             System.out.println("Final AST:");
             for (StatementNode st : ast) {
                 st.print(0, System.out);
             }
-
-            // backend
 
             // TODO optimize constants and reuse literals
 
@@ -63,8 +61,8 @@ public class Main {
             // TODO optimize bytecode
 
             System.out.println("Generating bytecode");
-            Compiler compiler = new Compiler(ast, entryPoint);
-            byte[] output = compiler.compile();
+            CodeGenerator codeGenerator = new CodeGenerator(ast, entryPoint);
+            byte[] output = codeGenerator.compile();
 
             System.out.println("Writing to: " + entryPoint + ".class");
             FileOutputStream fos = new FileOutputStream("out/" + entryPoint + ".class");
