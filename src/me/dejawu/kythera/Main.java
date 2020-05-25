@@ -1,9 +1,9 @@
 package me.dejawu.kythera;
 
-import me.dejawu.kythera.backend.Compiler;
-import me.dejawu.kythera.frontend.Desugarer;
-import me.dejawu.kythera.frontend.Parser;
-import me.dejawu.kythera.frontend.TypeChecker;
+import me.dejawu.kythera.passes.Compiler;
+import me.dejawu.kythera.passes.Desugarer;
+import me.dejawu.kythera.passes.Parser;
+import me.dejawu.kythera.passes.TypeChecker;
 import me.dejawu.kythera.ast.StatementNode;
 
 import java.io.FileOutputStream;

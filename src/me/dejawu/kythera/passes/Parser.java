@@ -1,7 +1,7 @@
-package me.dejawu.kythera.frontend;
+package me.dejawu.kythera.passes;
 
 import me.dejawu.kythera.ast.*;
-import me.dejawu.kythera.frontend.tokenizer.*;
+import me.dejawu.kythera.passes.tokenizer.*;
 
 import java.util.*;
 

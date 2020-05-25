@@ -1,4 +1,4 @@
-package me.dejawu.kythera.frontend.tokenizer;
+package me.dejawu.kythera.passes.tokenizer;
 
 public enum TokenType {
     PUNC,

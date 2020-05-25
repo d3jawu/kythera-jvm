@@ -1,7 +1,6 @@
-package me.dejawu.kythera.backend;
+package me.dejawu.kythera.passes;
 
 import me.dejawu.kythera.ast.*;
-import me.dejawu.kythera.frontend.Visitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.util.TraceClassVisitor;

@@ -1,4 +1,4 @@
-package me.dejawu.kythera.backend;
+package me.dejawu.kythera.passes;
 
 import org.objectweb.asm.MethodVisitor;
 import static org.objectweb.asm.Opcodes.*;

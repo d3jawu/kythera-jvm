@@ -1,4 +1,4 @@
-package me.dejawu.kythera.frontend.tokenizer;
+package me.dejawu.kythera.passes.tokenizer;
 
 /**
  * An input stream that also keeps track of line and column position.
