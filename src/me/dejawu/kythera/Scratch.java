@@ -7,21 +7,11 @@ import java.util.function.Function;
 // this class is only used for examining its generated assembly with ASMifier
 public class Scratch {
     public static void main(String[] args) {
-        Function<KytheraValue[], KytheraValue> noncapturingLambda = (input) -> {
-            return new KytheraValue(2, KytheraValue.INT);
-        };
+        KytheraValue<Integer> x = KytheraValue.getIntValue(2);
+        KytheraValue<Integer> y = KytheraValue.getIntValue(3);
 
-        KytheraValue capturedValue = new KytheraValue(3, KytheraValue.INT);
-
-        int capturedInt = 99;
-
-        Function<KytheraValue[], KytheraValue> capturingLambda = (input) -> {
-            System.out.println(capturedInt);
-            return capturedValue;
-        };
-
-        // call
-        noncapturingLambda.apply(null);
-        capturingLambda.apply(null);
+        System.out.println(((Function) x.fields.get("+").value).apply(
+                new KytheraValue[] { x, y }
+        ));
     }
 }

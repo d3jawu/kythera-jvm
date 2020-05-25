@@ -2,6 +2,7 @@ package me.dejawu.kythera.runtime;
 
 import me.dejawu.kythera.BaseType;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -24,28 +25,26 @@ public class TypeValueStore {
 
     // returns a struct type
     public static KytheraValue<InternalTypeValue> getStructType(HashMap<String, KytheraValue<?>> fields) {
-        return intern(new KytheraValue<>(
+        return intern(KytheraValue.getTypeValue(
             new InternalTypeValue(
                 BaseType.STRUCT,
                 fields,
                 new HashMap<>() {{
                     put("fields", fields);
                 }}
-            ),
-            KytheraValue.TYPE
+            )
         ));
     }
 
     // returns a list type containing the specified member type
     public static KytheraValue<InternalTypeValue> getListType(KytheraValue<InternalTypeValue> memberType) {
-        return intern(new KytheraValue<>(
+        return intern(KytheraValue.getTypeValue(
             new InternalTypeValue(
                 BaseType.LIST,
                 new HashMap<>() {{
                     put("memberType", memberType);
                 }}
-            ),
-            KytheraValue.TYPE
+            )
         ));
     }
 
@@ -53,22 +52,21 @@ public class TypeValueStore {
         KytheraValue<InternalTypeValue>[] paramTypes, // maybe take a proper KytheraValue list?
         KytheraValue<InternalTypeValue> returnType
     ) {
-        return intern(new KytheraValue<>(
+        return intern(KytheraValue.getTypeValue(
             new InternalTypeValue(
                 BaseType.FN,
                 new HashMap<>() {{
-                    put("paramTypes", new KytheraValue<>(
-                        new InternalListValue() {{
+                    put("paramTypes", KytheraValue.getListValue(
+                        new ArrayList() {{
                             for (KytheraValue<InternalTypeValue> paramType : paramTypes) {
                                 add(paramType);
                             }
                         }},
-                        getListType(KytheraValue.TYPE)
+                            TypeValueStore.getListType(KytheraValue.TYPE).value
                     ));
                     put("returnType", returnType);
                 }}
-            ),
-            KytheraValue.TYPE
+            )
         ));
     }
 }

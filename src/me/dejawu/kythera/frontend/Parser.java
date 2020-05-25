@@ -428,7 +428,7 @@ public final class Parser {
                         break;
                     default:
                         System.err.println("Invalid operator for binary " + "operation: " + op.symbol);
-                        System.exit(0);
+                        System.exit(1);
                         binary = null;
                 }
 

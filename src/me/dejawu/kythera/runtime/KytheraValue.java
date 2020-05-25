@@ -1,6 +1,8 @@
 package me.dejawu.kythera.runtime;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.function.Function;
 
 public class KytheraValue<T> {
     /*
@@ -13,7 +15,8 @@ public class KytheraValue<T> {
     float: Float
     char: Char
     struct: reference to fields (value's own fields are the exposed value)
-    fn: InternalFnValue, which contains param list and implementation
+    list: ArrayList<KytheraValue<?>>
+    fn: Function<KytheraValue<?>[], KytheraValue<?>>, which contains implementation (param list is part of the type)
     type: InternalTypeValue
      */
     public final T value;
@@ -22,28 +25,28 @@ public class KytheraValue<T> {
     // a reference to the value that represents this value's type
     public final KytheraValue<?> typeValue;
 
-    public KytheraValue(T value, KytheraValue<?> typeValue) {
+    private KytheraValue(T value, KytheraValue<?> typeValue) {
         this.value = value;
         this.typeValue = typeValue;
         this.fields = new HashMap<>();
     }
 
     // initialize with fields
-    public KytheraValue(T value, KytheraValue<?> typeValue, HashMap<String, KytheraValue<?>> fields) {
+    private KytheraValue(T value, KytheraValue<?> typeValue, HashMap<String, KytheraValue<?>> fields) {
         this.value = value;
         this.typeValue = typeValue;
         this.fields = fields;
     }
 
     // constructor for structs, which use their fields as their value
-    public KytheraValue(KytheraValue<?> typeValue) {
+/*    private KytheraValue(KytheraValue<?> typeValue, HashMap<String, KytheraValue<?>> fields) {
         this.typeValue = typeValue;
         this.fields = new HashMap<>();
         this.value = (T) this.fields;
-    }
+    }*/
 
     // self-referencing value, used only by TYPE root literal
-    public KytheraValue(T value) {
+    private KytheraValue(T value) {
         if (!(value instanceof InternalTypeValue)) {
             System.err.println("Invalid use of self-referencing value constructor on: " + value.toString());
             System.exit(1);
@@ -51,8 +54,10 @@ public class KytheraValue<T> {
 
         this.value = value;
         this.typeValue = this;
-        this.fields = null;
+        this.fields = new HashMap<>();
     }
+
+    // === reusable literals and factories below ===
 
     // root type: a type that specifies not fields. All values are valid instances of the root type.
     // used to bootstrap TYPE
@@ -69,22 +74,8 @@ public class KytheraValue<T> {
     );
 
     // literals for scalar types (any type for which one type value can describe all instances of that type)
-
-    public static KytheraValue<InternalTypeValue> INT = new KytheraValue<>(
-            InternalTypeValue.INT,
-            TYPE,
-            new HashMap<>() {{
-
-            }}
-    );
-
-    public static KytheraValue<InternalTypeValue> BOOL = new KytheraValue<>(
-            InternalTypeValue.BOOL,
-            TYPE,
-            new HashMap<>() {{
-
-            }}
-    );
+    public static KytheraValue<InternalTypeValue> INT = getTypeValue(InternalTypeValue.INT);
+    public static KytheraValue<InternalTypeValue> BOOL = getTypeValue(InternalTypeValue.BOOL);
 
     // unit literal
     public static KytheraValue<Void> UNIT_VAL = new KytheraValue<>(null, ROOT_TYPE);
@@ -92,6 +83,51 @@ public class KytheraValue<T> {
     // boolean literals
     public static KytheraValue<Boolean> TRUE = new KytheraValue<>(true, BOOL);
     public static KytheraValue<Boolean> FALSE = new KytheraValue<>(false, BOOL);
+
+    // generates int literals with function implementations attached
+    public static KytheraValue<Integer> getIntValue(int val) {
+        return new KytheraValue<>(
+                val,
+                INT,
+                new HashMap<>() {{
+                    put("+", getFnValue((KytheraValue<?>[] args) -> {
+                        return getIntValue((Integer) args[0].value + (Integer) args[1].value);
+                    }, (InternalTypeValue) INT.value.instanceFields.get("+").value));
+                }}
+        );
+    }
+
+    public static KytheraValue<ArrayList<KytheraValue<?>>> getListValue(ArrayList<KytheraValue<?>> list, InternalTypeValue listType) {
+        return new KytheraValue<ArrayList<KytheraValue<?>>>(
+                list,
+                getTypeValue(listType),
+                new HashMap<>() {{
+                    put("size", null);
+                }}
+        );
+    }
+
+    public static KytheraValue<Function<KytheraValue<?>[], KytheraValue<?>>> getFnValue(
+            Function<KytheraValue<?>[], KytheraValue<?>> fn,
+            InternalTypeValue fnType
+    ) {
+        return new KytheraValue<>(
+                fn,
+                getTypeValue(fnType),
+                null
+        );
+    }
+
+    public static KytheraValue<InternalTypeValue> getTypeValue(InternalTypeValue typeValue) {
+        return new KytheraValue<>(
+                typeValue,
+                TYPE,
+                new HashMap<>() {{
+                    put(">:", null);
+                    put("<:", null);
+                }}
+        );
+    }
 
     @Override
     public String toString() {
