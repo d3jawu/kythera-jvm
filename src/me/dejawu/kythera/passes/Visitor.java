@@ -60,14 +60,15 @@ public abstract class Visitor<S, E extends S> {
                 return visitIf((IfNode) exp);
             case LITERAL:
                 return visitLiteral((LiteralNode) exp);
-//            case TYPEOF:
-//                return visitTypeof
+            case TYPEOF:
+                return visitTypeof((TypeofNode) exp);
             case UNARY:
                 return visitUnary((UnaryNode) exp);
             case WHILE:
                 return visitWhile((WhileNode) exp);
             default:
                 System.err.println("Invalid or unhandled expression: " + exp.kind);
+                System.exit(1);
                 return null;
         }
     }
@@ -84,7 +85,7 @@ public abstract class Visitor<S, E extends S> {
     protected abstract E visitCall(CallNode callNode);
     protected abstract E visitDotAccess(DotAccessNode dotAccessNode);
     protected abstract E visitLiteral(LiteralNode literalNode);
-//    protected abstract ExpressionNode visitTypeof()
+    protected abstract E visitTypeof(TypeofNode typeofNode);
     protected abstract E visitIdentifier(IdentifierNode identifierNode);
     protected abstract E visitIf(IfNode ifNode);
     protected abstract E visitUnary(UnaryNode unaryNode);

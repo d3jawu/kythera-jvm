@@ -139,6 +139,11 @@ public class Desugarer extends Visitor<StatementNode, ExpressionNode> {
     }
 
     @Override
+    protected ExpressionNode visitTypeof(TypeofNode typeofNode) {
+        return new TypeofNode(this.visitExpression(typeofNode.target));
+    }
+
+    @Override
     protected ExpressionNode visitIdentifier(IdentifierNode identifierNode) {
         return identifierNode;
     }

@@ -165,12 +165,13 @@ public final class Parser {
         // implementation
         // they are inserted with the runtime and not part of the parser
 
-        if (this.tokenizer.confirm(null, TokenType.KW) != null) {
+        if (this.tokenizer.confirm(TokenType.KW) != null) {
             this.tokenizer.consume(nextToken);
 
             switch (Keyword.valueOf(nextToken.value.toUpperCase())) {
                 case TYPEOF:
-                    break;
+                    ExpressionNode target = this.parseExpression(true);
+                    return new TypeofNode(target);
                 case IF:
                     ExpressionNode ifCondition = this.parseExpression(true);
 

@@ -52,9 +52,16 @@ public final class Tokenizer {
     }
 
     private Token tokenFromNumber() {
+        String number = "";
+
+        if(this.inputStream.peek() == '-') {
+            number += "-";
+            this.inputStream.next();
+        }
+
         AtomicBoolean hasDot = new AtomicBoolean(false);
         // this might still not be thread safe
-        String number = this.readWhile((char c) -> {
+        number += this.readWhile((char c) -> {
             if (c == '.') {
                 if (hasDot.get()) {
                     return false; // two dots in a row, not a number
@@ -95,7 +102,7 @@ public final class Tokenizer {
             return t;
         }
 
-        if (Tokenizer.isDigit(c)) {
+        if (Tokenizer.isDigit(c) || c == '-') {
             final Token t = this.tokenFromNumber();
             // this.insertAutoSemi();
             return t;
@@ -187,6 +194,7 @@ public final class Tokenizer {
         }
     }
 
+    // confirm token type without checking value
     public Token confirm(TokenType tt) {
         if (this.eof()) {
             return null;

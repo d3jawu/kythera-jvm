@@ -21,6 +21,8 @@ public class SymbolTable extends HashMap<String, Integer>  {
         this.mv = mv;
     }
 
+    // TODO use ASTORE_0-3 instructions
+
     // generates instructions that will store the variable on top of the
     // stack in a new slot
     public void addSymbol(String name) {
@@ -28,6 +30,8 @@ public class SymbolTable extends HashMap<String, Integer>  {
         this.mv.visitVarInsn(ASTORE, slot);
         this.put(name, slot);
     }
+
+    // TODO use ALOAD_0-3 instructions
 
     // generates instructions that will push the given (existing) symbol
     // on the stack

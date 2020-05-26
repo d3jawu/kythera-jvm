@@ -70,6 +70,11 @@ public class TypeChecker extends Visitor<StatementNode, ExpressionNode> {
     }
 
     @Override
+    protected ExpressionNode visitTypeof(TypeofNode typeofNode) {
+        return null;
+    }
+
+    @Override
     protected ExpressionNode visitIdentifier(IdentifierNode identifierNode) {
         return null;
     }

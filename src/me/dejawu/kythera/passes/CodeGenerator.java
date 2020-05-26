@@ -10,6 +10,7 @@ import java.util.List;
 
 import static org.objectweb.asm.Opcodes.*;
 
+// generates unchecked bytecode
 public class CodeGenerator extends Visitor<Void, Void> {
     final String KYTHERAVALUE_PATH = "me/dejawu/kythera/runtime/KytheraValue";
 
@@ -68,6 +69,7 @@ public class CodeGenerator extends Visitor<Void, Void> {
         return null;
     }
 
+    // ... value => empty stack
     public Void visitReturn(ReturnNode node) {
         this.mv.visitInsn(RETURN);
         return null;
@@ -77,7 +79,8 @@ public class CodeGenerator extends Visitor<Void, Void> {
     public Void visitExpression(ExpressionNode node) {
         switch (node.kind) {
             case ASSIGN:
-                break;
+                this.visitAssign((AssignNode) node);
+                return null;
             case LITERAL:
                 this.visitLiteral((LiteralNode) node);
                 return null;
@@ -93,16 +96,18 @@ public class CodeGenerator extends Visitor<Void, Void> {
             case CALL:
                 this.visitCall((CallNode) node);
                 return null;
+            case TYPEOF:
+                this.visitTypeof((TypeofNode) node);
+                return null;
+            case BLOCK:
+            case UNARY:
+            case BINARY:
+            default:
             case ACCESS:
                 if(node instanceof DotAccessNode) {
                     this.visitDotAccess((DotAccessNode) node);
                     return null;
                 }
-            case BLOCK:
-            case TYPEOF:
-            case UNARY:
-            case BINARY:
-            default:
         }
 
         System.err.println("Unsupported or not implemented: " + node.kind.name());
@@ -180,10 +185,10 @@ public class CodeGenerator extends Visitor<Void, Void> {
     protected Void visitLiteral(LiteralNode literalNode) {
         // switch depending on which kind of literal
         if (literalNode.equals(BooleanLiteral.TRUE)) {
-            this.mv.visitFieldInsn(GETSTATIC, KYTHERAVALUE_PATH, "TRUE", "L" + KYTHERAVALUE_PATH);
+            this.mv.visitFieldInsn(GETSTATIC, KYTHERAVALUE_PATH, "TRUE", "L" + KYTHERAVALUE_PATH + ";");
             return null;
         } else if (literalNode.equals(BooleanLiteral.FALSE)) {
-            this.mv.visitFieldInsn(GETSTATIC, KYTHERAVALUE_PATH, "FALSE", "L" + KYTHERAVALUE_PATH);
+            this.mv.visitFieldInsn(GETSTATIC, KYTHERAVALUE_PATH, "FALSE", "L" + KYTHERAVALUE_PATH + ";");
             return null;
         } else if (literalNode instanceof IntLiteralNode) {
             IntLiteralNode intLiteralNode = (IntLiteralNode) literalNode;
@@ -220,13 +225,36 @@ public class CodeGenerator extends Visitor<Void, Void> {
         return null;
     }
 
+    // ... value to be assigned => ...
     @Override
     protected Void visitAssign(AssignNode assignNode) {
+        // only + allowed here
+
+        // put RHS result on top of stack
+        this.visitExpression(assignNode.right);
+
+        if(assignNode.left instanceof IdentifierNode) {
+            IdentifierNode identifierNode = (IdentifierNode) assignNode.left;
+
+            this.symbolTable.storeSymbol(identifierNode.name);
+
+            return null;
+        } else if(assignNode.left instanceof DotAccessNode) {
+            // for now, all fields are mutable
+
+        } else if(assignNode.left instanceof BracketAccessNode) {
+
+        }
+            System.err.println("Assignment LHS is invalid.");
+            System.exit(1);
+
         return null;
     }
 
     @Override
     protected Void visitBinary(BinaryNode binaryNode) {
+        System.err.println("Error: A binary node should not be present at code generation.");
+        System.exit(1);
         return null;
     }
 
@@ -255,8 +283,20 @@ public class CodeGenerator extends Visitor<Void, Void> {
         return null;
     }
 
-    public Void visitWhile(WhileNode literalNode) {
+    @Override
+    public Void visitWhile(WhileNode whileNode) {
+        return null;
+    }
 
+    // ... value => ... typeValue of value
+    @Override
+    public Void visitTypeof(TypeofNode typeofNode) {
+        // put target value on top of stack
+        this.visitExpression(typeofNode.target);
+
+        this.mv.visitFieldInsn(
+                GETFIELD, KYTHERAVALUE_PATH, "typeValue",
+                "L" + KYTHERAVALUE_PATH + ";");
         return null;
     }
 
