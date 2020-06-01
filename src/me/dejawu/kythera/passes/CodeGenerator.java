@@ -1,7 +1,6 @@
 package me.dejawu.kythera.passes;
 
 import me.dejawu.kythera.ast.*;
-import me.dejawu.kythera.passes.tokenizer.Symbol;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.MethodVisitor;
@@ -23,10 +22,10 @@ public class CodeGenerator extends Visitor<Void, Void> {
     // represents the "global scope" (actually the main(String[] args) method)
     // this allows Kythera to have a global scope while Java does not.
     // contains MethodVisitor for root scope
-    private final SymbolTable rootScope;
+    private final Scope rootScope;
 
     // current working scope
-    private SymbolTable scope;
+    private Scope scope;
 
     // used to generate unique lambda names
     private int lambdaCount = 0;
@@ -41,7 +40,7 @@ public class CodeGenerator extends Visitor<Void, Void> {
         MethodVisitor rootMv = this.tcv.visitMethod(ACC_PUBLIC | ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
 
         // root-scope symbol table with root MethodVisitor
-        this.rootScope = new SymbolTable(rootMv);
+        this.rootScope = new Scope(rootMv);
         this.scope = this.rootScope;
     }
 

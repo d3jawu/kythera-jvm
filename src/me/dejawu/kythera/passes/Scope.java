@@ -5,18 +5,18 @@ import static org.objectweb.asm.Opcodes.*;
 
 import java.util.HashMap;
 
-public class SymbolTable extends HashMap<String, Integer>  {
-    public final SymbolTable parent;
+public class Scope extends HashMap<String, Integer>  {
+    public final Scope parent;
     public final MethodVisitor mv;
 
     // root scope (no parent)
-    public SymbolTable(MethodVisitor mv) {
+    public Scope(MethodVisitor mv) {
         this.parent = null;
         this.mv = mv;
     }
 
     // scope with parent
-    public SymbolTable(SymbolTable parent, MethodVisitor mv) {
+    public Scope(Scope parent, MethodVisitor mv) {
         this.parent = parent;
         this.mv = mv;
     }
