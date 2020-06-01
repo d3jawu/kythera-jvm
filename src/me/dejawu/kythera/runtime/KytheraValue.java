@@ -41,7 +41,7 @@ public class KytheraValue<T> {
     }
 
     // constructor for structs, which use their fields as their value
-/*    private KytheraValue(KytheraValue<?> typeValue, HashMap<String, KytheraValue<?>> fields) {
+    /*private KytheraValue(KytheraValue<?> typeValue, HashMap<String, KytheraValue<?>> fields) {
         this.typeValue = typeValue;
         this.fields = new HashMap<>();
         this.value = (T) this.fields;

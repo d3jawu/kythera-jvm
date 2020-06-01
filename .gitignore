@@ -1,6 +1,5 @@
 .idea/
-kythera-jvm.iml
-Kythera.iml
+*.iml
 
 scratch.ky
 

@@ -65,14 +65,13 @@ public class Main {
             byte[] output = codeGenerator.compile();
 
             System.out.println("Writing to: " + entryPoint + ".class");
-            FileOutputStream fos = new FileOutputStream("out/" + entryPoint + ".class");
+            FileOutputStream fos = new FileOutputStream("out/production/kythera/" + entryPoint + ".class");
             fos.write(output);
             fos.close();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
-
     }
 
     public static void printlnWithIndent(String message, int indent, PrintStream stream) {
