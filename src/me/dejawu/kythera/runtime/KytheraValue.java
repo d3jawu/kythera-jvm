@@ -31,24 +31,6 @@ public class KytheraValue<T> {
         this.value = value;
         this.typeValue = typeValue;
         this.fields = new HashMap<>();
-
-        // temporary method to help with debugging, not in spec
-        this.fields.put("print", getFnValue((KytheraValue<?> [] args) -> {
-            System.out.println(args[0]);
-            return UNIT_VAL;
-        }, new InternalTypeValue(
-            BaseType.FN,
-            new HashMap<>() {{
-                put("paramTypes", getListValue(
-                    new ArrayList<>(){{
-                        add(INT);
-                        add(INT);
-                    }},
-                    TypeValueStore.getListType(KytheraValue.TYPE).value
-                ));
-                put("returnType", ROOT_TYPE);
-            }}
-        )));
     }
 
     // initialize with fields
@@ -56,23 +38,6 @@ public class KytheraValue<T> {
         this.value = value;
         this.typeValue = typeValue;
         this.fields = fields;
-        // temporary method to help with debugging, not in spec
-        this.fields.put("print", getFnValue((KytheraValue<?> [] args) -> {
-            System.out.println(args[0]);
-            return UNIT_VAL;
-        }, new InternalTypeValue(
-            BaseType.FN,
-            new HashMap<>() {{
-                put("paramTypes", getListValue(
-                    new ArrayList<>(){{
-                        add(INT);
-                        add(INT);
-                    }},
-                    TypeValueStore.getListType(KytheraValue.TYPE).value
-                ));
-                put("returnType", ROOT_TYPE);
-            }}
-        )));
     }
 
 
@@ -103,12 +68,12 @@ public class KytheraValue<T> {
 
     // type that describes types and their operations
     public static KytheraValue<InternalTypeValue> TYPE = new KytheraValue<>(
-            InternalTypeValue.TYPE,
-            ROOT_TYPE,
-            new HashMap<>() {{
-                put("<:", null);
-                put(">:", null);
-            }}
+        InternalTypeValue.TYPE,
+        ROOT_TYPE,
+        new HashMap<>() {{
+            put("<:", null);
+            put(">:", null);
+        }}
     );
 
     // literals for scalar types (any type for which one type value can describe all instances of that type)
@@ -125,49 +90,65 @@ public class KytheraValue<T> {
     // generates int literals with function implementations attached
     public static KytheraValue<Integer> getIntValue(int val) {
         return new KytheraValue<>(
-                val,
-                INT,
-                new HashMap<>() {
-                    {
-                        put("+", getFnValue((KytheraValue<?>[] args) -> getIntValue((Integer) args[0].value + (Integer) args[1].value), (InternalTypeValue) INT.value.instanceFields.get("+").value));
-                        put("-", getFnValue((KytheraValue<?>[] args) -> getIntValue((Integer) args[0].value - (Integer) args[1].value), (InternalTypeValue) INT.value.instanceFields.get("-").value));
-                        put("*", getFnValue((KytheraValue<?>[] args) -> getIntValue((Integer) args[0].value * (Integer) args[1].value), (InternalTypeValue) INT.value.instanceFields.get("*").value));
-                        put("/", getFnValue((KytheraValue<?>[] args) -> getIntValue((Integer) args[0].value / (Integer) args[1].value), (InternalTypeValue) INT.value.instanceFields.get("/").value));
-                        put("%", getFnValue((KytheraValue<?>[] args) -> getIntValue((Integer) args[0].value - (Integer) args[1].value), (InternalTypeValue) INT.value.instanceFields.get("%").value));
-                    }
+            val,
+            INT,
+            new HashMap<>() {
+                {
+                    put("+", getFnValue((KytheraValue<?>[] args) -> getIntValue((Integer) args[0].value + (Integer) args[1].value), (InternalTypeValue) INT.value.instanceFields.get("+").value));
+                    put("-", getFnValue((KytheraValue<?>[] args) -> getIntValue((Integer) args[0].value - (Integer) args[1].value), (InternalTypeValue) INT.value.instanceFields.get("-").value));
+                    put("*", getFnValue((KytheraValue<?>[] args) -> getIntValue((Integer) args[0].value * (Integer) args[1].value), (InternalTypeValue) INT.value.instanceFields.get("*").value));
+                    put("/", getFnValue((KytheraValue<?>[] args) -> getIntValue((Integer) args[0].value / (Integer) args[1].value), (InternalTypeValue) INT.value.instanceFields.get("/").value));
+                    put("%", getFnValue((KytheraValue<?>[] args) -> getIntValue((Integer) args[0].value - (Integer) args[1].value), (InternalTypeValue) INT.value.instanceFields.get("%").value));
+
+                    //        // temporary method to help with debugging, not in spec
+                    put("print", getFnValue((KytheraValue<?>[] args) -> {
+                        System.out.println(args[0]);
+                        return UNIT_VAL;
+                    }, new InternalTypeValue(
+                        BaseType.FN,
+                        new HashMap<>() {{
+                            put("paramTypes", getListValue(
+                                new ArrayList<>() {{
+                                }},
+                                TypeValueStore.getListType(KytheraValue.TYPE).value
+                            ));
+                            put("returnType", ROOT_TYPE);
+                        }}
+                    )));
                 }
+            }
         );
     }
 
     public static KytheraValue<ArrayList<KytheraValue<?>>> getListValue(ArrayList<KytheraValue<?>> list, InternalTypeValue listType) {
         return new KytheraValue<ArrayList<KytheraValue<?>>>(
-                list,
-                getTypeValue(listType),
-                new HashMap<>() {{
-                    put("size", null);
-                }}
+            list,
+            getTypeValue(listType),
+            new HashMap<>() {{
+                put("size", null);
+            }}
         );
     }
 
     public static KytheraValue<Function<KytheraValue<?>[], KytheraValue<?>>> getFnValue(
-            Function<KytheraValue<?>[], KytheraValue<?>> fn,
-            InternalTypeValue fnType
+        Function<KytheraValue<?>[], KytheraValue<?>> fn,
+        InternalTypeValue fnType
     ) {
         return new KytheraValue<>(
-                fn,
-                getTypeValue(fnType),
-                null
+            fn,
+            getTypeValue(fnType),
+            null
         );
     }
 
     public static KytheraValue<InternalTypeValue> getTypeValue(InternalTypeValue typeValue) {
         return new KytheraValue<>(
-                typeValue,
-                TYPE,
-                new HashMap<>() {{
-                    put(">:", null);
-                    put("<:", null);
-                }}
+            typeValue,
+            TYPE,
+            new HashMap<>() {{
+                put(">:", null);
+                put("<:", null);
+            }}
         );
     }
 

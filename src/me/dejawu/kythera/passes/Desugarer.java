@@ -73,7 +73,7 @@ public class Desugarer extends Visitor<StatementNode, ExpressionNode> {
     protected ExpressionNode visitBlock(BlockNode blockNode) {
         List<StatementNode> desugared = new ArrayList<>();
 
-        for(StatementNode st : blockNode.body) {
+        for (StatementNode st : blockNode.body) {
             desugared.add(visitStatement(st));
         }
 
@@ -107,12 +107,12 @@ public class Desugarer extends Visitor<StatementNode, ExpressionNode> {
 
     @Override
     protected ExpressionNode visitLiteral(LiteralNode literalNode) {
-        if(literalNode instanceof FnLiteralNode) {
+        if (literalNode instanceof FnLiteralNode) {
             FnLiteralNode fnLiteralNode = (FnLiteralNode) literalNode;
 
             SortedMap<String, ExpressionNode> params = new TreeMap<>();
 
-            for(Map.Entry<String, ExpressionNode> e : fnLiteralNode.parameters.entrySet()) {
+            for (Map.Entry<String, ExpressionNode> e : fnLiteralNode.parameters.entrySet()) {
                 params.put(e.getKey(), visitExpression(e.getValue()));
             }
 
@@ -120,17 +120,17 @@ public class Desugarer extends Visitor<StatementNode, ExpressionNode> {
                 params,
                 (BlockNode) visitExpression(fnLiteralNode.body)
             );
-        } else if(literalNode instanceof StructLiteralNode) {
+        } else if (literalNode instanceof StructLiteralNode) {
             StructLiteralNode structLiteralNode = (StructLiteralNode) literalNode;
 
             HashMap<String, ExpressionNode> entries = new HashMap<>();
 
-            for(Map.Entry<String, ExpressionNode> e : structLiteralNode.entries.entrySet()) {
+            for (Map.Entry<String, ExpressionNode> e : structLiteralNode.entries.entrySet()) {
                 entries.put(e.getKey(), visitExpression(e.getValue()));
             }
 
             return new StructLiteralNode((StructTypeLiteralNode) structLiteralNode.typeExp, entries);
-        } else if(literalNode instanceof TypeLiteralNode) {
+        } else if (literalNode instanceof TypeLiteralNode) {
             System.out.println("Warning: desugaring for type literal nodes not yet implemented");
             return literalNode;
         } else {

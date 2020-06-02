@@ -222,7 +222,7 @@ public final class Parser {
                 } else {
                     return new IntLiteralNode(Integer.parseInt(nextToken.value));
                 }
-            // case STR:
+                // case STR:
                 // return new StrLiteralNode(nextToken.value);
             case VAR:
                 // insert built-in values

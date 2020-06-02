@@ -18,7 +18,7 @@ public abstract class Visitor<S, E extends S> {
     public List<S> visit() {
         List<S> result = new ArrayList<>();
 
-        for(StatementNode st : input) {
+        for (StatementNode st : input) {
             result.add(visitStatement(st));
         }
 
@@ -39,7 +39,7 @@ public abstract class Visitor<S, E extends S> {
     protected E visitExpression(ExpressionNode exp) {
         switch (exp.kind) {
             case ACCESS:
-                if(exp instanceof DotAccessNode) {
+                if (exp instanceof DotAccessNode) {
                     return visitDotAccess((DotAccessNode) exp);
                 } else {
                     return visitBracketAccess((BracketAccessNode) exp);
@@ -75,19 +75,32 @@ public abstract class Visitor<S, E extends S> {
 
 
     protected abstract S visitLet(LetNode letNode);
+
     protected abstract S visitReturn(ReturnNode returnNode);
 
     protected abstract E visitAs(AsNode asNode);
+
     protected abstract E visitAssign(AssignNode assignNode);
+
     protected abstract E visitBinary(BinaryNode binaryNode);
+
     protected abstract E visitBlock(BlockNode blockNode);
+
     protected abstract E visitBracketAccess(BracketAccessNode bracketAccessNode);
+
     protected abstract E visitCall(CallNode callNode);
+
     protected abstract E visitDotAccess(DotAccessNode dotAccessNode);
+
     protected abstract E visitLiteral(LiteralNode literalNode);
+
     protected abstract E visitTypeof(TypeofNode typeofNode);
+
     protected abstract E visitIdentifier(IdentifierNode identifierNode);
+
     protected abstract E visitIf(IfNode ifNode);
+
     protected abstract E visitUnary(UnaryNode unaryNode);
+
     protected abstract E visitWhile(WhileNode whileNode);
 }

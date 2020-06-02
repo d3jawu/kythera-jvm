@@ -1,11 +1,13 @@
 package me.dejawu.kythera.passes;
 
 import org.objectweb.asm.MethodVisitor;
-import static org.objectweb.asm.Opcodes.*;
 
 import java.util.HashMap;
 
-public class Scope extends HashMap<String, Integer>  {
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ASTORE;
+
+public class Scope extends HashMap<String, Integer> {
     public final Scope parent;
     public final MethodVisitor mv;
 

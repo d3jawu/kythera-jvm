@@ -60,11 +60,11 @@ public class InternalTypeValue {
     public static InternalTypeValue INT = new InternalTypeValue(BaseType.INT, new HashMap<>() {
         {
             final KytheraValue<InternalTypeValue> IntIntToIntFnType = TypeValueStore.getFnType(
-                    new KytheraValue[]{KytheraValue.INT, KytheraValue.INT}, KytheraValue.INT
+                new KytheraValue[]{KytheraValue.INT, KytheraValue.INT}, KytheraValue.INT
             );
 
             final KytheraValue<InternalTypeValue> IntIntToBoolFnType = TypeValueStore.getFnType(
-                    new KytheraValue[]{KytheraValue.INT, KytheraValue.INT}, KytheraValue.BOOL
+                new KytheraValue[]{KytheraValue.INT, KytheraValue.INT}, KytheraValue.BOOL
             );
 
             // no deep equivalence operations for INT

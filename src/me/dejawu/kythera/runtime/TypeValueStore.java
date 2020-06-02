@@ -4,7 +4,6 @@ import me.dejawu.kythera.BaseType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 // builds and reuses type values
 public class TypeValueStore {
@@ -62,7 +61,7 @@ public class TypeValueStore {
                                 add(paramType);
                             }
                         }},
-                            TypeValueStore.getListType(KytheraValue.TYPE).value
+                        TypeValueStore.getListType(KytheraValue.TYPE).value
                     ));
                     put("returnType", returnType);
                 }}

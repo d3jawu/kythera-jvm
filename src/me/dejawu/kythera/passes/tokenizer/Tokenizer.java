@@ -54,7 +54,7 @@ public final class Tokenizer {
     private Token tokenFromNumber() {
         String number = "";
 
-        if(this.inputStream.peek() == '-') {
+        if (this.inputStream.peek() == '-') {
             number += "-";
             this.inputStream.next();
         }
