@@ -16,13 +16,13 @@ public class Scratch {
 
         ((Function) noncapturingLambda.value).apply(new KytheraValue[]{KytheraValue.getIntValue(2)});
 
-        KytheraValue x = KytheraValue.getIntValue(3);
+/*        KytheraValue x = KytheraValue.getIntValue(3);
 
         KytheraValue capturingLambda = KytheraValue.getFnValue((fnArgs) -> {
             System.out.println(x);
             return x;
         }, (InternalTypeValue) TypeValueStore.getFnType(new KytheraValue[]{}, KytheraValue.ROOT_TYPE).value);
 
-        ((Function) capturingLambda.value).apply(new KytheraValue[]{});
+        ((Function) capturingLambda.value).apply(new KytheraValue[]{}); */
     }
 }

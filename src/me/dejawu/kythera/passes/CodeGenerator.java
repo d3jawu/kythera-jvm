@@ -1,20 +1,22 @@
 package me.dejawu.kythera.passes;
 
 import me.dejawu.kythera.ast.*;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Handle;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Type;
+import org.objectweb.asm.*;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Map;
 
 import static org.objectweb.asm.Opcodes.*;
 
 // generates unchecked bytecode
 public class CodeGenerator extends Visitor<Void, Void> {
-    final String KYTHERAVALUE_PATH = "me/dejawu/kythera/runtime/KytheraValue";
+    final static String KYTHERAVALUE_PATH = "me/dejawu/kythera/runtime/KytheraValue";
+
+    // Java-side signature for all functions (fn's) in Kythera
+    final static String KYTHERA_FN_SIGNATURE = "([Lme/dejawu/kythera/runtime/KytheraValue;)Lme/dejawu/kythera/runtime/KytheraValue;";
+
 
     private final ClassWriter cw;
     private final TraceClassVisitor tcv;
@@ -37,6 +39,24 @@ public class CodeGenerator extends Visitor<Void, Void> {
         this.tcv = new TraceClassVisitor(this.cw, new PrintWriter(System.out, true));
 
         this.tcv.visit(V11, ACC_PUBLIC | ACC_SUPER, outputName, null, "java/lang/Object", null);
+
+        this.tcv.visitInnerClass("java/lang/invoke/MethodHandles$Lookup", "java/lang/invoke/MethodHandles", "Lookup", ACC_PUBLIC | ACC_FINAL | ACC_STATIC);
+
+        // create init method
+        MethodVisitor methodVisitor = this.tcv.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+        methodVisitor.visitCode();
+        Label label0 = new Label();
+        methodVisitor.visitLabel(label0);
+        methodVisitor.visitLineNumber(10, label0);
+        methodVisitor.visitVarInsn(ALOAD, 0);
+        methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+        methodVisitor.visitInsn(RETURN);
+        Label label1 = new Label();
+        methodVisitor.visitLabel(label1);
+        methodVisitor.visitLocalVariable("this", "Lme/dejawu/kythera/Scratch;", null, label0, label1, 0);
+        methodVisitor.visitMaxs(1, 1);
+        methodVisitor.visitEnd();
+
         MethodVisitor rootMv = this.tcv.visitMethod(ACC_PUBLIC | ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
 
         // root-scope symbol table with root MethodVisitor
@@ -46,8 +66,9 @@ public class CodeGenerator extends Visitor<Void, Void> {
 
     // kick off compilation process
     public byte[] compile() {
-        this.scope.mv.visitCode();
 
+
+        this.scope.mv.visitCode();
 
         for (StatementNode st : this.input) {
             this.visitStatement(st);
@@ -89,9 +110,10 @@ public class CodeGenerator extends Visitor<Void, Void> {
         return null;
     }
 
-    // ... value => empty stack
+    // ... => ...
     public Void visitReturn(ReturnNode node) {
-        this.scope.mv.visitInsn(RETURN);
+        this.visitExpression(node.exp);
+        this.scope.mv.visitInsn(ARETURN);
         return null;
     }
 
@@ -231,12 +253,14 @@ public class CodeGenerator extends Visitor<Void, Void> {
         } else if (literalNode instanceof FnLiteralNode) {
             // TODO distinguish capturing and non-capturing
 
-            String name = this.getLambdaName();
+            FnLiteralNode fnLiteralNode = (FnLiteralNode) literalNode;
+
+            String lambdaName = this.getLambdaName();
 
             // invokedynamic call to LambdaMetaFactory
             this.scope.mv.visitInvokeDynamicInsn(
                 "apply",
-                "(Lme/dejawu/kythera/runtime/KytheraValue;)Ljava/util/function/Function;",
+                "()Ljava/util/function/Function;", // TODO captured variables go in params here
                 // TODO make handle for LambdaMetaFactory.metafactory a constant?
                 new Handle(
                     H_INVOKESTATIC,
@@ -252,23 +276,59 @@ public class CodeGenerator extends Visitor<Void, Void> {
                 new Handle(
                     H_INVOKESTATIC,
                     "me/dejawu/kythera/Scratch",
-                    name, // generated lambda name
-                    "[Lme/dejawu/kythera/runtime/KytheraValue;)" + // normal variable list (always present)
-                        "Lme/dejawu/kythera/runtime/KytheraValue;", // return val (always same)
+                    lambdaName,
+                    KYTHERA_FN_SIGNATURE, // params and return val are always the same
                     false
                 ),
                 Type.getType(
-                    "([Lme/dejawu/kythera/runtime/KytheraValue;)Lme/dejawu/kythera/runtime/KytheraValue;"
+                    KYTHERA_FN_SIGNATURE
                 ));
 
             // generate static method for lambda
 
+            // TODO generating methods for lambdas needs to happen after main program generation is done
+            
+            // create new scope
+            final MethodVisitor mv = this.tcv.visitMethod(
+                ACC_PRIVATE| ACC_STATIC | ACC_SYNTHETIC,
+                lambdaName,
+                KYTHERA_FN_SIGNATURE,
+                null, null
+            );
+            this.scope = new Scope(this.scope, mv);
+            this.scope.mv.visitCode();
+
+            // add boilerplate code that evaluates and reads parameters
+            // TODO this would be a good place to add type parameters to scope
+
+            // push parameter array
+            this.scope.mv.visitVarInsn(ALOAD, 0);
+
+            int n = 0;
+
+            // add parameters in Java array to scope
+            for (Map.Entry<String, ExpressionNode> param : fnLiteralNode.parameters.entrySet()) {
+                this.pushInt(n);
+                this.scope.mv.visitInsn(AALOAD);
+                this.scope.addSymbol(param.getKey());
+            }
+
             // parse block
+            for (StatementNode st : fnLiteralNode.body.body) {
+                this.visitStatement(st);
+            }
+
+            // block *should* return on its own
+            // remaining cleanup
+            this.scope.mv.visitMaxs(0,0);
+            this.scope.mv.visitEnd();
 
             // assert: this.scope != this.rootScope
 
             // return to parent scope
+            this.scope = this.scope.parent;
 
+            return null;
         } else if (literalNode instanceof TypeLiteralNode) {
         } else if (literalNode.equals(UnitLiteral.UNIT)) {
         }
@@ -313,13 +373,15 @@ public class CodeGenerator extends Visitor<Void, Void> {
 
     @Override
     protected Void visitBinary(BinaryNode binaryNode) {
-        System.err.println("Error: A binary node should not be present at code generation.");
+        System.err.println("A binary node should not be present at code generation.");
         System.exit(1);
         return null;
     }
 
     @Override
     protected Void visitBlock(BlockNode blockNode) {
+        System.err.println("Block nodes not attached to a fn literal should not be present at code generation.");
+        System.exit(1);
         return null;
     }
 

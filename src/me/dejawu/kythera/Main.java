@@ -17,7 +17,7 @@ public class Main {
         String entryPoint;
 
         if (args.length != 1) {
-            entryPoint = "scratch";
+            entryPoint = "Scratch";
         } else {
             entryPoint = args[0];
         }

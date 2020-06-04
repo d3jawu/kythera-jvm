@@ -7,6 +7,7 @@ import java.util.HashMap;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ASTORE;
 
+// TODO also keep track of variable types?
 public class Scope extends HashMap<String, Integer> {
     public final Scope parent;
     public final MethodVisitor mv;
