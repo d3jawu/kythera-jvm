@@ -32,8 +32,13 @@ public class CodeGenerator extends Visitor<Void, Void> {
     // used to generate unique lambda names
     private int lambdaCount = 0;
 
+    // used for output class name
+    private String outputName;
+
     public CodeGenerator(List<StatementNode> program, String outputName) {
         super(program);
+
+        this.outputName = outputName;
 
         this.cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         this.tcv = new TraceClassVisitor(this.cw, new PrintWriter(System.out, true));
@@ -51,9 +56,6 @@ public class CodeGenerator extends Visitor<Void, Void> {
         methodVisitor.visitVarInsn(ALOAD, 0);
         methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
         methodVisitor.visitInsn(RETURN);
-        Label label1 = new Label();
-        methodVisitor.visitLabel(label1);
-        methodVisitor.visitLocalVariable("this", "Lme/dejawu/kythera/Scratch;", null, label0, label1, 0);
         methodVisitor.visitMaxs(1, 1);
         methodVisitor.visitEnd();
 
@@ -66,8 +68,6 @@ public class CodeGenerator extends Visitor<Void, Void> {
 
     // kick off compilation process
     public byte[] compile() {
-
-
         this.scope.mv.visitCode();
 
         for (StatementNode st : this.input) {
@@ -178,6 +178,7 @@ public class CodeGenerator extends Visitor<Void, Void> {
         this.scope.mv.visitTypeInsn(ANEWARRAY, KYTHERAVALUE_PATH);
 
         if (callNode.target instanceof DotAccessNode) {
+            // inject self variable
             callNode.arguments.add(0, ((DotAccessNode) callNode.target).target);
         }
 
@@ -275,7 +276,7 @@ public class CodeGenerator extends Visitor<Void, Void> {
                 Type.getType("(Ljava/lang/Object;)Ljava/lang/Object;"),
                 new Handle(
                     H_INVOKESTATIC,
-                    "me/dejawu/kythera/Scratch",
+                    this.outputName,
                     lambdaName,
                     KYTHERA_FN_SIGNATURE, // params and return val are always the same
                     false
@@ -284,13 +285,20 @@ public class CodeGenerator extends Visitor<Void, Void> {
                     KYTHERA_FN_SIGNATURE
                 ));
 
-            // generate static method for lambda
+            // get type value:
 
-            // TODO generating methods for lambdas needs to happen after main program generation is done
-            
-            // create new scope
+            // get type KytheraValue attached to fnLiteralNode
+            this.visitExpression(fnLiteralNode.typeExp);
+
+            // get .value field
+            this.scope.mv.visitFieldInsn(GETFIELD, KYTHERAVALUE_PATH, "value", "Ljava/lang/Object;");
+
+            // create fn KytheraValue from Function (from invokedynamic), InternalTypeValue (from .value field on fn literal's type expression)
+            this.scope.mv.visitMethodInsn(INVOKESTATIC, KYTHERAVALUE_PATH, "getFnValue", "(Lme/dejawu/kythera/runtime/KytheraValue;Lme/dejawu/kythera/runtime/KytheraValue;)Lme/dejawu/kythera/runtime/KytheraValue;", false);
+
+            // generate static method for lambda
             final MethodVisitor mv = this.tcv.visitMethod(
-                ACC_PRIVATE| ACC_STATIC | ACC_SYNTHETIC,
+                ACC_PRIVATE | ACC_STATIC | ACC_SYNTHETIC,
                 lambdaName,
                 KYTHERA_FN_SIGNATURE,
                 null, null
@@ -299,7 +307,7 @@ public class CodeGenerator extends Visitor<Void, Void> {
             this.scope.mv.visitCode();
 
             // add boilerplate code that evaluates and reads parameters
-            // TODO this would be a good place to add type parameters to scope
+            // TODO this would be a good place to evaluate type parameters and add them to scope
 
             // push parameter array
             this.scope.mv.visitVarInsn(ALOAD, 0);

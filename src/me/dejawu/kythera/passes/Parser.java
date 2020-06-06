@@ -447,7 +447,6 @@ public final class Parser {
     }
 
     private ExpressionNode makeCall(ExpressionNode exp) {
-        System.out.println("Making call");
         List<ExpressionNode> arguments = new ArrayList<>();
 
         this.tokenizer.consume(Symbol.OPEN_PAREN.token);

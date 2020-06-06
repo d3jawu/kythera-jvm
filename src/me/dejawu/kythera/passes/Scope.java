@@ -29,7 +29,8 @@ public class Scope extends HashMap<String, Integer> {
     // generates instructions that will store the variable on top of the
     // stack in a new slot
     public void addSymbol(String name) {
-        final int slot = this.size();
+        // offset scope variables by 1 to leave room for parameter variable (KytheraValue[])
+        final int slot = this.size() + 1;
         this.mv.visitVarInsn(ASTORE, slot);
         this.put(name, slot);
     }
