@@ -62,9 +62,12 @@ public class KytheraValue<T> {
 
     // === reusable literals and factories below ===
 
+    // types are interned and reused
+    private static final HashMap<KytheraValue<InternalTypeValue>, KytheraValue<InternalTypeValue>> typeValueStore = new HashMap<>();
+
     // root type: a type that specifies not fields. All values are valid instances of the root type.
     // used to bootstrap TYPE
-    public static KytheraValue<InternalTypeValue> ROOT_TYPE = new KytheraValue<>(InternalTypeValue.ROOT_TYPE);
+    public static KytheraValue<InternalTypeValue> ROOT_TYPE = internType(new KytheraValue<>(InternalTypeValue.ROOT_TYPE));
 
     // type that describes types and their operations
     public static KytheraValue<InternalTypeValue> TYPE = new KytheraValue<>(
@@ -77,8 +80,8 @@ public class KytheraValue<T> {
     );
 
     // literals for scalar types (any type for which one type value can describe all instances of that type)
-    public static KytheraValue<InternalTypeValue> INT = getTypeValue(InternalTypeValue.INT);
-    public static KytheraValue<InternalTypeValue> BOOL = getTypeValue(InternalTypeValue.BOOL);
+    public static KytheraValue<InternalTypeValue> INT = wrapInternalTypeValue(InternalTypeValue.INT);
+    public static KytheraValue<InternalTypeValue> BOOL = wrapInternalTypeValue(InternalTypeValue.BOOL);
 
     // unit literal
     public static KytheraValue<Void> UNIT_VAL = new KytheraValue<>(null, ROOT_TYPE);
@@ -110,7 +113,7 @@ public class KytheraValue<T> {
                             put("paramTypes", getListValue(
                                 new ArrayList<>() {{
                                 }},
-                                TypeValueStore.getListType(KytheraValue.TYPE).value
+                                KytheraValue.getListTypeValue(KytheraValue.TYPE).value
                             ));
                             put("returnType", ROOT_TYPE);
                         }}
@@ -123,7 +126,7 @@ public class KytheraValue<T> {
     public static KytheraValue<ArrayList<KytheraValue<?>>> getListValue(ArrayList<KytheraValue<?>> list, InternalTypeValue listType) {
         return new KytheraValue<ArrayList<KytheraValue<?>>>(
             list,
-            getTypeValue(listType),
+            wrapInternalTypeValue(listType),
             new HashMap<>() {{
                 put("size", null);
             }}
@@ -136,12 +139,13 @@ public class KytheraValue<T> {
     ) {
         return new KytheraValue<>(
             fn,
-            getTypeValue(fnType),
+            wrapInternalTypeValue(fnType),
             null
         );
     }
 
-    public static KytheraValue<InternalTypeValue> getTypeValue(InternalTypeValue typeValue) {
+    // wraps an internal type value into a proper KytheraValue
+    private static KytheraValue<InternalTypeValue> wrapInternalTypeValue(InternalTypeValue typeValue) {
         return new KytheraValue<>(
             typeValue,
             TYPE,
@@ -152,7 +156,66 @@ public class KytheraValue<T> {
         );
     }
 
-    @Override
+    // get reference to existing type value, or create and store if one does not exist.
+    private static KytheraValue<InternalTypeValue> internType(KytheraValue<InternalTypeValue> val) {
+        KytheraValue<InternalTypeValue> existingVal = typeValueStore.get(val);
+
+        if (existingVal != null) {
+            return existingVal;
+        } else {
+            typeValueStore.put(val, val);
+            return val;
+        }
+    }
+
+    // returns a struct type
+    public static KytheraValue<InternalTypeValue> getStructTypeValue(HashMap<String, KytheraValue<?>> fields) {
+        return internType(KytheraValue.wrapInternalTypeValue(
+                new InternalTypeValue(
+                        BaseType.STRUCT,
+                        fields,
+                        new HashMap<>() {{
+                            put("fields", fields);
+                        }}
+                )
+        ));
+    }
+
+    // returns a list type containing the specified member type
+    public static KytheraValue<InternalTypeValue> getListTypeValue(KytheraValue<InternalTypeValue> memberType) {
+        return internType(KytheraValue.wrapInternalTypeValue(
+                new InternalTypeValue(
+                        BaseType.LIST,
+                        new HashMap<>() {{
+                            put("memberType", memberType);
+                        }}
+                )
+        ));
+    }
+
+    public static KytheraValue<InternalTypeValue> getFnTypeValue(
+            KytheraValue<InternalTypeValue>[] paramTypes,
+            KytheraValue<InternalTypeValue> returnType
+    ) {
+        return internType(KytheraValue.wrapInternalTypeValue(
+                new InternalTypeValue(
+                        BaseType.FN,
+                        new HashMap<>() {{
+                            put("paramTypes", KytheraValue.getListValue(
+                                    new ArrayList() {{
+                                        for (KytheraValue<InternalTypeValue> paramType : paramTypes) {
+                                            add(paramType);
+                                        }
+                                    }},
+                                    KytheraValue.getListTypeValue(KytheraValue.TYPE).value
+                            ));
+                            put("returnType", returnType);
+                        }}
+                )
+        ));
+    }
+
+        @Override
     public String toString() {
         String out = "KytheraValue {\n";
         out += "\tValue:\n";

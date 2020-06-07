@@ -41,7 +41,7 @@ public class InternalTypeValue {
 
     // type values themselves have operations (and therefore fields), defined here
     public static InternalTypeValue TYPE = new InternalTypeValue(BaseType.TYPE, new HashMap<>() {{
-        final KytheraValue<InternalTypeValue> TypeToBoolFn = TypeValueStore.getFnType(new KytheraValue[]{KytheraValue.ROOT_TYPE}, KytheraValue.BOOL);
+        final KytheraValue<InternalTypeValue> TypeToBoolFn = KytheraValue.getFnTypeValue(new KytheraValue[]{KytheraValue.ROOT_TYPE}, KytheraValue.BOOL);
 
         // isSubtypeOf
         put("<:", TypeToBoolFn);
@@ -59,11 +59,11 @@ public class InternalTypeValue {
 
     public static InternalTypeValue INT = new InternalTypeValue(BaseType.INT, new HashMap<>() {
         {
-            final KytheraValue<InternalTypeValue> IntIntToIntFnType = TypeValueStore.getFnType(
+            final KytheraValue<InternalTypeValue> IntIntToIntFnType = KytheraValue.getFnTypeValue(
                 new KytheraValue[]{KytheraValue.INT, KytheraValue.INT}, KytheraValue.INT
             );
 
-            final KytheraValue<InternalTypeValue> IntIntToBoolFnType = TypeValueStore.getFnType(
+            final KytheraValue<InternalTypeValue> IntIntToBoolFnType = KytheraValue.getFnTypeValue(
                 new KytheraValue[]{KytheraValue.INT, KytheraValue.INT}, KytheraValue.BOOL
             );
 
