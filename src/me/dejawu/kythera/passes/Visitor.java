@@ -2,12 +2,12 @@ package me.dejawu.kythera.passes;
 
 import me.dejawu.kythera.ast.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 // template class for traversing AST nodes
 // S and E are separate to allow extending classes to use StatementNode and ExpressionNode
-public abstract class Visitor<S, E extends S> {
+public abstract class Visitor {
     protected final List<StatementNode> input;
 
     public Visitor(List<StatementNode> input) {
@@ -15,8 +15,8 @@ public abstract class Visitor<S, E extends S> {
     }
 
     // runs operation on all nodes and returns new AST list
-    public List<S> visit() {
-        List<S> result = new ArrayList<>();
+    public List<StatementNode> visit() {
+        List<StatementNode> result = new ArrayList<>();
 
         for (StatementNode st : input) {
             result.add(visitStatement(st));
@@ -25,7 +25,7 @@ public abstract class Visitor<S, E extends S> {
         return result;
     }
 
-    protected S visitStatement(StatementNode st) {
+    protected StatementNode visitStatement(StatementNode st) {
         switch (st.kind) {
             case LET:
                 return visitLet((LetNode) st);
@@ -36,7 +36,7 @@ public abstract class Visitor<S, E extends S> {
         }
     }
 
-    protected E visitExpression(ExpressionNode exp) {
+    protected ExpressionNode visitExpression(ExpressionNode exp) {
         switch (exp.kind) {
             case ACCESS:
                 if (exp instanceof DotAccessNode) {
@@ -73,33 +73,124 @@ public abstract class Visitor<S, E extends S> {
         }
     }
 
-    protected abstract S visitLet(LetNode letNode);
+    // default implementations pass node on unchanged
 
-    protected abstract S visitReturn(ReturnNode returnNode);
+    protected StatementNode visitLet(LetNode letNode) {
+        return new LetNode(letNode.identifier, visitExpression(letNode.value));
+    }
 
-    protected abstract E visitAs(AsNode asNode);
+    protected StatementNode visitReturn(ReturnNode returnNode) {
+        return new ReturnNode(visitExpression(returnNode.exp));
+    };
 
-    protected abstract E visitAssign(AssignNode assignNode);
+    protected ExpressionNode visitAs(AsNode asNode) {
+        return new AsNode(visitExpression(asNode.from), visitExpression(asNode.to));
+    }
 
-    protected abstract E visitBinary(BinaryNode binaryNode);
+    protected ExpressionNode visitAssign(AssignNode assignNode) {
+        return new AssignNode(
+                assignNode.operator,
+                visitExpression(assignNode.left),
+                visitExpression(assignNode.right)
+                );
+    }
 
-    protected abstract E visitBlock(BlockNode blockNode);
+    protected ExpressionNode visitBinary(BinaryNode binaryNode) {
+        return new BinaryNode(
+                binaryNode.operator,
+                visitExpression(binaryNode.left),
+                visitExpression(binaryNode.right)
+        );
+    }
 
-    protected abstract E visitBracketAccess(BracketAccessNode bracketAccessNode);
+    protected ExpressionNode visitBlock(BlockNode blockNode) {
+            List<StatementNode> visited = new ArrayList<>();
 
-    protected abstract E visitCall(CallNode callNode);
+            for (StatementNode st : blockNode.body) {
+                visited.add(visitStatement(st));
+            }
 
-    protected abstract E visitDotAccess(DotAccessNode dotAccessNode);
+            return new BlockNode(visited);
 
-    protected abstract E visitLiteral(LiteralNode literalNode);
+        };
 
-    protected abstract E visitTypeof(TypeofNode typeofNode);
+    protected ExpressionNode visitBracketAccess(BracketAccessNode bracketAccessNode) {
+        return new BracketAccessNode(
+                visitExpression(bracketAccessNode.target),
+                visitExpression(bracketAccessNode.key)
+        );
+    }
 
-    protected abstract E visitIdentifier(IdentifierNode identifierNode);
+    protected ExpressionNode visitCall(CallNode callNode) {
+        return new CallNode(
+                visitExpression(callNode.target),
+                callNode
+                        .arguments
+                        .stream()
+                        .map(this::visitExpression)
+                        .collect(Collectors.toList())
+        );
+    }
 
-    protected abstract E visitIf(IfNode ifNode);
+    protected ExpressionNode visitDotAccess(DotAccessNode dotAccessNode) {
+        return new DotAccessNode(visitExpression(dotAccessNode.target), dotAccessNode.key);
+    }
 
-    protected abstract E visitUnary(UnaryNode unaryNode);
+    protected ExpressionNode visitLiteral(LiteralNode literalNode) {
+        if (literalNode instanceof FnLiteralNode) {
+            FnLiteralNode fnLiteralNode = (FnLiteralNode) literalNode;
 
-    protected abstract E visitWhile(WhileNode whileNode);
+            SortedMap<String, ExpressionNode> params = new TreeMap<>();
+
+            for (Map.Entry<String, ExpressionNode> e : fnLiteralNode.parameters.entrySet()) {
+                params.put(e.getKey(), visitExpression(e.getValue()));
+            }
+
+            return new FnLiteralNode(
+                    params,
+                    (BlockNode) visitExpression(fnLiteralNode.body)
+            );
+        } else if (literalNode instanceof StructLiteralNode) {
+            StructLiteralNode structLiteralNode = (StructLiteralNode) literalNode;
+
+            HashMap<String, ExpressionNode> entries = new HashMap<>();
+
+            for (Map.Entry<String, ExpressionNode> e : structLiteralNode.entries.entrySet()) {
+                entries.put(e.getKey(), visitExpression(e.getValue()));
+            }
+
+            return new StructLiteralNode((StructTypeLiteralNode) structLiteralNode.typeExp, entries);
+        } else if (literalNode instanceof TypeLiteralNode) {
+            System.out.println("Warning: desugaring for type literal nodes not yet implemented");
+            return literalNode;
+        } else {
+            return literalNode;
+        }
+    }
+
+    protected ExpressionNode visitTypeof(TypeofNode typeofNode) {
+        return new TypeofNode(this.visitExpression(typeofNode.target));
+    }
+
+    protected ExpressionNode visitIdentifier(IdentifierNode identifierNode) {
+        return identifierNode;
+    }
+
+    protected ExpressionNode visitIf(IfNode ifNode) {
+        // TODO visit if block
+        System.err.println("Not yet implemented.");
+        System.exit(1);
+        return null;
+    }
+
+    protected ExpressionNode visitUnary(UnaryNode unaryNode) {
+        return new UnaryNode(unaryNode.operator, this.visitExpression(unaryNode.target));
+    }
+
+    protected ExpressionNode visitWhile(WhileNode whileNode) {
+        // TODO visit while block
+        System.err.println("Not yet implemented.");
+        System.exit(1);
+        return null;
+    }
 }

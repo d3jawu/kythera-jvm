@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 
 // associates types with identifiers, registers parameter variables, resolves struct field types, etc
-public class Resolver extends Visitor<StatementNode, ExpressionNode> {
+public class Resolver extends Visitor {
     // simple scope concept used to keep track of variable types
     private static class Scope {
 
