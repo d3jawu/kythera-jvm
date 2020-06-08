@@ -3,10 +3,16 @@ package me.dejawu.kythera.stages;
 import me.dejawu.kythera.ast.*;
 import me.dejawu.kythera.stages.tokenizer.Symbol;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 // associates types with identifiers, registers parameter variables, resolves struct field types, etc
+// TODO resolve and inline constants here too?
 public class Resolver extends Visitor {
     // simple scope concept used to keep track of variable types
     private static class Scope {
@@ -82,16 +88,6 @@ public class Resolver extends Visitor {
     }
 
     @Override
-    protected StatementNode visitReturn(ReturnNode returnNode) {
-        return new ReturnNode(visitExpression(returnNode.exp));
-    }
-
-    @Override
-    protected ExpressionNode visitAs(AsNode asNode) {
-        return new AsNode(visitExpression(asNode.from), visitExpression(asNode.to));
-    }
-
-    @Override
     protected ExpressionNode visitAssign(AssignNode assignNode) {
         if(!assignNode.operator.equals(Symbol.EQUALS)) {
             System.err.println("Compound assignment should not be present at resolution stage.");
@@ -113,9 +109,45 @@ public class Resolver extends Visitor {
 
     @Override
     protected ExpressionNode visitBlock(BlockNode blockNode) {
-        System.err.println("Standalone block node should not be present at resolution stage.");
-        System.exit(0);
-        return null;
+        // standalone block should not exist here - it should only appear as a
+        // child node of fn literal, if/else, or while
+
+        List<ReturnNode> returnStatements = new ArrayList<>();
+
+        List<StatementNode> newBody = blockNode.body.stream().map((node) -> {
+            StatementNode newNode = this.visitStatement(node);
+
+            if (newNode instanceof ReturnNode) {
+                returnStatements.add((ReturnNode) newNode);
+            }
+
+            return newNode;
+        }).collect(Collectors.toList());
+
+        ExpressionNode typeExp = null;
+
+        StatementNode lastNode = blockNode.body.get(blockNode.body.size() - 1);
+
+        if (lastNode.kind != NodeKind.RETURN && !(lastNode instanceof ExpressionNode)) {
+            System.err.println("Last statement in block must be a return or an expression.");
+            System.exit(1);
+            return null;
+        }
+
+        // actual agreement of return/lastNode types is checked later in the TypeChecker stage
+
+        for (ReturnNode ret: returnStatements) {
+            if (typeExp == null) {
+                typeExp = ret.exp.typeExp;
+            }
+        }
+
+        if (typeExp == null) {
+            // if no return statements, use last expression as value
+            typeExp = ((ExpressionNode) lastNode).typeExp;
+        }
+
+        return new BlockNode(newBody, typeExp);
     }
 
     @Override
@@ -127,65 +159,158 @@ public class Resolver extends Visitor {
     @Override
     protected ExpressionNode visitCall(CallNode callNode) {
         // look up signature of target fn and attach return type expression to node
-        return null;
+        ExpressionNode target = this.visitExpression(callNode.target);
+        List<ExpressionNode> arguments =
+                callNode
+                        .arguments
+                        .stream()
+                        .map(arg -> this.visitExpression(arg))
+                        .collect(Collectors.toList());
+
+        // TODO this assertion is no longer true once type values come into play
+        // assert target.typeExp instanceof FnTypeLiteralNode
+        ExpressionNode typeExp =
+            ((FnTypeLiteralNode) target.typeExp)
+                .returnTypeExp;
+
+        System.out.println("Call node");
+        System.out.println(target);
+//        target.print(0, System.out);
+//        typeExp.print(0, System.out);
+
+        return new CallNode(
+            target,
+            arguments,
+            typeExp
+        );
     }
 
     @Override
     protected ExpressionNode visitDotAccess(DotAccessNode dotAccessNode) {
         // look up fields of target struct and attach type expression
-        return null;
+        ExpressionNode target = this.visitExpression(dotAccessNode.target);
+
+        System.out.println("DotNode target:");
+        System.out.println(target.typeExp);
+
+        // TODO this assertion is no longer true once type values come into play
+        // assert target.typeExp instanceof StructTypeLiteralNode
+
+        // TODO define fields for builtin types, eg int.+ (this may take some thinking)
+
+        System.out.println("target exp:");
+        target.typeExp.print(0, System.out);
+
+        ExpressionNode typeExp = this.visitExpression(
+            ((StructTypeLiteralNode) target.typeExp)
+                .entryTypes
+                .get(dotAccessNode.key)
+        );
+
+        return new DotAccessNode(
+            target,
+            dotAccessNode.key,
+            typeExp
+        );
     }
 
     @Override
     protected ExpressionNode visitLiteral(LiteralNode literalNode) {
-        // fn literal: detect block return type
-        // fn literal: detect method type in parent struct type
+        System.out.println("Literal node:");
+        literalNode.print(0, System.out);
 
-        /*
-        typeExp = null; // for BlockNodes, typeExp is the return type
-        for (StatementNode st : returnStatements) {
-            if (st.kind == NodeKind.RETURN) {
-                ReturnNode ret = (ReturnNode) st;
-
-                if (typeExp == null) {
-                    typeExp = ret.exp.typeExp;
-                }
-            }
-        }
-
-        if (typeExp == null && lastNode.kind != NodeKind.RETURN) {
-            // if no return statements, use last expression as value
-            this.typeExp = ((ExpressionNode) lastNode).typeExp;
-        }
-        */
-
+        if (literalNode instanceof StructLiteralNode) {
+            System.err.println("Struct literal node not yet implemented in resolver");
+            System.exit(0);
             return null;
-    }
+        } else if (literalNode instanceof FnLiteralNode) {
+            FnLiteralNode fnLiteralNode = (FnLiteralNode) literalNode;
 
-    @Override
-    protected ExpressionNode visitTypeof(TypeofNode typeofNode) {
-        return null;
+            this.scope = new Scope(this.scope);
+
+            // each literal should have been associated with a type literal
+            // assert fnLiteralNode.typeExp instanceof FnTypeLiteralNode
+
+            ArrayList<ExpressionNode> paramTypes = new ArrayList<>();
+
+            for (int n = 0; n < fnLiteralNode.parameterNames.size(); n += 1) {
+                ExpressionNode paramTypeExp =  this.visitExpression(
+                        ((FnTypeLiteralNode) fnLiteralNode.typeExp)
+                                .parameterTypeExps.get(n)
+                );
+                paramTypes.add(paramTypeExp);
+                this.scope.create(
+                        fnLiteralNode.parameterNames.get(n),
+                        paramTypeExp
+                );
+            }
+
+            BlockNode body = (BlockNode) this.visitBlock(fnLiteralNode.body);
+
+            // assert body.typeExp != null
+
+            this.scope = this.scope.parent;
+
+            return new FnLiteralNode(
+                    new FnTypeLiteralNode(paramTypes, body.typeExp),
+                    fnLiteralNode.parameterNames,
+                    body);
+        } else if (literalNode instanceof TypeLiteralNode) {
+            TypeLiteralNode typeLiteralNode = (TypeLiteralNode) literalNode;
+
+            if(typeLiteralNode instanceof FnTypeLiteralNode) {
+                FnTypeLiteralNode fnTypeLiteralNode = (FnTypeLiteralNode) typeLiteralNode;
+
+                List<ExpressionNode> paramTypeExps = fnTypeLiteralNode
+                        .parameterTypeExps
+                        .stream()
+                        .map(exp -> this.visitExpression(exp))
+                        .collect(Collectors.toList());
+
+                return new FnTypeLiteralNode(
+                        paramTypeExps,
+                        this.visitExpression(fnTypeLiteralNode.returnTypeExp)
+                );
+            } else {
+                return typeLiteralNode.baseType.typeLiteral;
+            }
+
+//
+//            System.err.println("Not yet implemented in resolver:");
+//            typeLiteralNode.print(0, System.err);
+//            System.exit(1);
+//            return null;
+        } else {
+            return literalNode;
+        }
     }
 
     @Override
     protected ExpressionNode visitIdentifier(IdentifierNode identifierNode) {
+//        assert identifierNode != null;
         return new IdentifierNode(identifierNode.name, this.scope.get(identifierNode.name));
     }
 
     @Override
     protected ExpressionNode visitIf(IfNode ifNode) {
         // evaluate if/else bodies and attach types
+        System.err.println("if/else is not yet implemented at the Resolver stage");
+        System.exit(1);
         return null;
     }
 
     @Override
     protected ExpressionNode visitUnary(UnaryNode unaryNode) {
+        System.err.println("Unary node should not be present at Resolver stage.");
+        System.exit(1);
         return null;
     }
 
     @Override
     protected ExpressionNode visitWhile(WhileNode whileNode) {
         // evaluate body and attach type
+        System.err.println("while is not yet implemented at the Resolver stage");
+        System.exit(1);
         return null;
     }
 }

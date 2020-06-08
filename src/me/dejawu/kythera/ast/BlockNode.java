@@ -10,24 +10,24 @@ public class BlockNode extends ExpressionNode {
     public final List<StatementNode> body;
 
     public BlockNode(List<StatementNode> body) {
-        super(NodeKind.BLOCK); // type to be set later
+        super(NodeKind.BLOCK); // type to be set later; Resolver will recreate BlockNode with return type set
         this.body = body;
 
         if (body.size() <= 0) {
-            System.err.println("Block cannot have empty body. To return " + "nothing, use `unit`.");
+            System.err.println("Block cannot have empty body. To return nothing, use `unit`.");
             System.exit(1);
         }
+    }
 
-        List<StatementNode> returnStatements = body.stream().filter(node -> node.kind == NodeKind.RETURN).collect(Collectors.toList());
+    // Call when block's return type expression is known
+    public BlockNode(List<StatementNode> body, ExpressionNode typeExp) {
+        super(NodeKind.BLOCK, typeExp);
+        this.body = body;
 
-        StatementNode lastNode = body.get(body.size() - 1);
-
-        if (lastNode.kind != NodeKind.RETURN && !(lastNode instanceof ExpressionNode)) {
-            System.err.println("Last statement in block must be a return or " + "expression.");
+        if(body.size() <= 0) {
+            System.err.println("Block cannot have empty body.");
             System.exit(1);
         }
-
-        // Resolver will recreate BlockNode with return type set
     }
 
     @Override

@@ -354,10 +354,10 @@ public class CodeGenerator {
             int n = 0;
 
             // add parameters in Java array to scope
-            for (Map.Entry<String, ExpressionNode> param : fnLiteralNode.parameters.entrySet()) {
+            for (String param : fnLiteralNode.parameterNames) {
                 this.pushInt(n);
                 this.symbolTable.mv.visitInsn(AALOAD);
-                this.symbolTable.addSymbol(param.getKey());
+                this.symbolTable.addSymbol(param);
             }
 
             // parse block

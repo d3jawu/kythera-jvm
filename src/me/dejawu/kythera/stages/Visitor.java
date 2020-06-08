@@ -140,14 +140,9 @@ public abstract class Visitor {
         if (literalNode instanceof FnLiteralNode) {
             FnLiteralNode fnLiteralNode = (FnLiteralNode) literalNode;
 
-            SortedMap<String, ExpressionNode> params = new TreeMap<>();
-
-            for (Map.Entry<String, ExpressionNode> e : fnLiteralNode.parameters.entrySet()) {
-                params.put(e.getKey(), visitExpression(e.getValue()));
-            }
-
             return new FnLiteralNode(
-                    params,
+                    (FnTypeLiteralNode) visitExpression(fnLiteralNode.typeExp),
+                    fnLiteralNode.parameterNames,
                     (BlockNode) visitExpression(fnLiteralNode.body)
             );
         } else if (literalNode instanceof StructLiteralNode) {
@@ -159,7 +154,7 @@ public abstract class Visitor {
                 entries.put(e.getKey(), visitExpression(e.getValue()));
             }
 
-            return new StructLiteralNode((StructTypeLiteralNode) structLiteralNode.typeExp, entries);
+            return new StructLiteralNode((StructTypeLiteralNode) visitExpression(structLiteralNode.typeExp), entries);
         } else if (literalNode instanceof TypeLiteralNode) {
             System.out.println("Warning: desugaring for type literal nodes not yet implemented");
             return literalNode;

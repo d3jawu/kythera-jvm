@@ -297,14 +297,14 @@ public final class Parser {
         // consumed the first type expression and can just pass it in here.
 
         boolean firstRun = true;
-        SortedMap<String, ExpressionNode> parameters = new TreeMap<String, ExpressionNode>();
+        ArrayList<String> paramNames = new ArrayList<>();
+        ArrayList<ExpressionNode> paramTypes = new ArrayList<>();
 
-        // opening parentheses and first type expression have already been
-        // consumed
+        // opening parentheses and first type expression have already been consumed
 
         while (this.tokenizer.confirm(Symbol.CLOSE_PAREN.token) == null) {
             ExpressionNode paramTypeExp;
-            if (firstRun) {
+            if (firstRun) { // handle already-consumed type exp
                 paramTypeExp = firstTypeExpression;
                 firstRun = false;
             } else {
@@ -314,7 +314,8 @@ public final class Parser {
             String paramName = this.tokenizer.confirm(TokenType.VAR).value;
             this.tokenizer.consume(TokenType.VAR);
 
-            parameters.put(paramName, paramTypeExp);
+            paramNames.add(paramName);
+            paramTypes.add(paramTypeExp);
             if (this.tokenizer.confirm(Symbol.CLOSE_PAREN.token) == null) {
                 this.tokenizer.consume(Symbol.COMMA.token);
             }
@@ -324,7 +325,10 @@ public final class Parser {
 
         BlockNode body = this.parseBlock();
 
-        return new FnLiteralNode(parameters, body);
+        return new FnLiteralNode(
+                new FnTypeLiteralNode(paramTypes, null),
+                paramNames,
+                body);
     }
 
     // sometimes parseStructLiteral is called with the first identifier

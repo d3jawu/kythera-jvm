@@ -57,7 +57,7 @@ public class Desugarer extends Visitor {
         );
     }
 
-    // TODO desugar block into fn()unit and parse FnLiteralNode body inline instead
+    // TODO desugar block into fn()unit
     @Override
     protected ExpressionNode visitBlock(BlockNode blockNode) {
         List<StatementNode> desugared = new ArrayList<>();

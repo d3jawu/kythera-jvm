@@ -3,19 +3,17 @@ package me.dejawu.kythera.ast;
 import me.dejawu.kythera.Main;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.SortedMap;
+import java.util.List;
 
 public class FnLiteralNode extends LiteralNode {
-    public final SortedMap<String, ExpressionNode> parameters;
+    public final List<String> parameterNames; // types for parameters are stored in associated FnTypeLiteralNode
     public final BlockNode body;
 
-    public FnLiteralNode(SortedMap<String, ExpressionNode> parameters, BlockNode body) {
-        super(new FnTypeLiteralNode(new ArrayList<>(parameters.values()), body.typeExp));
+    public FnLiteralNode(FnTypeLiteralNode typeExp, List<String> parameterNames, BlockNode body) {
+        super(typeExp);
 
-        this.parameters = parameters;
         this.body = body;
+        this.parameterNames = parameterNames;
     }
 
     @Override
@@ -25,11 +23,8 @@ public class FnLiteralNode extends LiteralNode {
 
         int n = 0;
 
-        for (Map.Entry<String, ExpressionNode> entry : parameters.entrySet()) {
-            Main.printlnWithIndent("\t\tparam " + n + ": " + entry.getKey(), indent, stream);
-            Main.printlnWithIndent("\t\ttype exp:", indent, stream);
-            entry.getValue().print(indent + 3, stream);
-
+        for (String param : parameterNames) {
+            Main.printlnWithIndent("\t\tparam " + n + ": " + param, indent, stream);
             n += 1;
         }
 

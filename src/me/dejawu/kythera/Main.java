@@ -33,9 +33,9 @@ public class Main {
             // typeExps on ExpressionNodes may still be null at this point
 
             // TODO link types to expressions (no null typeExps)
-//            System.out.println("Resolving types");
-//            Resolver resolver = new Resolver(ast);
-//            ast = resolver.visit();
+            System.out.println("Resolving types");
+            Resolver resolver = new Resolver(ast);
+            ast = resolver.visit();
 
             // TODO mark types as dynamic or statically known
 

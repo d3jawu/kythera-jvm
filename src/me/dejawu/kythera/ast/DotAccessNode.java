@@ -19,6 +19,13 @@ public class DotAccessNode extends ExpressionNode {
         this.key = key;
     }
 
+    public DotAccessNode(ExpressionNode target, String key, ExpressionNode typeExp) {
+        super(NodeKind.ACCESS, typeExp);
+
+        this.target = target;
+        this.key = key;
+    }
+
     @Override
     public void print(int indent, PrintStream stream) {
         Main.printlnWithIndent("DotAccessNode {", indent, stream);
