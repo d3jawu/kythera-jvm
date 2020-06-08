@@ -1,11 +1,13 @@
 package me.dejawu.kythera.passes;
 
+import me.dejawu.kythera.BaseType;
 import me.dejawu.kythera.ast.*;
 import me.dejawu.kythera.passes.tokenizer.*;
 
 import java.util.*;
 
 public final class Parser {
+
     private final List<StatementNode> program;
 
     private final Tokenizer tokenizer;
@@ -233,8 +235,10 @@ public final class Parser {
                         return BooleanLiteral.FALSE;
                     case "unit":
                         return UnitLiteral.UNIT;
+                    case "int":
+                        return BaseType.INT.typeLiteral;
                     default:
-                        return new IdentifierNode(nextToken.value, null);
+                        return new IdentifierNode(nextToken.value);
                 }
         }
 

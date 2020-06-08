@@ -27,22 +27,7 @@ public class BlockNode extends ExpressionNode {
             System.exit(1);
         }
 
-        // check all return statements for type equivalence
-        typeExp = null; // for BlockNodes, typeExp is the return type
-        for (StatementNode st : returnStatements) {
-            if (st.kind == NodeKind.RETURN) {
-                ReturnNode ret = (ReturnNode) st;
-
-                if (typeExp == null) {
-                    typeExp = ret.exp.typeExp;
-                }
-            }
-        }
-
-        if (typeExp == null && lastNode.kind != NodeKind.RETURN) {
-            // if no return statements, use last expression as value
-            this.typeExp = ((ExpressionNode) lastNode).typeExp;
-        }
+        // Resolver will recreate BlockNode with return type set
     }
 
     @Override

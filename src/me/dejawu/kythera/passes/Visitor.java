@@ -73,7 +73,6 @@ public abstract class Visitor<S, E extends S> {
         }
     }
 
-
     protected abstract S visitLet(LetNode letNode);
 
     protected abstract S visitReturn(ReturnNode returnNode);

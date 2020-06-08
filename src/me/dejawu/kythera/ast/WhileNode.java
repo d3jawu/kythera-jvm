@@ -18,9 +18,6 @@ public class WhileNode extends ExpressionNode {
 
         this.condition = condition;
         this.body = body;
-
-        // while evaluates to block value
-        this.typeExp = body.typeExp;
     }
 
     @Override

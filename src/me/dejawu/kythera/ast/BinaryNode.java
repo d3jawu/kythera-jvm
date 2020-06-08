@@ -24,8 +24,7 @@ public final class BinaryNode extends ExpressionNode {
         this.left = left;
         this.right = right;
 
-        // type-checking is done later
-        this.typeExp = left.typeExp;
+        // type-checking is done after binary node has been desugared
     }
 
     @Override

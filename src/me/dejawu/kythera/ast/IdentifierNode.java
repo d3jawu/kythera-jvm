@@ -7,10 +7,16 @@ import java.io.PrintStream;
 public class IdentifierNode extends ExpressionNode {
     public final String name;
 
-    public IdentifierNode(String name, ExpressionNode typeExp) {
+    public IdentifierNode(String name) {
         super(NodeKind.IDENTIFIER);
         this.name = name;
-        this.typeExp = typeExp;
+
+    }
+
+    // called by Resolver when typeExp is known
+    public IdentifierNode(String name, ExpressionNode typeExp) {
+        super(NodeKind.IDENTIFIER, typeExp);
+        this.name = name;
     }
 
     @Override

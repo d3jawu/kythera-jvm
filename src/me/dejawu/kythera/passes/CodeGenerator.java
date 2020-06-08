@@ -11,7 +11,7 @@ import java.util.Map;
 import static org.objectweb.asm.Opcodes.*;
 
 // generates unchecked bytecode
-public class CodeGenerator extends Visitor<Void, Void> {
+public class CodeGenerator {
     final static String KYTHERAVALUE_PATH = "me/dejawu/kythera/runtime/KytheraValue";
 
     // Java-side signature for all functions (fn's) in Kythera
@@ -35,8 +35,11 @@ public class CodeGenerator extends Visitor<Void, Void> {
     // used for output class name
     private String outputName;
 
+    protected final List<StatementNode> input;
+
+
     public CodeGenerator(List<StatementNode> program, String outputName) {
-        super(program);
+        this.input = program;
 
         this.outputName = outputName;
 
@@ -208,7 +211,6 @@ public class CodeGenerator extends Visitor<Void, Void> {
     }
 
     // ... target value => ... value in that field
-    @Override
     protected Void visitDotAccess(DotAccessNode dotAccessNode) {
         this.visitExpression(dotAccessNode.target);
 
@@ -224,7 +226,6 @@ public class CodeGenerator extends Visitor<Void, Void> {
     }
 
     // ... => ... literal value
-    @Override
     protected Void visitLiteral(LiteralNode literalNode) {
         // switch depending on which kind of literal
         if (literalNode.equals(BooleanLiteral.TRUE)) {
@@ -386,7 +387,6 @@ public class CodeGenerator extends Visitor<Void, Void> {
     }
 
     // ... value to be assigned => ...
-    @Override
     protected Void visitAssign(AssignNode assignNode) {
         // only + allowed here
 
@@ -411,21 +411,18 @@ public class CodeGenerator extends Visitor<Void, Void> {
         return null;
     }
 
-    @Override
     protected Void visitBinary(BinaryNode binaryNode) {
         System.err.println("A binary node should not be present at code generation.");
         System.exit(1);
         return null;
     }
 
-    @Override
     protected Void visitBlock(BlockNode blockNode) {
         System.err.println("Block nodes not attached to a fn literal should not be present at code generation.");
         System.exit(1);
         return null;
     }
 
-    @Override
     protected Void visitBracketAccess(BracketAccessNode bracketAccessNode) {
         return null;
     }
@@ -440,18 +437,15 @@ public class CodeGenerator extends Visitor<Void, Void> {
         return null;
     }
 
-    @Override
     protected Void visitUnary(UnaryNode unaryNode) {
         return null;
     }
 
-    @Override
     public Void visitWhile(WhileNode whileNode) {
         return null;
     }
 
     // ... value => ... typeValue of value
-    @Override
     public Void visitTypeof(TypeofNode typeofNode) {
         // put target value on top of stack
         this.visitExpression(typeofNode.target);

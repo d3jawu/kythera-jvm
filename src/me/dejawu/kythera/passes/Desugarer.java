@@ -30,7 +30,10 @@ public class Desugarer extends Visitor<StatementNode, ExpressionNode> {
     @Override
     protected ExpressionNode visitAssign(AssignNode assignNode) {
         if (assignNode.operator.equals(Symbol.EQUALS)) {
-            return assignNode;
+            return new AssignNode(Symbol.EQUALS,
+                    visitExpression(assignNode.left),
+                    visitExpression(assignNode.right)
+                    );
         } else {
             // separate assignment, e.g. x += 10 becomes x = (x + 10)
             return new AssignNode(
@@ -69,6 +72,7 @@ public class Desugarer extends Visitor<StatementNode, ExpressionNode> {
         );
     }
 
+    // TODO desugar block into fn()unit and parse FnLiteralNode body inline instead
     @Override
     protected ExpressionNode visitBlock(BlockNode blockNode) {
         List<StatementNode> desugared = new ArrayList<>();
@@ -80,6 +84,7 @@ public class Desugarer extends Visitor<StatementNode, ExpressionNode> {
         return new BlockNode(desugared);
     }
 
+    // TODO desugar into overloaded method call
     @Override
     protected ExpressionNode visitBracketAccess(BracketAccessNode bracketAccessNode) {
         return new BracketAccessNode(

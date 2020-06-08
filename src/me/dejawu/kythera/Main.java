@@ -1,10 +1,7 @@
 package me.dejawu.kythera;
 
 import me.dejawu.kythera.ast.StatementNode;
-import me.dejawu.kythera.passes.CodeGenerator;
-import me.dejawu.kythera.passes.Desugarer;
-import me.dejawu.kythera.passes.Parser;
-import me.dejawu.kythera.passes.TypeChecker;
+import me.dejawu.kythera.passes.*;
 
 import java.io.FileOutputStream;
 import java.io.PrintStream;
@@ -36,6 +33,9 @@ public class Main {
             // typeExps on ExpressionNodes may still be null at this point
 
             // TODO link types to expressions (no null typeExps)
+//            System.out.println("Resolving types");
+//            Resolver resolver = new Resolver(ast);
+//            ast = resolver.visit();
 
             // TODO mark types as dynamic or statically known
 

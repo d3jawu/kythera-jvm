@@ -16,6 +16,14 @@ public class CallNode extends ExpressionNode {
         this.arguments = arguments;
     }
 
+    // called by Resolver when return type is known
+    public CallNode(ExpressionNode target, List<ExpressionNode> arguments, ExpressionNode typeExp) {
+        super(NodeKind.CALL, typeExp);
+
+        this.target = target;
+        this.arguments = arguments;
+    }
+
     @Override
     public void print(int indent, PrintStream stream) {
         Main.printlnWithIndent("CallNode {", indent, stream);

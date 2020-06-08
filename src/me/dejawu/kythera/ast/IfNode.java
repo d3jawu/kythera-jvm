@@ -21,7 +21,6 @@ public class IfNode extends ExpressionNode {
         this.condition = condition;
         this.body = body;
 
-        this.typeExp = body.typeExp;
         this.elseBody = null;
     }
 
@@ -51,7 +50,6 @@ public class IfNode extends ExpressionNode {
         this.condition = condition;
         this.body = body;
 
-        this.typeExp = body.typeExp;
         this.elseBody = elseBody;
     }
 
