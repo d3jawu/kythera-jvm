@@ -290,7 +290,7 @@ public class CodeGenerator extends Visitor<Void, Void> {
             // get type KytheraValue attached to fnLiteralNode
             this.visitExpression(fnLiteralNode.typeExp);
 
-            // get .value field
+            // get .value field, pushing fn's InternalTypeValue on stack
             this.scope.mv.visitFieldInsn(GETFIELD, KYTHERAVALUE_PATH, "value", "Ljava/lang/Object;");
 
             // create fn KytheraValue from Function (from invokedynamic), InternalTypeValue (from .value field on fn literal's type expression)
@@ -338,6 +338,38 @@ public class CodeGenerator extends Visitor<Void, Void> {
 
             return null;
         } else if (literalNode instanceof TypeLiteralNode) {
+            TypeLiteralNode typeLiteralNode = (TypeLiteralNode) literalNode;
+
+            switch(typeLiteralNode.baseType) {
+                case INT:
+                    this.scope.mv.visitFieldInsn(GETSTATIC, KYTHERAVALUE_PATH, "INT", "L" + KYTHERAVALUE_PATH + ";");
+                    break;
+                case FN:
+                    FnTypeLiteralNode fnTypeLiteralNode = (FnTypeLiteralNode) typeLiteralNode;
+
+                    System.out.println("fn type literal node");
+                    fnTypeLiteralNode.print(0, System.out);
+
+                    // generate array of param types and push on stack
+                    this.pushInt(fnTypeLiteralNode.parameterTypeExps.size());
+                    this.scope.mv.visitTypeInsn(ANEWARRAY, KYTHERAVALUE_PATH);
+
+                    int n = 0;
+                    for (ExpressionNode exp : fnTypeLiteralNode.parameterTypeExps) {
+                        this.pushInt(n);
+                        this.visitExpression(exp);
+                        this.scope.mv.visitInsn(AASTORE);
+                        n += 1;
+                    }
+
+                    // push return type on stack
+                    this.visitExpression(fnTypeLiteralNode.returnTypeExp);
+
+                    // call KytheraValue.getFnTypeValue
+                    this.scope.mv.visitMethodInsn(INVOKESTATIC, KYTHERAVALUE_PATH, "getFnTypeValue", KYTHERA_FN_SIGNATURE, false);
+                    break;
+                default:
+            }
         } else if (literalNode.equals(UnitLiteral.UNIT)) {
         }
 
