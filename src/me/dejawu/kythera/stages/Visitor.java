@@ -1,4 +1,4 @@
-package me.dejawu.kythera.passes;
+package me.dejawu.kythera.stages;
 
 import me.dejawu.kythera.ast.*;
 

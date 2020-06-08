@@ -1,4 +1,4 @@
-package me.dejawu.kythera.passes.tokenizer;
+package me.dejawu.kythera.stages.tokenizer;
 
 public enum Keyword {
     LET(),

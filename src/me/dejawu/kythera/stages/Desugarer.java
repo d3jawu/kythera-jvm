@@ -1,10 +1,9 @@
-package me.dejawu.kythera.passes;
+package me.dejawu.kythera.stages;
 
 import me.dejawu.kythera.ast.*;
-import me.dejawu.kythera.passes.tokenizer.Symbol;
+import me.dejawu.kythera.stages.tokenizer.Symbol;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Desugarer extends Visitor {
     public Desugarer(List<StatementNode> program) {

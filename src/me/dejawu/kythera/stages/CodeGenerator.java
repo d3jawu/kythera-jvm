@@ -1,10 +1,11 @@
-package me.dejawu.kythera.passes;
+package me.dejawu.kythera.stages;
 
 import me.dejawu.kythera.ast.*;
 import org.objectweb.asm.*;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,11 +13,57 @@ import static org.objectweb.asm.Opcodes.*;
 
 // generates unchecked bytecode
 public class CodeGenerator {
+
+    // keeps track of variable slots and associates MethodVisitors with scope
+    // TODO also keep track of variable types?
+    public static class SymbolTable extends HashMap<String, Integer> {
+        public final SymbolTable parent;
+        public final MethodVisitor mv;
+
+        // root scope (no parent)
+        public SymbolTable(MethodVisitor mv) {
+            this.parent = null;
+            this.mv = mv;
+        }
+
+        // scope with parent
+        public SymbolTable(SymbolTable parent, MethodVisitor mv) {
+            this.parent = parent;
+            this.mv = mv;
+        }
+
+        // TODO use ASTORE_0-3 instructions
+
+        // generates instructions that will store the variable on top of the
+        // stack in a new slot
+        public void addSymbol(String name) {
+            // offset scope variables by 1 to leave room for parameter variable (KytheraValue[])
+            final int slot = this.size() + 1;
+            this.mv.visitVarInsn(ASTORE, slot);
+            this.put(name, slot);
+        }
+
+        // TODO use ALOAD_0-3 instructions
+
+        // generates instructions that will push the given (existing) symbol
+        // on the stack
+        public void loadSymbol(String name) {
+            final int slot = this.get(name);
+            this.mv.visitVarInsn(ALOAD, slot);
+        }
+
+        // generates instructions that will store the variable at the
+        // top of the stack into the slot for the given (existing) symbol
+        public void storeSymbol(String name) {
+            final int slot = this.get(name);
+            this.mv.visitVarInsn(ASTORE, slot);
+        }
+    }
+    
     final static String KYTHERAVALUE_PATH = "me/dejawu/kythera/runtime/KytheraValue";
 
     // Java-side signature for all functions (fn's) in Kythera
     final static String KYTHERA_FN_SIGNATURE = "([Lme/dejawu/kythera/runtime/KytheraValue;)Lme/dejawu/kythera/runtime/KytheraValue;";
-
 
     private final ClassWriter cw;
     private final TraceClassVisitor tcv;
@@ -24,10 +71,10 @@ public class CodeGenerator {
     // represents the "global scope" (actually the main(String[] args) method)
     // this allows Kythera to have a global scope while Java does not.
     // contains MethodVisitor for root scope
-    private final Scope rootScope;
+    private final SymbolTable rootSymbolTable;
 
     // current working scope
-    private Scope scope;
+    private SymbolTable symbolTable;
 
     // used to generate unique lambda names
     private int lambdaCount = 0;
@@ -65,21 +112,21 @@ public class CodeGenerator {
         MethodVisitor rootMv = this.tcv.visitMethod(ACC_PUBLIC | ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
 
         // root-scope symbol table with root MethodVisitor
-        this.rootScope = new Scope(rootMv);
-        this.scope = this.rootScope;
+        this.rootSymbolTable = new SymbolTable(rootMv);
+        this.symbolTable = this.rootSymbolTable;
     }
 
     // kick off compilation process
     public byte[] compile() {
-        this.scope.mv.visitCode();
+        this.symbolTable.mv.visitCode();
 
         for (StatementNode st : this.input) {
             this.visitStatement(st);
         }
 
         // cleanup
-        this.scope.mv.visitInsn(RETURN);
-        this.scope.mv.visitMaxs(0, 0);
+        this.symbolTable.mv.visitInsn(RETURN);
+        this.symbolTable.mv.visitMaxs(0, 0);
         this.tcv.visitEnd();
         return this.cw.toByteArray();
     }
@@ -91,7 +138,7 @@ public class CodeGenerator {
 
     }*/
 
-    public Void visitStatement(StatementNode st) {
+    public void visitStatement(StatementNode st) {
         switch (st.kind) {
             case LET:
                 visitLet((LetNode) st);
@@ -102,36 +149,33 @@ public class CodeGenerator {
             default:
                 visitExpression((ExpressionNode) st);
         }
-        return null;
     }
 
     // ... => ...
-    public Void visitLet(LetNode node) {
+    public void visitLet(LetNode node) {
         // evaluate the RHS first to get the reference to that value
         this.visitExpression(node.value);
-        this.scope.addSymbol(node.identifier);
-        return null;
+        this.symbolTable.addSymbol(node.identifier);
     }
 
     // ... => ...
-    public Void visitReturn(ReturnNode node) {
+    public void visitReturn(ReturnNode node) {
         this.visitExpression(node.exp);
-        this.scope.mv.visitInsn(ARETURN);
-        return null;
+        this.symbolTable.mv.visitInsn(ARETURN);
     }
 
     // Generally speaking: ... => ... expression result
-    public Void visitExpression(ExpressionNode node) {
+    public void visitExpression(ExpressionNode node) {
         switch (node.kind) {
             case ASSIGN:
                 this.visitAssign((AssignNode) node);
-                return null;
+                return;
             case LITERAL:
                 this.visitLiteral((LiteralNode) node);
-                return null;
+                return;
             case IDENTIFIER:
                 this.visitIdentifier((IdentifierNode) node);
-                return null;
+                return;
             case IF:
                 break;
             case WHILE:
@@ -140,10 +184,10 @@ public class CodeGenerator {
                 break;
             case CALL:
                 this.visitCall((CallNode) node);
-                return null;
+                return;
             case TYPEOF:
                 this.visitTypeof((TypeofNode) node);
-                return null;
+                return;
             case BLOCK:
             case UNARY:
             case BINARY:
@@ -151,23 +195,21 @@ public class CodeGenerator {
             case ACCESS:
                 if (node instanceof DotAccessNode) {
                     this.visitDotAccess((DotAccessNode) node);
-                    return null;
+                    return;
                 }
         }
 
         System.err.println("Unsupported or not implemented: " + node.kind.name());
         System.exit(1);
-
-        return null;
     }
 
     // ... fn value => ... result of that fn value
-    public Void visitCall(CallNode callNode) {
+    public void visitCall(CallNode callNode) {
         this.visitExpression(callNode.target);
 
         // get internal function value
-        this.scope.mv.visitFieldInsn(GETFIELD, KYTHERAVALUE_PATH, "value", "Ljava/lang/Object;");
-        this.scope.mv.visitTypeInsn(CHECKCAST, "java/util/function/Function");
+        this.symbolTable.mv.visitFieldInsn(GETFIELD, KYTHERAVALUE_PATH, "value", "Ljava/lang/Object;");
+        this.symbolTable.mv.visitTypeInsn(CHECKCAST, "java/util/function/Function");
 
         int argCount = callNode.arguments.size();
 
@@ -178,7 +220,7 @@ public class CodeGenerator {
 
         // create array for arguments
         this.pushInt(argCount);
-        this.scope.mv.visitTypeInsn(ANEWARRAY, KYTHERAVALUE_PATH);
+        this.symbolTable.mv.visitTypeInsn(ANEWARRAY, KYTHERAVALUE_PATH);
 
         if (callNode.target instanceof DotAccessNode) {
             // inject self variable
@@ -188,7 +230,7 @@ public class CodeGenerator {
         int n = 0;
         for (ExpressionNode arg : callNode.arguments) {
             // array reference is consumed by AASTORE, so keep a copy
-            this.scope.mv.visitInsn(DUP);
+            this.symbolTable.mv.visitInsn(DUP);
             // set position in arg array
             this.pushInt(n);
 
@@ -196,53 +238,49 @@ public class CodeGenerator {
             this.visitExpression(arg);
 
             // put into arg array
-            this.scope.mv.visitInsn(AASTORE);
+            this.symbolTable.mv.visitInsn(AASTORE);
 
             n += 1;
         }
 
         // call method
-        this.scope.mv.visitMethodInsn(INVOKEINTERFACE, "java/util/function/Function", "apply", "(Ljava/lang/Object;)Ljava/lang/Object;", true);
+        this.symbolTable.mv.visitMethodInsn(INVOKEINTERFACE, "java/util/function/Function", "apply", "(Ljava/lang/Object;)Ljava/lang/Object;", true);
 
         // cast result
-        this.scope.mv.visitTypeInsn(CHECKCAST, KYTHERAVALUE_PATH);
-
-        return null;
+        this.symbolTable.mv.visitTypeInsn(CHECKCAST, KYTHERAVALUE_PATH);
     }
 
     // ... target value => ... value in that field
-    protected Void visitDotAccess(DotAccessNode dotAccessNode) {
+    protected void visitDotAccess(DotAccessNode dotAccessNode) {
         this.visitExpression(dotAccessNode.target);
 
-        this.scope.mv.visitFieldInsn(GETFIELD, KYTHERAVALUE_PATH, "fields", "Ljava/util/HashMap;");
+        this.symbolTable.mv.visitFieldInsn(GETFIELD, KYTHERAVALUE_PATH, "fields", "Ljava/util/HashMap;");
 
-        this.scope.mv.visitLdcInsn(dotAccessNode.key);
+        this.symbolTable.mv.visitLdcInsn(dotAccessNode.key);
 
-        this.scope.mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/HashMap", "get", "(Ljava/lang/Object;)Ljava/lang/Object;", false);
+        this.symbolTable.mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/HashMap", "get", "(Ljava/lang/Object;)Ljava/lang/Object;", false);
 
-        this.scope.mv.visitTypeInsn(CHECKCAST, KYTHERAVALUE_PATH);
-
-        return null;
+        this.symbolTable.mv.visitTypeInsn(CHECKCAST, KYTHERAVALUE_PATH);
     }
 
     // ... => ... literal value
-    protected Void visitLiteral(LiteralNode literalNode) {
+    protected void visitLiteral(LiteralNode literalNode) {
         // switch depending on which kind of literal
         if (literalNode.equals(BooleanLiteral.TRUE)) {
-            this.scope.mv.visitFieldInsn(GETSTATIC, KYTHERAVALUE_PATH, "TRUE", "L" + KYTHERAVALUE_PATH + ";");
-            return null;
+            this.symbolTable.mv.visitFieldInsn(GETSTATIC, KYTHERAVALUE_PATH, "TRUE", "L" + KYTHERAVALUE_PATH + ";");
+            return;
         } else if (literalNode.equals(BooleanLiteral.FALSE)) {
-            this.scope.mv.visitFieldInsn(GETSTATIC, KYTHERAVALUE_PATH, "FALSE", "L" + KYTHERAVALUE_PATH + ";");
-            return null;
+            this.symbolTable.mv.visitFieldInsn(GETSTATIC, KYTHERAVALUE_PATH, "FALSE", "L" + KYTHERAVALUE_PATH + ";");
+            return;
         } else if (literalNode instanceof IntLiteralNode) {
             IntLiteralNode intLiteralNode = (IntLiteralNode) literalNode;
 
             // push int value on local stack
             this.pushInt(intLiteralNode.value);
 
-            this.scope.mv.visitMethodInsn(INVOKESTATIC, KYTHERAVALUE_PATH, "getIntValue", "(I)Lme/dejawu/kythera/runtime/KytheraValue;", false);
+            this.symbolTable.mv.visitMethodInsn(INVOKESTATIC, KYTHERAVALUE_PATH, "getIntValue", "(I)Lme/dejawu/kythera/runtime/KytheraValue;", false);
 
-            return null;
+            return;
         } else if (literalNode instanceof FloatLiteralNode) {
             /*FloatLiteralNode floatLiteralNode = (FloatLiteralNode) literalNode;
 
@@ -260,7 +298,7 @@ public class CodeGenerator {
             String lambdaName = this.getLambdaName();
 
             // invokedynamic call to LambdaMetaFactory
-            this.scope.mv.visitInvokeDynamicInsn(
+            this.symbolTable.mv.visitInvokeDynamicInsn(
                 "apply",
                 "()Ljava/util/function/Function;", // TODO captured variables go in params here
                 // TODO make handle for LambdaMetaFactory.metafactory a constant?
@@ -292,10 +330,10 @@ public class CodeGenerator {
             this.visitExpression(fnLiteralNode.typeExp);
 
             // get .value field, pushing fn's InternalTypeValue on stack
-            this.scope.mv.visitFieldInsn(GETFIELD, KYTHERAVALUE_PATH, "value", "Ljava/lang/Object;");
+            this.symbolTable.mv.visitFieldInsn(GETFIELD, KYTHERAVALUE_PATH, "value", "Ljava/lang/Object;");
 
             // create fn KytheraValue from Function (from invokedynamic), InternalTypeValue (from .value field on fn literal's type expression)
-            this.scope.mv.visitMethodInsn(INVOKESTATIC, KYTHERAVALUE_PATH, "getFnValue", "(Lme/dejawu/kythera/runtime/KytheraValue;Lme/dejawu/kythera/runtime/KytheraValue;)Lme/dejawu/kythera/runtime/KytheraValue;", false);
+            this.symbolTable.mv.visitMethodInsn(INVOKESTATIC, KYTHERAVALUE_PATH, "getFnValue", "(Lme/dejawu/kythera/runtime/KytheraValue;Lme/dejawu/kythera/runtime/KytheraValue;)Lme/dejawu/kythera/runtime/KytheraValue;", false);
 
             // generate static method for lambda
             final MethodVisitor mv = this.tcv.visitMethod(
@@ -304,22 +342,22 @@ public class CodeGenerator {
                 KYTHERA_FN_SIGNATURE,
                 null, null
             );
-            this.scope = new Scope(this.scope, mv);
-            this.scope.mv.visitCode();
+            this.symbolTable = new SymbolTable(this.symbolTable, mv);
+            this.symbolTable.mv.visitCode();
 
             // add boilerplate code that evaluates and reads parameters
             // TODO this would be a good place to evaluate type parameters and add them to scope
 
             // push parameter array
-            this.scope.mv.visitVarInsn(ALOAD, 0);
+            this.symbolTable.mv.visitVarInsn(ALOAD, 0);
 
             int n = 0;
 
             // add parameters in Java array to scope
             for (Map.Entry<String, ExpressionNode> param : fnLiteralNode.parameters.entrySet()) {
                 this.pushInt(n);
-                this.scope.mv.visitInsn(AALOAD);
-                this.scope.addSymbol(param.getKey());
+                this.symbolTable.mv.visitInsn(AALOAD);
+                this.symbolTable.addSymbol(param.getKey());
             }
 
             // parse block
@@ -329,21 +367,21 @@ public class CodeGenerator {
 
             // block *should* return on its own
             // remaining cleanup
-            this.scope.mv.visitMaxs(0,0);
-            this.scope.mv.visitEnd();
+            this.symbolTable.mv.visitMaxs(0,0);
+            this.symbolTable.mv.visitEnd();
 
             // assert: this.scope != this.rootScope
 
             // return to parent scope
-            this.scope = this.scope.parent;
+            this.symbolTable = this.symbolTable.parent;
 
-            return null;
+            return;
         } else if (literalNode instanceof TypeLiteralNode) {
             TypeLiteralNode typeLiteralNode = (TypeLiteralNode) literalNode;
 
             switch(typeLiteralNode.baseType) {
                 case INT:
-                    this.scope.mv.visitFieldInsn(GETSTATIC, KYTHERAVALUE_PATH, "INT", "L" + KYTHERAVALUE_PATH + ";");
+                    this.symbolTable.mv.visitFieldInsn(GETSTATIC, KYTHERAVALUE_PATH, "INT", "L" + KYTHERAVALUE_PATH + ";");
                     break;
                 case FN:
                     FnTypeLiteralNode fnTypeLiteralNode = (FnTypeLiteralNode) typeLiteralNode;
@@ -353,13 +391,13 @@ public class CodeGenerator {
 
                     // generate array of param types and push on stack
                     this.pushInt(fnTypeLiteralNode.parameterTypeExps.size());
-                    this.scope.mv.visitTypeInsn(ANEWARRAY, KYTHERAVALUE_PATH);
+                    this.symbolTable.mv.visitTypeInsn(ANEWARRAY, KYTHERAVALUE_PATH);
 
                     int n = 0;
                     for (ExpressionNode exp : fnTypeLiteralNode.parameterTypeExps) {
                         this.pushInt(n);
                         this.visitExpression(exp);
-                        this.scope.mv.visitInsn(AASTORE);
+                        this.symbolTable.mv.visitInsn(AASTORE);
                         n += 1;
                     }
 
@@ -367,7 +405,7 @@ public class CodeGenerator {
                     this.visitExpression(fnTypeLiteralNode.returnTypeExp);
 
                     // call KytheraValue.getFnTypeValue
-                    this.scope.mv.visitMethodInsn(INVOKESTATIC, KYTHERAVALUE_PATH, "getFnTypeValue", KYTHERA_FN_SIGNATURE, false);
+                    this.symbolTable.mv.visitMethodInsn(INVOKESTATIC, KYTHERAVALUE_PATH, "getFnTypeValue", KYTHERA_FN_SIGNATURE, false);
                     break;
                 default:
             }
@@ -378,16 +416,13 @@ public class CodeGenerator {
         System.err.println("Unimplemented literal: ");
         literalNode.print(0, System.err);
         System.exit(1);
-
-        return null;
     }
 
-    public Void visitAs(AsNode literalNode) {
-        return null;
+    public void visitAs(AsNode literalNode) {
     }
 
     // ... value to be assigned => ...
-    protected Void visitAssign(AssignNode assignNode) {
+    protected void visitAssign(AssignNode assignNode) {
         // only + allowed here
 
         // put RHS result on top of stack
@@ -396,9 +431,9 @@ public class CodeGenerator {
         if (assignNode.left instanceof IdentifierNode) {
             IdentifierNode identifierNode = (IdentifierNode) assignNode.left;
 
-            this.scope.storeSymbol(identifierNode.name);
+            this.symbolTable.storeSymbol(identifierNode.name);
 
-            return null;
+            return;
         } else if (assignNode.left instanceof DotAccessNode) {
             // for now, all fields are mutable
 
@@ -408,85 +443,76 @@ public class CodeGenerator {
         System.err.println("Assignment LHS is invalid.");
         System.exit(1);
 
-        return null;
     }
 
-    protected Void visitBinary(BinaryNode binaryNode) {
+    protected void visitBinary(BinaryNode binaryNode) {
         System.err.println("A binary node should not be present at code generation.");
         System.exit(1);
-        return null;
     }
 
-    protected Void visitBlock(BlockNode blockNode) {
+    protected void visitBlock(BlockNode blockNode) {
         System.err.println("Block nodes not attached to a fn literal should not be present at code generation.");
         System.exit(1);
-        return null;
     }
 
-    protected Void visitBracketAccess(BracketAccessNode bracketAccessNode) {
-        return null;
+    protected void visitBracketAccess(BracketAccessNode bracketAccessNode) {
     }
 
     // ... => ... value at identifier
-    public Void visitIdentifier(IdentifierNode literalNode) {
-        this.scope.loadSymbol(literalNode.name);
-        return null;
+    public void visitIdentifier(IdentifierNode literalNode) {
+        this.symbolTable.loadSymbol(literalNode.name);
     }
 
-    public Void visitIf(IfNode literalNode) {
-        return null;
+    public void visitIf(IfNode literalNode) {
     }
 
-    protected Void visitUnary(UnaryNode unaryNode) {
-        return null;
+    protected void visitUnary(UnaryNode unaryNode) {
     }
 
-    public Void visitWhile(WhileNode whileNode) {
-        return null;
+    public void visitWhile(WhileNode whileNode) {
     }
 
     // ... value => ... typeValue of value
-    public Void visitTypeof(TypeofNode typeofNode) {
+    public void visitTypeof(TypeofNode typeofNode) {
         // put target value on top of stack
         this.visitExpression(typeofNode.target);
 
-        this.scope.mv.visitFieldInsn(
+        this.symbolTable.mv.visitFieldInsn(
             GETFIELD, KYTHERAVALUE_PATH, "typeValue",
             "L" + KYTHERAVALUE_PATH + ";");
-        return null;
     }
 
     // pushes JVM int to stack, using constants where available
     private void pushInt(int value) {
         if (value == -1) {
-            this.scope.mv.visitInsn(ICONST_M1);
+            this.symbolTable.mv.visitInsn(ICONST_M1);
         } else if (value == 0) {
-            this.scope.mv.visitInsn(ICONST_0);
+            this.symbolTable.mv.visitInsn(ICONST_0);
         } else if (value == 1) {
-            this.scope.mv.visitInsn(ICONST_1);
+            this.symbolTable.mv.visitInsn(ICONST_1);
         } else if (value == 2) {
-            this.scope.mv.visitInsn(ICONST_2);
+            this.symbolTable.mv.visitInsn(ICONST_2);
         } else if (value == 3) {
-            this.scope.mv.visitInsn(ICONST_3);
+            this.symbolTable.mv.visitInsn(ICONST_3);
         } else if (value == 4) {
-            this.scope.mv.visitInsn(ICONST_4);
+            this.symbolTable.mv.visitInsn(ICONST_4);
         } else if (value == 5) {
-            this.scope.mv.visitInsn(ICONST_5);
+            this.symbolTable.mv.visitInsn(ICONST_5);
         } else {
-            this.scope.mv.visitIntInsn(BIPUSH, value);
+            this.symbolTable.mv.visitIntInsn(BIPUSH, value);
         }
     }
 
     // pushes JVM float to stack, using constants where available
     private void pushFloat(float value) {
         if (value == 0.0) {
-            this.scope.mv.visitInsn(FCONST_0);
+            this.symbolTable.mv.visitInsn(FCONST_0);
         } else if (value == 1.0) {
-            this.scope.mv.visitInsn(FCONST_1);
+            this.symbolTable.mv.visitInsn(FCONST_1);
         } else if (value == 2.0) {
-            this.scope.mv.visitInsn(FCONST_2);
+            this.symbolTable.mv.visitInsn(FCONST_2);
         } else {
-            this.scope.mv.visitLdcInsn(value);
+            this.symbolTable.mv.visitLdcInsn(value);
         }
     }
 

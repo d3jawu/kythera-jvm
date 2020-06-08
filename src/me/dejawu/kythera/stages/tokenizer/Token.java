@@ -1,4 +1,4 @@
-package me.dejawu.kythera.passes.tokenizer;
+package me.dejawu.kythera.stages.tokenizer;
 
 public final class Token {
     public final TokenType tokentype;

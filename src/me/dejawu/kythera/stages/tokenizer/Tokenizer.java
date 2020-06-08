@@ -1,4 +1,4 @@
-package me.dejawu.kythera.passes.tokenizer;
+package me.dejawu.kythera.stages.tokenizer;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

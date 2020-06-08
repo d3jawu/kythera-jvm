@@ -1,7 +1,7 @@
 package me.dejawu.kythera.ast;
 
 import me.dejawu.kythera.Main;
-import me.dejawu.kythera.passes.tokenizer.Symbol;
+import me.dejawu.kythera.stages.tokenizer.Symbol;
 
 import java.io.PrintStream;
 

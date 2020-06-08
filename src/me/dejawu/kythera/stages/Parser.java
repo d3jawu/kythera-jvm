@@ -1,8 +1,8 @@
-package me.dejawu.kythera.passes;
+package me.dejawu.kythera.stages;
 
 import me.dejawu.kythera.BaseType;
 import me.dejawu.kythera.ast.*;
-import me.dejawu.kythera.passes.tokenizer.*;
+import me.dejawu.kythera.stages.tokenizer.*;
 
 import java.util.*;
 

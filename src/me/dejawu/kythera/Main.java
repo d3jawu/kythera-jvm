@@ -1,7 +1,7 @@
 package me.dejawu.kythera;
 
 import me.dejawu.kythera.ast.StatementNode;
-import me.dejawu.kythera.passes.*;
+import me.dejawu.kythera.stages.*;
 
 import java.io.FileOutputStream;
 import java.io.PrintStream;

@@ -1,4 +1,4 @@
-package me.dejawu.kythera.passes.tokenizer;
+package me.dejawu.kythera.stages.tokenizer;
 
 /**
  * operators are named after their symbols, not their function (e.g. PLUS
