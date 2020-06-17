@@ -9,7 +9,7 @@ public class FloatLiteralNode extends LiteralNode {
     public final float value;
 
     public FloatLiteralNode(float value) {
-        super(BaseType.FLOAT.typeLiteral);
+        super(TypeLiteralNode.FLOAT);
         this.value = value;
     }
 

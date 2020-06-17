@@ -9,7 +9,7 @@ public class IntLiteralNode extends LiteralNode {
     public final int value;
 
     public IntLiteralNode(int value) {
-        super(BaseType.INT.typeLiteral);
+        super(TypeLiteralNode.INT);
 
         this.value = value;
     }

@@ -4,19 +4,64 @@ import me.dejawu.kythera.BaseType;
 import me.dejawu.kythera.Main;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TypeLiteralNode extends LiteralNode {
     public final BaseType baseType;
 
-    public TypeLiteralNode(BaseType baseType) {
-        super(baseType.typeLiteral);
+    // since everything is a struct, an entry type list is needed for all type literals.
+    public final HashMap<String, ExpressionNode> entryTypes;
 
-        this.baseType = baseType;
+    // declare built-in type literals
+    public static final TypeLiteralNode TYPE;
+
+    public static final TypeLiteralNode UNIT;
+
+    public static final TypeLiteralNode BOOL;
+
+    public static final TypeLiteralNode INT;
+    public static final TypeLiteralNode FLOAT;
+
+    static {
+        TYPE = new TypeLiteralNode();
+
+        UNIT = new TypeLiteralNode(BaseType.UNIT);
+
+        BOOL = new TypeLiteralNode(BaseType.BOOL);
+
+        INT = new TypeLiteralNode(BaseType.INT);
+        INT.entryTypes.put("print", new FnTypeLiteralNode(new ArrayList<>() {
+            {
+                add(INT);
+            }
+        }, UNIT));
+        INT.entryTypes.put("+", new FnTypeLiteralNode(new ArrayList<>() {
+            {
+                add(INT);
+                add(INT);
+            }
+        }, INT));
+
+        FLOAT = new TypeLiteralNode(BaseType.FLOAT);
     }
 
-    @Override
-    public void print(int indent, PrintStream stream) {
-        Main.printlnWithIndent("TypeLiteralNode { " + baseType.name + " }", indent, stream);
+    // used for creating root type only
+    // the root type is a type value that has itself as its type expression.
+    private TypeLiteralNode() {
+        super(null);
+        this.typeExp = this;
+
+        this.baseType = BaseType.TYPE;
+        this.entryTypes = new HashMap<>();
+    }
+
+    public TypeLiteralNode(BaseType baseType) {
+        super(TYPE);
+
+        this.baseType = baseType;
+        this.entryTypes = new HashMap<>();
     }
 
     // for type values, equals means an *exact* match
@@ -30,6 +75,22 @@ public class TypeLiteralNode extends LiteralNode {
 
         TypeLiteralNode node = (TypeLiteralNode) o;
 
-        return this.baseType.name.equals(node.baseType.name);
+        return this.baseType.equals(node.baseType);
+    }
+
+    @Override
+    public void print(int indent, PrintStream stream) {
+        Main.printlnWithIndent("TypeLiteralNode {", indent, stream);
+        Main.printlnWithIndent("\tbasetype: " + this.baseType, indent, stream);
+//        Main.printlnWithIndent("\tentries:", indent, stream);
+
+        // printing can cause stack overflow when other types are printed
+//        for (Map.Entry<String, ExpressionNode> entry : entryTypes.entrySet()) {
+//            Main.printlnWithIndent("\t\t" + entry.getKey() + ":", indent, stream);
+//            Main.printlnWithIndent("\t\t\ttypeExp:", indent, stream);
+//            entry.getValue().print(indent + 3, stream);
+//        }
+
+        Main.printlnWithIndent("} TypeLiteralNode", indent, stream);
     }
 }

@@ -21,7 +21,7 @@ public class BooleanLiteral {
         public final boolean value;
 
         private BooleanLiteralNode(boolean value) {
-            super(BaseType.BOOL.typeLiteral);
+            super(TypeLiteralNode.BOOL);
 
             this.value = value;
         }

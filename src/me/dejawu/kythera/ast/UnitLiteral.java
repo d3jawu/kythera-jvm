@@ -14,7 +14,7 @@ public class UnitLiteral {
 
     private static class UnitLiteralNode extends LiteralNode {
         private UnitLiteralNode() {
-            super(BaseType.UNIT.typeLiteral);
+            super(TypeLiteralNode.UNIT);
         }
 
         @Override

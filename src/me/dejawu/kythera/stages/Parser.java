@@ -236,7 +236,7 @@ public final class Parser {
                     case "unit":
                         return UnitLiteral.UNIT;
                     case "int":
-                        return BaseType.INT.typeLiteral;
+                        return TypeLiteralNode.INT;
                     default:
                         return new IdentifierNode(nextToken.value);
                 }

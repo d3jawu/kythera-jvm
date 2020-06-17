@@ -8,42 +8,21 @@ import me.dejawu.kythera.ast.TypeLiteralNode;
  * to fully describe and distinguish the type.
  */
 public enum BaseType {
-    UNIT("unit", true),
-    BOOL("bool", true), //    BYTE("byte", true),
-    //    SHORT("short", true),
-    INT("int", true), //    LONG("long", true),
-    FLOAT("float", true),
-    DOUBLE("double", true),
-    CHAR("char", true),
-    STRUCT("struct", false), //    TUPLE("tuple", false),
-    // MAP("map", false),
-    LIST("list", false),
-    // TUPLE("tuple", false),
-    // STR("str", false),
-    FN("fn", false),
-    TYPE("type", false);
-
-    public final String name;
-    public final boolean scalar;
-    public final TypeLiteralNode typeLiteral;
-
-    BaseType(String name, boolean scalar) {
-        this.name = name;
-        this.scalar = scalar;
-
-        // TODO it might be more idiomatic to have type literals as static fields under TypeLiteralNode
-        // all types have a base type literal for their primitive case, even
-        // non-scalar types
-        this.typeLiteral = new TypeLiteralNode(this);
-    }
-
-    public static TypeLiteralNode typeLiteralOf(String name) {
-        for (BaseType bt : values()) {
-            if (bt.name.equals(name)) {
-                return bt.typeLiteral;
-            }
-        }
-
-        return null;
-    }
+    UNIT,
+    BOOL,
+    // BYTE,
+    // SHORT,
+    INT,
+    // LONG,
+    FLOAT,
+    DOUBLE,
+    CHAR,
+    STRUCT,
+    // TUPLE,
+    // MAP,
+    LIST,
+    // TUPLE,
+    // STR,
+    FN,
+    TYPE;
 }

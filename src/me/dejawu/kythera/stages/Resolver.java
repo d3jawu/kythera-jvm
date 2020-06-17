@@ -198,11 +198,14 @@ public class Resolver extends Visitor {
 
         // TODO define fields for builtin types, eg int.+ (this may take some thinking)
 
-        System.out.println("target exp:");
         target.typeExp.print(0, System.out);
+        System.out.println(dotAccessNode.key);
+        System.out.println(((TypeLiteralNode) target.typeExp)
+            .entryTypes
+            .get(dotAccessNode.key));
 
         ExpressionNode typeExp = this.visitExpression(
-            ((StructTypeLiteralNode) target.typeExp)
+            ((TypeLiteralNode) target.typeExp)
                 .entryTypes
                 .get(dotAccessNode.key)
         );
@@ -271,9 +274,10 @@ public class Resolver extends Visitor {
                         paramTypeExps,
                         this.visitExpression(fnTypeLiteralNode.returnTypeExp)
                 );
-            } else {
-                return typeLiteralNode.baseType.typeLiteral;
             }
+            // other TypeLiteralNodes can just pass through
+
+            return literalNode;
 
 //
 //            System.err.println("Not yet implemented in resolver:");

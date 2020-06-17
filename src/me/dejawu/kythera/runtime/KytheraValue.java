@@ -144,6 +144,7 @@ public class KytheraValue<T> {
         );
     }
 
+    // TODO make this unnecessary
     // wraps an internal type value into a proper KytheraValue
     private static KytheraValue<InternalTypeValue> wrapInternalTypeValue(InternalTypeValue typeValue) {
         return new KytheraValue<>(

@@ -59,6 +59,8 @@ public class InternalTypeValue {
 
     public static InternalTypeValue INT = new InternalTypeValue(BaseType.INT, new HashMap<>() {
         {
+            // TODO get these fields from type literal instead of redefining them here
+
             final KytheraValue<InternalTypeValue> IntIntToIntFnType = KytheraValue.getFnTypeValue(
                 new KytheraValue[]{KytheraValue.INT, KytheraValue.INT}, KytheraValue.INT
             );

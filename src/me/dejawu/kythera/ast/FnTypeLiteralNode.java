@@ -26,12 +26,11 @@ public class FnTypeLiteralNode extends TypeLiteralNode {
 
         for (ExpressionNode exp : parameterTypeExps) {
             Main.printlnWithIndent("\t\t" + n + ":", indent, stream);
-            exp.print(indent + 1, stream);
+            exp.print(indent + 2, stream);
         }
 
         Main.printlnWithIndent("\treturn type:", indent, stream);
-        Main.printlnWithIndent("" + returnTypeExp, indent, stream);
-        returnTypeExp.print(indent + 1, stream);
+        returnTypeExp.print(indent + 2, stream);
 
         Main.printlnWithIndent("} FnTypeLiteralNode", indent, stream);
     }

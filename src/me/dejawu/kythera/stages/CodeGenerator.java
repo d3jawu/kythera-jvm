@@ -332,8 +332,16 @@ public class CodeGenerator {
             // get .value field, pushing fn's InternalTypeValue on stack
             this.symbolTable.mv.visitFieldInsn(GETFIELD, KYTHERAVALUE_PATH, "value", "Ljava/lang/Object;");
 
+            // cast value
+            this.symbolTable.mv.visitTypeInsn(CHECKCAST, "me/dejawu/kythera/runtime/InternalTypeValue");
+
             // create fn KytheraValue from Function (from invokedynamic), InternalTypeValue (from .value field on fn literal's type expression)
-            this.symbolTable.mv.visitMethodInsn(INVOKESTATIC, KYTHERAVALUE_PATH, "getFnValue", "(Lme/dejawu/kythera/runtime/KytheraValue;Lme/dejawu/kythera/runtime/KytheraValue;)Lme/dejawu/kythera/runtime/KytheraValue;", false);
+            this.symbolTable.mv.visitMethodInsn(
+                INVOKESTATIC,
+                KYTHERAVALUE_PATH,
+                "getFnValue",
+                "(Ljava/util/function/Function;Lme/dejawu/kythera/runtime/InternalTypeValue;)Lme/dejawu/kythera/runtime/KytheraValue;",
+                false);
 
             // generate static method for lambda
             final MethodVisitor mv = this.tcv.visitMethod(
@@ -382,11 +390,10 @@ public class CodeGenerator {
             switch(typeLiteralNode.baseType) {
                 case INT:
                     this.symbolTable.mv.visitFieldInsn(GETSTATIC, KYTHERAVALUE_PATH, "INT", "L" + KYTHERAVALUE_PATH + ";");
-                    break;
+                    return;
                 case FN:
                     FnTypeLiteralNode fnTypeLiteralNode = (FnTypeLiteralNode) typeLiteralNode;
 
-                    System.out.println("fn type literal node");
                     fnTypeLiteralNode.print(0, System.out);
 
                     // generate array of param types and push on stack
@@ -395,6 +402,7 @@ public class CodeGenerator {
 
                     int n = 0;
                     for (ExpressionNode exp : fnTypeLiteralNode.parameterTypeExps) {
+                        this.symbolTable.mv.visitInsn(DUP); // array ref is consumed on AASTORE, so keep a copy
                         this.pushInt(n);
                         this.visitExpression(exp);
                         this.symbolTable.mv.visitInsn(AASTORE);
@@ -405,8 +413,13 @@ public class CodeGenerator {
                     this.visitExpression(fnTypeLiteralNode.returnTypeExp);
 
                     // call KytheraValue.getFnTypeValue
-                    this.symbolTable.mv.visitMethodInsn(INVOKESTATIC, KYTHERAVALUE_PATH, "getFnTypeValue", KYTHERA_FN_SIGNATURE, false);
-                    break;
+                    this.symbolTable.mv.visitMethodInsn(
+                        INVOKESTATIC,
+                        KYTHERAVALUE_PATH,
+                        "getFnTypeValue",
+                        "([Lme/dejawu/kythera/runtime/KytheraValue;Lme/dejawu/kythera/runtime/KytheraValue;)Lme/dejawu/kythera/runtime/KytheraValue;",
+                        false);
+                    return;
                 default:
             }
         } else if (literalNode.equals(UnitLiteral.UNIT)) {

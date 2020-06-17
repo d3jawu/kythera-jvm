@@ -6,7 +6,7 @@ package me.dejawu.kythera.ast;
  */
 public abstract class ExpressionNode extends StatementNode {
     // holds expression that gave this value its type
-    public final ExpressionNode typeExp;
+    public ExpressionNode typeExp;
 
     ExpressionNode(NodeKind kind) {
         super(kind);
