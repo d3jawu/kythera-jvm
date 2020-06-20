@@ -363,9 +363,12 @@ public class CodeGenerator {
 
             // add parameters in Java array to scope
             for (String param : fnLiteralNode.parameterNames) {
+                this.symbolTable.mv.visitInsn(DUP); // array ref is consumed on AASTORE
                 this.pushInt(n);
                 this.symbolTable.mv.visitInsn(AALOAD);
                 this.symbolTable.addSymbol(param);
+
+                n += 1;
             }
 
             // parse block
