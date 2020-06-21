@@ -2,7 +2,10 @@ package me.dejawu.kythera.stages;
 
 import me.dejawu.kythera.ast.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 // template class for traversing AST nodes
@@ -81,7 +84,9 @@ public abstract class Visitor {
 
     protected StatementNode visitReturn(ReturnNode returnNode) {
         return new ReturnNode(visitExpression(returnNode.exp));
-    };
+    }
+
+    ;
 
     protected ExpressionNode visitAs(AsNode asNode) {
         return new AsNode(visitExpression(asNode.from), visitExpression(asNode.to));
@@ -89,46 +94,48 @@ public abstract class Visitor {
 
     protected ExpressionNode visitAssign(AssignNode assignNode) {
         return new AssignNode(
-                assignNode.operator,
-                visitExpression(assignNode.left),
-                visitExpression(assignNode.right)
-                );
+            assignNode.operator,
+            visitExpression(assignNode.left),
+            visitExpression(assignNode.right)
+        );
     }
 
     protected ExpressionNode visitBinary(BinaryNode binaryNode) {
         return new BinaryNode(
-                binaryNode.operator,
-                visitExpression(binaryNode.left),
-                visitExpression(binaryNode.right)
+            binaryNode.operator,
+            visitExpression(binaryNode.left),
+            visitExpression(binaryNode.right)
         );
     }
 
     protected ExpressionNode visitBlock(BlockNode blockNode) {
-            List<StatementNode> visited = new ArrayList<>();
+        List<StatementNode> visited = new ArrayList<>();
 
-            for (StatementNode st : blockNode.body) {
-                visited.add(visitStatement(st));
-            }
+        for (StatementNode st : blockNode.body) {
+            visited.add(visitStatement(st));
+        }
 
-            return new BlockNode(visited);
+        return new BlockNode(visited);
 
-        };
+    }
+
+    ;
 
     protected ExpressionNode visitBracketAccess(BracketAccessNode bracketAccessNode) {
         return new BracketAccessNode(
-                visitExpression(bracketAccessNode.target),
-                visitExpression(bracketAccessNode.key)
+            visitExpression(bracketAccessNode.target),
+            visitExpression(bracketAccessNode.key)
         );
     }
 
     protected ExpressionNode visitCall(CallNode callNode) {
         return new CallNode(
-                visitExpression(callNode.target),
-                callNode
-                        .arguments
-                        .stream()
-                        .map(this::visitExpression)
-                        .collect(Collectors.toList())
+            visitExpression(callNode.target),
+            callNode
+                .arguments
+                .stream()
+                .map(this::visitExpression)
+                .collect(Collectors.toList())
         );
     }
 
@@ -141,9 +148,9 @@ public abstract class Visitor {
             FnLiteralNode fnLiteralNode = (FnLiteralNode) literalNode;
 
             return new FnLiteralNode(
-                    (FnTypeLiteralNode) visitExpression(fnLiteralNode.typeExp),
-                    fnLiteralNode.parameterNames,
-                    (BlockNode) visitExpression(fnLiteralNode.body)
+                (FnTypeLiteralNode) visitExpression(fnLiteralNode.typeExp),
+                fnLiteralNode.parameterNames,
+                (BlockNode) visitExpression(fnLiteralNode.body)
             );
         } else if (literalNode instanceof StructLiteralNode) {
             StructLiteralNode structLiteralNode = (StructLiteralNode) literalNode;

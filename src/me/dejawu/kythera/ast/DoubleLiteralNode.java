@@ -1,6 +1,5 @@
 package me.dejawu.kythera.ast;
 
-import me.dejawu.kythera.BaseType;
 import me.dejawu.kythera.Main;
 
 import java.io.PrintStream;

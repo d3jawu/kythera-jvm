@@ -6,7 +6,6 @@ import me.dejawu.kythera.Main;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 public class TypeLiteralNode extends LiteralNode {
     public final BaseType baseType;

@@ -7,7 +7,6 @@ import org.objectweb.asm.util.TraceClassVisitor;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -59,7 +58,7 @@ public class CodeGenerator {
             this.mv.visitVarInsn(ASTORE, slot);
         }
     }
-    
+
     final static String KYTHERAVALUE_PATH = "me/dejawu/kythera/runtime/KytheraValue";
 
     // Java-side signature for all functions (fn's) in Kythera
@@ -83,7 +82,6 @@ public class CodeGenerator {
     private String outputName;
 
     protected final List<StatementNode> input;
-
 
     public CodeGenerator(List<StatementNode> program, String outputName) {
         this.input = program;
@@ -224,6 +222,7 @@ public class CodeGenerator {
 
         if (callNode.target instanceof DotAccessNode) {
             // inject self variable
+            // TODO bugfix: this causes self to be evaluated twice
             callNode.arguments.add(0, ((DotAccessNode) callNode.target).target);
         }
 
@@ -288,6 +287,7 @@ public class CodeGenerator {
 
             this.mv.visitMethodInsn
             */
+            return;
         } else if (literalNode instanceof DoubleLiteralNode) {
         } else if (literalNode instanceof StructLiteralNode) {
         } else if (literalNode instanceof FnLiteralNode) {
@@ -378,7 +378,7 @@ public class CodeGenerator {
 
             // block *should* return on its own
             // remaining cleanup
-            this.symbolTable.mv.visitMaxs(0,0);
+            this.symbolTable.mv.visitMaxs(0, 0);
             this.symbolTable.mv.visitEnd();
 
             // assert: this.scope != this.rootScope
@@ -390,14 +390,12 @@ public class CodeGenerator {
         } else if (literalNode instanceof TypeLiteralNode) {
             TypeLiteralNode typeLiteralNode = (TypeLiteralNode) literalNode;
 
-            switch(typeLiteralNode.baseType) {
+            switch (typeLiteralNode.baseType) {
                 case INT:
                     this.symbolTable.mv.visitFieldInsn(GETSTATIC, KYTHERAVALUE_PATH, "INT", "L" + KYTHERAVALUE_PATH + ";");
                     return;
                 case FN:
                     FnTypeLiteralNode fnTypeLiteralNode = (FnTypeLiteralNode) typeLiteralNode;
-
-                    fnTypeLiteralNode.print(0, System.out);
 
                     // generate array of param types and push on stack
                     this.pushInt(fnTypeLiteralNode.parameterTypeExps.size());
@@ -425,6 +423,8 @@ public class CodeGenerator {
                     return;
                 default:
             }
+
+            return;
         } else if (literalNode.equals(UnitLiteral.UNIT)) {
         }
 
@@ -475,8 +475,8 @@ public class CodeGenerator {
     }
 
     // ... => ... value at identifier
-    public void visitIdentifier(IdentifierNode literalNode) {
-        this.symbolTable.loadSymbol(literalNode.name);
+    public void visitIdentifier(IdentifierNode identifierNode) {
+        this.symbolTable.loadSymbol(identifierNode.name);
     }
 
     public void visitIf(IfNode literalNode) {

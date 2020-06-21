@@ -1,7 +1,5 @@
 package me.dejawu.kythera;
 
-import me.dejawu.kythera.ast.TypeLiteralNode;
-
 /**
  * Enum for core types.
  * For non-scalar types, additional information is needed

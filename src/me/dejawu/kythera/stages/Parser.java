@@ -1,10 +1,11 @@
 package me.dejawu.kythera.stages;
 
-import me.dejawu.kythera.BaseType;
 import me.dejawu.kythera.ast.*;
 import me.dejawu.kythera.stages.tokenizer.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public final class Parser {
 
@@ -326,9 +327,9 @@ public final class Parser {
         BlockNode body = this.parseBlock();
 
         return new FnLiteralNode(
-                new FnTypeLiteralNode(paramTypes, null),
-                paramNames,
-                body);
+            new FnTypeLiteralNode(paramTypes, null),
+            paramNames,
+            body);
     }
 
     // sometimes parseStructLiteral is called with the first identifier

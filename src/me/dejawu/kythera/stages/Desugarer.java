@@ -3,7 +3,8 @@ package me.dejawu.kythera.stages;
 import me.dejawu.kythera.ast.*;
 import me.dejawu.kythera.stages.tokenizer.Symbol;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Desugarer extends Visitor {
     public Desugarer(List<StatementNode> program) {
@@ -16,9 +17,9 @@ public class Desugarer extends Visitor {
     protected ExpressionNode visitAssign(AssignNode assignNode) {
         if (assignNode.operator.equals(Symbol.EQUALS)) {
             return new AssignNode(Symbol.EQUALS,
-                    visitExpression(assignNode.left),
-                    visitExpression(assignNode.right)
-                    );
+                visitExpression(assignNode.left),
+                visitExpression(assignNode.right)
+            );
         } else {
             // separate assignment, e.g. x += 10 becomes x = (x + 10)
             return new AssignNode(

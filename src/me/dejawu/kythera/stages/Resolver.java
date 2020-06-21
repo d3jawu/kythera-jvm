@@ -3,12 +3,9 @@ package me.dejawu.kythera.stages;
 import me.dejawu.kythera.ast.*;
 import me.dejawu.kythera.stages.tokenizer.Symbol;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 // associates types with identifiers, registers parameter variables, resolves struct field types, etc
@@ -82,22 +79,22 @@ public class Resolver extends Visitor {
         ExpressionNode valueExp = visitExpression(letNode.value);
         this.scope.create(letNode.identifier, valueExp.typeExp);
         return new LetNode(
-                letNode.identifier,
-                valueExp
+            letNode.identifier,
+            valueExp
         );
     }
 
     @Override
     protected ExpressionNode visitAssign(AssignNode assignNode) {
-        if(!assignNode.operator.equals(Symbol.EQUALS)) {
+        if (!assignNode.operator.equals(Symbol.EQUALS)) {
             System.err.println("Compound assignment should not be present at resolution stage.");
             System.exit(0);
         }
 
         return new AssignNode(
-                Symbol.EQUALS,
-                visitExpression(assignNode.left),
-                visitExpression(assignNode.right));
+            Symbol.EQUALS,
+            visitExpression(assignNode.left),
+            visitExpression(assignNode.right));
     }
 
     @Override
@@ -136,7 +133,7 @@ public class Resolver extends Visitor {
 
         // actual agreement of return/lastNode types is checked later in the TypeChecker stage
 
-        for (ReturnNode ret: returnStatements) {
+        for (ReturnNode ret : returnStatements) {
             if (typeExp == null) {
                 typeExp = ret.exp.typeExp;
             }
@@ -161,11 +158,11 @@ public class Resolver extends Visitor {
         // look up signature of target fn and attach return type expression to node
         ExpressionNode target = this.visitExpression(callNode.target);
         List<ExpressionNode> arguments =
-                callNode
-                        .arguments
-                        .stream()
-                        .map(arg -> this.visitExpression(arg))
-                        .collect(Collectors.toList());
+            callNode
+                .arguments
+                .stream()
+                .map(arg -> this.visitExpression(arg))
+                .collect(Collectors.toList());
 
         // TODO this assertion is no longer true once type values come into play
         // assert target.typeExp instanceof FnTypeLiteralNode
@@ -189,9 +186,6 @@ public class Resolver extends Visitor {
     protected ExpressionNode visitDotAccess(DotAccessNode dotAccessNode) {
         // look up fields of target struct and attach type expression
         ExpressionNode target = this.visitExpression(dotAccessNode.target);
-
-        System.out.println("DotNode target:");
-        System.out.println(target.typeExp);
 
         // TODO this assertion is no longer true once type values come into play
         // assert target.typeExp instanceof StructTypeLiteralNode
@@ -219,9 +213,6 @@ public class Resolver extends Visitor {
 
     @Override
     protected ExpressionNode visitLiteral(LiteralNode literalNode) {
-        System.out.println("Literal node:");
-        literalNode.print(0, System.out);
-
         if (literalNode instanceof StructLiteralNode) {
             System.err.println("Struct literal node not yet implemented in resolver");
             System.exit(0);
@@ -237,14 +228,14 @@ public class Resolver extends Visitor {
             ArrayList<ExpressionNode> paramTypes = new ArrayList<>();
 
             for (int n = 0; n < fnLiteralNode.parameterNames.size(); n += 1) {
-                ExpressionNode paramTypeExp =  this.visitExpression(
-                        ((FnTypeLiteralNode) fnLiteralNode.typeExp)
-                                .parameterTypeExps.get(n)
+                ExpressionNode paramTypeExp = this.visitExpression(
+                    ((FnTypeLiteralNode) fnLiteralNode.typeExp)
+                        .parameterTypeExps.get(n)
                 );
                 paramTypes.add(paramTypeExp);
                 this.scope.create(
-                        fnLiteralNode.parameterNames.get(n),
-                        paramTypeExp
+                    fnLiteralNode.parameterNames.get(n),
+                    paramTypeExp
                 );
             }
 
@@ -255,24 +246,24 @@ public class Resolver extends Visitor {
             this.scope = this.scope.parent;
 
             return new FnLiteralNode(
-                    new FnTypeLiteralNode(paramTypes, body.typeExp),
-                    fnLiteralNode.parameterNames,
-                    body);
+                new FnTypeLiteralNode(paramTypes, body.typeExp),
+                fnLiteralNode.parameterNames,
+                body);
         } else if (literalNode instanceof TypeLiteralNode) {
             TypeLiteralNode typeLiteralNode = (TypeLiteralNode) literalNode;
 
-            if(typeLiteralNode instanceof FnTypeLiteralNode) {
+            if (typeLiteralNode instanceof FnTypeLiteralNode) {
                 FnTypeLiteralNode fnTypeLiteralNode = (FnTypeLiteralNode) typeLiteralNode;
 
                 List<ExpressionNode> paramTypeExps = fnTypeLiteralNode
-                        .parameterTypeExps
-                        .stream()
-                        .map(exp -> this.visitExpression(exp))
-                        .collect(Collectors.toList());
+                    .parameterTypeExps
+                    .stream()
+                    .map(this::visitExpression)
+                    .collect(Collectors.toList());
 
                 return new FnTypeLiteralNode(
-                        paramTypeExps,
-                        this.visitExpression(fnTypeLiteralNode.returnTypeExp)
+                    paramTypeExps,
+                    this.visitExpression(fnTypeLiteralNode.returnTypeExp)
                 );
             }
             // other TypeLiteralNodes can just pass through

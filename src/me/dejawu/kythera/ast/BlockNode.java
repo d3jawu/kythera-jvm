@@ -4,7 +4,6 @@ import me.dejawu.kythera.Main;
 
 import java.io.PrintStream;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class BlockNode extends ExpressionNode {
     public final List<StatementNode> body;
@@ -24,7 +23,7 @@ public class BlockNode extends ExpressionNode {
         super(NodeKind.BLOCK, typeExp);
         this.body = body;
 
-        if(body.size() <= 0) {
+        if (body.size() <= 0) {
             System.err.println("Block cannot have empty body.");
             System.exit(1);
         }

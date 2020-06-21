@@ -1,6 +1,6 @@
 package me.dejawu.kythera.stages;
 
-import me.dejawu.kythera.ast.*;
+import me.dejawu.kythera.ast.StatementNode;
 
 import java.util.List;
 
