@@ -2,6 +2,7 @@ package me.dejawu.kythera;
 
 import me.dejawu.kythera.ast.StatementNode;
 import me.dejawu.kythera.stages.*;
+import me.dejawu.kythera.stages.generators.*;
 
 import java.io.FileOutputStream;
 import java.io.PrintStream;
@@ -61,13 +62,16 @@ public class Main {
             // TODO optimize bytecode
 
             System.out.println("Generating bytecode");
-            CodeGenerator codeGenerator = new CodeGenerator(ast, entryPoint);
-            byte[] output = codeGenerator.compile();
+            Generator generator = new JvmGenerator(ast, entryPoint);
+            byte[] output = generator.compile();
 
-            System.out.println("Writing to: " + entryPoint + ".class");
-            FileOutputStream fos = new FileOutputStream("out/production/kythera/" + entryPoint + ".class");
-            fos.write(output);
-            fos.close();
+            if(generator instanceof JvmGenerator) {
+                System.out.println("Writing to: " + entryPoint + ".class");
+                FileOutputStream fos = new FileOutputStream("out/production/kythera/" + entryPoint + ".class");
+                fos.write(output);
+                fos.close();
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);

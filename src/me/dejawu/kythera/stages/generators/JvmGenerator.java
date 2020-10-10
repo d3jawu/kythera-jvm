@@ -1,4 +1,4 @@
-package me.dejawu.kythera.stages;
+package me.dejawu.kythera.stages.generators;
 
 import me.dejawu.kythera.ast.*;
 import org.objectweb.asm.*;
@@ -11,7 +11,7 @@ import java.util.List;
 import static org.objectweb.asm.Opcodes.*;
 
 // generates unchecked bytecode
-public class CodeGenerator {
+public class JvmGenerator implements Generator {
 
     // keeps track of variable slots and associates MethodVisitors with scope
     // TODO also keep track of variable types?
@@ -83,7 +83,7 @@ public class CodeGenerator {
 
     protected final List<StatementNode> input;
 
-    public CodeGenerator(List<StatementNode> program, String outputName) {
+    public JvmGenerator(List<StatementNode> program, String outputName) {
         this.input = program;
 
         this.outputName = outputName;
@@ -115,6 +115,7 @@ public class CodeGenerator {
     }
 
     // kick off compilation process
+    @Override
     public byte[] compile() {
         this.symbolTable.mv.visitCode();
 
