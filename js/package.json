@@ -1,0 +1,29 @@
+{
+  "name": "kythera-js-runtime",
+  "version": "1.0.0",
+  "description": "JS runtime for Kythera",
+  "main": "out.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node out.bundle.js",
+    "dev": "npx rollup -c rollup.dev.js -w",
+    "build": "npx rollup -c rollup.build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/dejawu/kythera.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/dejawu/kythera/issues"
+  },
+  "homepage": "https://gitlab.com/dejawu/kythera#readme",
+  "type": "module",
+  "dependencies": {
+    "prettier": "^2.1.2",
+    "rollup": "^2.29.0",
+    "rollup-plugin-prettier": "^2.1.0",
+    "rollup-plugin-terser": "^7.0.2"
+  }
+}

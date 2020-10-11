@@ -6,6 +6,5 @@ out/
 
 Scratch.ky
 
-js/out.js
-js/out.bundle.js
+js/out*
 js/node_modules

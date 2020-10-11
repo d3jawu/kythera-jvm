@@ -10,7 +10,7 @@ class JsGenerator(program: List<StatementNode>) : Generator {
 
     override fun compile(): ByteArray {
         // initialize runtime
-        out.append("const $RUNTIMEVAR = require('./runtime');\n")
+        out.append("import $RUNTIMEVAR from './runtime';\n")
         for (st in input) {
             out.append(visitStatement(st))
         }
