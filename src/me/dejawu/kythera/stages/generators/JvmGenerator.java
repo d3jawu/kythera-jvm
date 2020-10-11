@@ -15,7 +15,7 @@ public class JvmGenerator implements Generator {
 
     // keeps track of variable slots and associates MethodVisitors with scope
     // TODO also keep track of variable types?
-    public static class SymbolTable extends HashMap<String, Integer> {
+    private static class SymbolTable extends HashMap<String, Integer> {
         public final SymbolTable parent;
         public final MethodVisitor mv;
 

@@ -1,9 +1,10 @@
 .idea/
 *.iml
 
-Scratch.ky
-
+lib/
 out/
+
+Scratch.ky
 
 js/out.js
 js/out.bundle.js
