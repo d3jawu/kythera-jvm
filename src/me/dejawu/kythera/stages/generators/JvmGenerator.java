@@ -190,7 +190,6 @@ public class JvmGenerator implements Generator {
             case BLOCK:
             case UNARY:
             case BINARY:
-            default:
             case ACCESS:
                 if (node instanceof DotAccessNode) {
                     this.visitDotAccess((DotAccessNode) node);

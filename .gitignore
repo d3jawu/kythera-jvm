@@ -4,3 +4,7 @@
 Scratch.ky
 
 out/
+
+js/out.js
+js/out.bundle.js
+js/node_modules

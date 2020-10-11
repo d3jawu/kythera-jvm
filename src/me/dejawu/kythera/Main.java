@@ -62,7 +62,8 @@ public class Main {
             // TODO optimize bytecode
 
             System.out.println("Generating bytecode");
-            Generator generator = new JvmGenerator(ast, entryPoint);
+//            Generator generator = new JvmGenerator(ast, entryPoint);
+            Generator generator = new JsGenerator(ast);
             byte[] output = generator.compile();
 
             if(generator instanceof JvmGenerator) {
@@ -70,6 +71,14 @@ public class Main {
                 FileOutputStream fos = new FileOutputStream("out/production/kythera/" + entryPoint + ".class");
                 fos.write(output);
                 fos.close();
+            } else if(generator instanceof JsGenerator) {
+                System.out.println("Writing to: " + entryPoint + ".js");
+                FileOutputStream fos = new FileOutputStream("js/out.js");
+                fos.write(output);
+                fos.close();
+            } else {
+                System.err.println("No code generator is available.");
+                System.exit(1);
             }
 
         } catch (Exception e) {
