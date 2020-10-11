@@ -284,6 +284,7 @@ public class Resolver extends Visitor {
         return new IdentifierNode(identifierNode.name, this.scope.get(identifierNode.name));
     }
 
+    /*
     @Override
     protected ExpressionNode visitIf(IfNode ifNode) {
         // evaluate if/else bodies and attach types
@@ -291,6 +292,7 @@ public class Resolver extends Visitor {
         System.exit(1);
         return null;
     }
+     */
 
     @Override
     protected ExpressionNode visitUnary(UnaryNode unaryNode) {

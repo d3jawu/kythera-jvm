@@ -179,10 +179,18 @@ public abstract class Visitor {
     }
 
     protected ExpressionNode visitIf(IfNode ifNode) {
-        // TODO visit if block
-        System.err.println("Not yet implemented.");
-        System.exit(1);
-        return null;
+        if(ifNode.elseBody == null) {
+            return new IfNode(
+                    this.visitExpression(ifNode.condition),
+                    (BlockNode) this.visitBlock(ifNode.body)
+            );
+        } else {
+            return new IfNode(
+                    this.visitExpression(ifNode.condition),
+                    (BlockNode) this.visitBlock(ifNode.body),
+                    this.visitExpression(ifNode.elseBody)
+            );
+        }
     }
 
     protected ExpressionNode visitUnary(UnaryNode unaryNode) {

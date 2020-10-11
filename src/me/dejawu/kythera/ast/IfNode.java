@@ -27,15 +27,6 @@ public class IfNode extends ExpressionNode {
             System.exit(1);
         }
 
-        // make sure both blocks have matching return types
-        if (!body.typeExp.equals(elseBody.typeExp)) {
-            System.err.println("Type mismatch: 'if' block has type ");
-            body.typeExp.print(0, System.err);
-            System.err.println(" but 'else' block has type ");
-            elseBody.typeExp.print(0, System.err);
-            System.exit(1);
-        }
-
         this.condition = condition;
         this.body = body;
 

@@ -4,13 +4,12 @@ import me.dejawu.kythera.ast.*
 import kotlin.system.exitProcess
 
 class JsGenerator(program: List<StatementNode>) : Generator {
-    private val out: StringBuilder = StringBuilder()
     private val input: List<StatementNode> = program
     private val RUNTIMEVAR = "_KY"
 
     override fun compile(): ByteArray {
         // initialize runtime
-        out.append("import $RUNTIMEVAR from './runtime/index.js';\n")
+        val out = StringBuilder("import $RUNTIMEVAR from './runtime/index.js';\n")
         for (st in input) {
             out.append(visitStatement(st))
         }
@@ -59,12 +58,15 @@ class JsGenerator(program: List<StatementNode>) : Generator {
     // TODO optimize by using unwrapped primitives and re-wrapping where needed
     // TODO interning
     private fun visitLiteral(node: LiteralNode): String = when (node) {
+        is BooleanLiteral.BooleanLiteralNode -> {
+            "($RUNTIMEVAR.get.bool(${node.value}))"
+        }
         is IntLiteralNode -> "($RUNTIMEVAR.get.int(${node.value}))"
         is StructLiteralNode -> "<struct literal placeholder>"
         is FnLiteralNode -> "<fn literal placeholder"
         is TypeLiteralNode -> "<type literal placeholder>"
         else -> {
-            System.err.println("Unimplemented literal node: ${node.kind}")
+            System.err.println("Unimplemented literal node: ${node}")
             exitProcess(1)
         }
     }
@@ -72,7 +74,7 @@ class JsGenerator(program: List<StatementNode>) : Generator {
     // misused identifiers have been caught at Resolver stage
     private fun visitIdentifier(node: IdentifierNode): String = node.name
 
-    private fun visitIf(node: IfNode): String = "<if placeholder>"
+    private fun visitIf(node: IfNode): String = "${visitExpression(node.condition)}.value ? ${visitBlock(node.body)} : ${visitExpression(node.elseBody)}"
     private fun visitWhile(node: WhileNode): String = "<while placeholder>"
     private fun visitAs(node: AsNode): String = "<as placeholder>"
 
@@ -99,8 +101,17 @@ class JsGenerator(program: List<StatementNode>) : Generator {
         return result.toString()
     }
 
-    private fun visitTypeof(node: TypeofNode): String = "<typeof placeholder>"
-    private fun visitBlock(node: BlockNode): String = "<block node placeholder>"
+    private fun visitTypeof(node: TypeofNode): String = "${visitExpression(node.target)}.typeValue"
+
+    private fun visitBlock(node: BlockNode): String {
+        val res = StringBuilder("(() => {\n")
+        for(st in node.body) {
+            res.append(visitStatement(st))
+        }
+
+        res.append("})()")
+        return res.toString()
+    }
 
     private fun visitDotAccess(node: DotAccessNode): String = "${visitExpression(node.target)}.fieldValues['${node.key}']"
 

@@ -16,7 +16,7 @@ public class BooleanLiteral {
         FALSE = new BooleanLiteralNode(false);
     }
 
-    private static class BooleanLiteralNode extends LiteralNode {
+    public static class BooleanLiteralNode extends LiteralNode {
         public final boolean value;
 
         private BooleanLiteralNode(boolean value) {
