@@ -31,17 +31,18 @@ public class TypeLiteralNode extends LiteralNode {
         BOOL = new TypeLiteralNode(BaseType.BOOL);
 
         INT = new TypeLiteralNode(BaseType.INT);
-        INT.entryTypes.put("print", new FnTypeLiteralNode(new ArrayList<>() {
-            {
-                add(INT);
-            }
-        }, UNIT));
-        INT.entryTypes.put("+", new FnTypeLiteralNode(new ArrayList<>() {
+
+        final FnTypeLiteralNode intIntToIntFnType = new FnTypeLiteralNode(new ArrayList<>() {
             {
                 add(INT);
                 add(INT);
             }
-        }, INT));
+        }, INT);
+        INT.entryTypes.put("+", intIntToIntFnType);
+        INT.entryTypes.put("-", intIntToIntFnType);
+        INT.entryTypes.put("*", intIntToIntFnType);
+        INT.entryTypes.put("/", intIntToIntFnType);
+        INT.entryTypes.put("%", intIntToIntFnType);
 
         FLOAT = new TypeLiteralNode(BaseType.FLOAT);
     }

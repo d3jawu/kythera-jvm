@@ -170,8 +170,6 @@ public class Resolver extends Visitor {
             ((FnTypeLiteralNode) target.typeExp)
                 .returnTypeExp;
 
-        System.out.println("Call node");
-        System.out.println(target);
 //        target.print(0, System.out);
 //        typeExp.print(0, System.out);
 

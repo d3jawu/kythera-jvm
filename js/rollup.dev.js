@@ -6,6 +6,7 @@ export default {
   output: {
     file: "out.bundle.js",
     compact: true,
+    sourcemap: "inline",
   },
   plugins: [
     prettier({

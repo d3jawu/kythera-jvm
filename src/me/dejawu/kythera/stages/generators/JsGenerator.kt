@@ -6,11 +6,11 @@ import kotlin.system.exitProcess
 class JsGenerator(program: List<StatementNode>) : Generator {
     private val out: StringBuilder = StringBuilder()
     private val input: List<StatementNode> = program
-    private val RUNTIMEVAR = "_KYTHERA"
+    private val RUNTIMEVAR = "_KY"
 
     override fun compile(): ByteArray {
         // initialize runtime
-        out.append("import $RUNTIMEVAR from './runtime';\n")
+        out.append("import $RUNTIMEVAR from './runtime/index.js';\n")
         for (st in input) {
             out.append(visitStatement(st))
         }
@@ -59,7 +59,7 @@ class JsGenerator(program: List<StatementNode>) : Generator {
     // TODO optimize by using unwrapped primitives and re-wrapping where needed
     // TODO interning
     private fun visitLiteral(node: LiteralNode): String = when (node) {
-        is IntLiteralNode -> "(new $RUNTIMEVAR.value(${node.value}, $RUNTIMEVAR.consts.INT))"
+        is IntLiteralNode -> "($RUNTIMEVAR.get.int(${node.value}))"
         is StructLiteralNode -> "<struct literal placeholder>"
         is FnLiteralNode -> "<fn literal placeholder"
         is TypeLiteralNode -> "<type literal placeholder>"
@@ -72,12 +72,37 @@ class JsGenerator(program: List<StatementNode>) : Generator {
     // misused identifiers have been caught at Resolver stage
     private fun visitIdentifier(node: IdentifierNode): String = node.name
 
-    private fun visitIf(node: IfNode): String = ""
-    private fun visitWhile(node: WhileNode): String = ""
-    private fun visitAs(node: AsNode): String = ""
-    private fun visitCall(node: CallNode): String = ""
-    private fun visitTypeof(node: TypeofNode): String = ""
-    private fun visitBlock(node: BlockNode): String = ""
-    private fun visitDotAccess(node: DotAccessNode): String = "<Dot access placeholder>"
+    private fun visitIf(node: IfNode): String = "<if placeholder>"
+    private fun visitWhile(node: WhileNode): String = "<while placeholder>"
+    private fun visitAs(node: AsNode): String = "<as placeholder>"
+
+    private fun visitCall(node: CallNode): String {
+        val target = this.visitExpression(node.target)
+
+        val result = StringBuilder("$target.value(")
+
+        // bind "self" variable
+        if (node.target is DotAccessNode) {
+            // TODO is this okay? If target is an anonymous struct, the instance that the fn is pulled from and the instance used as "self" will not be the same
+            result.append(this.visitExpression(node.target.target))
+            result.append(',')
+        }
+
+        // add parameters
+        for(exp in node.arguments) {
+            result.append(visitExpression(exp))
+            result.append(',')
+        }
+
+        result.append(')')
+
+        return result.toString()
+    }
+
+    private fun visitTypeof(node: TypeofNode): String = "<typeof placeholder>"
+    private fun visitBlock(node: BlockNode): String = "<block node placeholder>"
+
+    private fun visitDotAccess(node: DotAccessNode): String = "${visitExpression(node.target)}.fieldValues['${node.key}']"
+
     private fun visitBracketAccess(node: BracketAccessNode): String = "<Bracket access placeholder>"
 }
