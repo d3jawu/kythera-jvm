@@ -37,6 +37,7 @@ public class InternalTypeValue {
     }
 
     // the root type is a type value that specifies no fields for its instances.
+    // TODO make this unnecessary
     public static InternalTypeValue ROOT_TYPE = new InternalTypeValue(BaseType.TYPE, new HashMap<>());
 
     // type values themselves have operations (and therefore fields), defined here

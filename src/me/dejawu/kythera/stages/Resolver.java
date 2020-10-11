@@ -88,7 +88,7 @@ public class Resolver extends Visitor {
     protected ExpressionNode visitAssign(AssignNode assignNode) {
         if (!assignNode.operator.equals(Symbol.EQUALS)) {
             System.err.println("Compound assignment should not be present at resolution stage.");
-            System.exit(0);
+            System.exit(1);
         }
 
         return new AssignNode(
@@ -100,7 +100,7 @@ public class Resolver extends Visitor {
     @Override
     protected ExpressionNode visitBinary(BinaryNode binaryNode) {
         System.err.println("Binary expression should not be present at resolution stage");
-        System.exit(0);
+        System.exit(1);
         return null;
     }
 

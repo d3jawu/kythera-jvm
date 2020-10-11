@@ -41,6 +41,8 @@ public class Desugarer extends Visitor {
         }
     }
 
+    // TODO desugar unary into not()
+
     // binary infix becomes function call
     @Override
     protected ExpressionNode visitBinary(BinaryNode binaryNode) {

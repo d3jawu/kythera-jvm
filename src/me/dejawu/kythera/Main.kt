@@ -51,7 +51,7 @@ fun main(args: Array<String>) {
         // TODO optimize KytheraValues for primitives into JVM primitives
 
         // TODO optimize bytecode
-        println("Generating bytecode")
+        println("Generating output")
         //            Generator generator = new JvmGenerator(ast, entryPoint);
         val generator: Generator = JsGenerator(ast)
         val output = generator.compile()
