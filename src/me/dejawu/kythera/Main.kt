@@ -1,4 +1,5 @@
 @file:JvmName("Main")
+
 package me.dejawu.kythera
 
 import me.dejawu.kythera.stages.*
@@ -10,11 +11,38 @@ import java.nio.file.Paths
 import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
-    val entryPoint: String = if (args.size != 1) {
-        "Scratch"
+    val argMap = args.fold(Pair(emptyMap<String, List<String>>(), "")) { (map, lastKey), elem ->
+        if (elem.startsWith("-")) Pair(map + (elem to emptyList()), elem)
+        else Pair(map + (lastKey to map.getOrDefault(lastKey, emptyList()) + elem), lastKey)
+    }.first
+
+    println(argMap)
+
+    val entryPoint = if (argMap[""] != null) {
+        argMap[""]?.joinToString(" ")
     } else {
-        args[0]
+        "main"
     }
+
+    val targetPlatform = if (argMap["-p"] != null) {
+        argMap["-p"]?.joinToString(" ")
+    } else {
+        "js"
+    }
+
+    val outputPath = if (argMap["-o"] != null) {
+        argMap["-o"]?.joinToString(" ")
+    } else {
+        when(targetPlatform) {
+            "js" -> "js/out.js"
+            "jvm" -> "out/production/kythera/$entryPoint.class"
+            else -> {
+                System.err.println("Invalid target platform: $targetPlatform")
+                exitProcess(1)
+            }
+        }
+    }
+
     try {
         val content = Files.readString(Paths.get("./$entryPoint.ky"))
         println("Generating initial AST")
@@ -52,27 +80,22 @@ fun main(args: Array<String>) {
 
         // TODO optimize bytecode
         println("Generating output")
-        //            Generator generator = new JvmGenerator(ast, entryPoint);
-        val generator: Generator = JsGenerator(ast)
-        val output = generator.compile()
-        when (generator) {
-            is JvmGenerator -> {
-                println("Writing to: $entryPoint.class")
-                val fos = FileOutputStream("out/production/kythera/$entryPoint.class")
-                fos.write(output)
-                fos.close()
-            }
-            is JsGenerator -> {
-                println("Writing to: $entryPoint.js")
-                val fos = FileOutputStream("js/out.js")
-                fos.write(output)
-                fos.close()
-            }
+        val generator: Generator = when (targetPlatform) {
+            "js" -> JsGenerator(ast)
+            "jvm" -> JvmGenerator(ast, entryPoint)
             else -> {
-                System.err.println("No code generator is available.")
+                System.err.println("Invalid platform: $targetPlatform")
                 exitProcess(1)
             }
+
         }
+
+        val output = generator.compile()
+
+        println("Writing to: $entryPoint.class")
+        val fos = FileOutputStream(outputPath)
+        fos.write(output)
+        fos.close()
     } catch (e: Exception) {
         e.printStackTrace()
         exitProcess(1)

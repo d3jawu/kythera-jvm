@@ -1,51 +1,51 @@
 import { TypeValue, Value } from "./values";
-import { INT, TRUE, FALSE } from "./consts";
+import { NUM, TRUE, FALSE } from "./consts";
 
 // reuse type values
-const intIntToIntFnType = new TypeValue("FN", {
-  paramTypes: [INT],
-  returnType: INT,
+const numNumToNumFnType= new TypeValue("FN", {
+  paramTypes: [NUM],
+  returnType: NUM,
 });
 
 const fn = () => new Value();
 
 // declare member functions outside initializer so they can be reused
-const intAdd = new Value(
-  (self, other) => int(self.value + other.value),
-  intIntToIntFnType
+const add = new Value(
+  (self, other) => num(self.value + other.value),
+  numNumToNumFnType
 );
 
-const intSubtract = new Value(
-  (self, other) => int(self.value - other.value),
-  intIntToIntFnType
+const subtract = new Value(
+  (self, other) => num(self.value - other.value),
+  numNumToNumFnType
 );
 
-const intMultiply = new Value(
-  (self, other) => int(self.value * other.value),
-  intIntToIntFnType
+const multiply = new Value(
+  (self, other) => num(self.value * other.value),
+  numNumToNumFnType
 );
 
-const intDivide = new Value(
-  (self, other) => int(self.value / other.value),
-  intIntToIntFnType
+const divide = new Value(
+  (self, other) => num(self.value / other.value),
+  numNumToNumFnType
 );
 
-const intModulo = new Value(
-  (self, other) => int(self.value % other.value),
-  intIntToIntFnType
+const modulo = new Value(
+  (self, other) => num(self.value % other.value),
+  numNumToNumFnType
 );
 
-const int = (val) =>
-  new Value(val, INT, {
-    "+": intAdd,
-    "-": intSubtract,
-    "*": intMultiply,
-    "/": intDivide,
-    "%": intModulo,
+const num= (val) =>
+  new Value(val, NUM, {
+    "+": add,
+    "-": subtract,
+    "*": multiply,
+    "/": divide,
+    "%": modulo,
   });
 
 export default {
   bool: (val) => (val ? TRUE : FALSE),
-  int,
+  num,
   fn,
 };

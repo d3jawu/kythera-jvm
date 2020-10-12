@@ -61,7 +61,11 @@ class JsGenerator(program: List<StatementNode>) : Generator {
         is BooleanLiteral.BooleanLiteralNode -> {
             "($RUNTIMEVAR.get.bool(${node.value}))"
         }
-        is IntLiteralNode -> "($RUNTIMEVAR.get.int(${node.value}))"
+        // JS only has one number type, so all numbers map to "Num".
+        // unfortunately with the way smart casts work we can't combine these into one case
+        is IntLiteralNode -> "($RUNTIMEVAR.get.num(${node.value}))"
+        is FloatLiteralNode -> "($RUNTIMEVAR.get.num(${node.value}))"
+        is DoubleLiteralNode -> "($RUNTIMEVAR.get.num(${node.value}))"
         is StructLiteralNode -> "<struct literal placeholder>"
         is FnLiteralNode -> "<fn literal placeholder"
         is TypeLiteralNode -> "<type literal placeholder>"
@@ -101,13 +105,16 @@ class JsGenerator(program: List<StatementNode>) : Generator {
         return result.toString()
     }
 
-    private fun visitTypeof(node: TypeofNode): String = "${visitExpression(node.target)}.typeValue"
+    private fun visitTypeof(node: TypeofNode): String = "(${visitExpression(node.target)}.typeValue)"
 
     private fun visitBlock(node: BlockNode): String {
         val res = StringBuilder("(() => {\n")
+
         for(st in node.body) {
             res.append(visitStatement(st))
         }
+
+        // TODO use last expression as return value
 
         res.append("})()")
         return res.toString()

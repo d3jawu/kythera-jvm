@@ -17,8 +17,9 @@ const BOOL = new Value(
   TYPE
 );
 
-const INT = new Value(
-  new TypeValue("INT"),
+// all number types are mapped to JS's Number type
+const NUM = new Value(
+  new TypeValue("NUM"),
   TYPE
 )
 
@@ -29,7 +30,7 @@ const FALSE = new Value(false, BOOL, {});
 export {
   TYPE,
   BOOL,
-  INT,
+  NUM,
   TRUE,
   FALSE,
 };

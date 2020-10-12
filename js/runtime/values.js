@@ -18,7 +18,7 @@ class TypeValue {
     // list values have a list type
     // listType: null,
   }) {
-    this.baseType = baseType; // see BaseType.java for valid basetypes
+    this.baseType = baseType; // see BaseType.java for valid basetypes; JS implementation uses NUM for all numbers
     this.typeMeta = typeMeta; // additional info needed to distinguish non-primitive types, e.g. function parameters to tell a fn(int) from an fn(char)
   }
 }

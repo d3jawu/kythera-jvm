@@ -4,7 +4,7 @@
 lib/
 out/
 
-Scratch.ky
+main.ky
 
 js/out*
 js/node_modules

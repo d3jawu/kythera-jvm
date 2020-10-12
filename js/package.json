@@ -5,6 +5,7 @@
   "main": "out.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "exec": "java -jar ../out/artifacts/kythera_jar/kythera.jar",
     "start": "node out.bundle.js",
     "dev": "npx rollup -c rollup.dev.js -w",
     "build": "npx rollup -c rollup.build.js"
