@@ -5,11 +5,11 @@ import kotlin.system.exitProcess
 
 class JsGenerator(program: List<StatementNode>) : Generator {
     private val input: List<StatementNode> = program
-    private val RUNTIMEVAR = "_KY"
+    private val RUNTIME_VAR_PREFIX = "_KY"
 
     override fun compile(): ByteArray {
         // initialize runtime
-        val out = StringBuilder("import $RUNTIMEVAR from './runtime/index.js';\n")
+        val out = StringBuilder("import $RUNTIME_VAR_PREFIX from '../runtime/index.js';\n")
         for (st in input) {
             out.append(visitStatement(st))
         }
@@ -59,13 +59,13 @@ class JsGenerator(program: List<StatementNode>) : Generator {
     // TODO interning
     private fun visitLiteral(node: LiteralNode): String = when (node) {
         is BooleanLiteral.BooleanLiteralNode -> {
-            "($RUNTIMEVAR.get.bool(${node.value}))"
+            "($RUNTIME_VAR_PREFIX.get.bool(${node.value}))"
         }
         // JS only has one number type, so all numbers map to "Num".
         // unfortunately with the way smart casts work we can't combine these into one case
-        is IntLiteralNode -> "($RUNTIMEVAR.get.num(${node.value}))"
-        is FloatLiteralNode -> "($RUNTIMEVAR.get.num(${node.value}))"
-        is DoubleLiteralNode -> "($RUNTIMEVAR.get.num(${node.value}))"
+        is IntLiteralNode -> "($RUNTIME_VAR_PREFIX.get.num(${node.value}))"
+        is FloatLiteralNode -> "($RUNTIME_VAR_PREFIX.get.num(${node.value}))"
+        is DoubleLiteralNode -> "($RUNTIME_VAR_PREFIX.get.num(${node.value}))"
         is StructLiteralNode -> "<struct literal placeholder>"
         is FnLiteralNode -> "<fn literal placeholder"
         is TypeLiteralNode -> "<type literal placeholder>"

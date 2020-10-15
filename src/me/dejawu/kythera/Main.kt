@@ -16,8 +16,6 @@ fun main(args: Array<String>) {
         else Pair(map + (lastKey to map.getOrDefault(lastKey, emptyList()) + elem), lastKey)
     }.first
 
-    println(argMap)
-
     val entryPoint = if (argMap[""] != null) {
         argMap[""]?.joinToString(" ")
     } else {
@@ -34,7 +32,7 @@ fun main(args: Array<String>) {
         argMap["-o"]?.joinToString(" ")
     } else {
         when(targetPlatform) {
-            "js" -> "js/out.js"
+            "js" -> "js/out/out.js"
             "jvm" -> "out/production/kythera/$entryPoint.class"
             else -> {
                 System.err.println("Invalid target platform: $targetPlatform")

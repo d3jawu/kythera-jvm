@@ -4,10 +4,10 @@
   "description": "JS runtime for Kythera",
   "main": "out.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npx jest ./kythera.test.js",
     "exec": "java -jar ../out/artifacts/kythera_jar/kythera.jar",
     "start": "node out.bundle.js",
-    "dev": "npx rollup -c rollup.dev.js -w",
+    "dev": "npx rollup -i ./out/out.js -o ./out/out.bundle.js -w",
     "build": "npx rollup -c rollup.build.js"
   },
   "repository": {
@@ -22,6 +22,8 @@
   "homepage": "https://gitlab.com/dejawu/kythera#readme",
   "type": "module",
   "dependencies": {
+    "esprima": "^4.0.1",
+    "jest": "^26.5.3",
     "prettier": "^2.1.2",
     "rollup": "^2.29.0",
     "rollup-plugin-prettier": "^2.1.0",
