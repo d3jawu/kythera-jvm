@@ -1,7 +1,8 @@
-const { parseModule } = require("esprima");
+const { parseModule, ExportAllDeclaration } = require("esprima");
 const fs = require("fs");
 const { execSync } = require("child_process");
 const rollup = require("rollup");
+const { TestScheduler } = require("jest");
 
 // relative to JS root
 const TEST_DIR = "./tests";
@@ -13,7 +14,7 @@ const IDENTIFIER_EXCEPTIONS = ["_KY", "from"];
 
 console.info("Make sure latest Jar has been built!");
 
-const buildAndTest = (name, expected) => async () => {
+const buildAndTest = (name, tests) => async () => {
   execSync(
     `java -jar ${KYTHERA_JAR_PATH} ${TEST_DIR}/${name} -o out/${name}.js`
   );
@@ -45,12 +46,15 @@ const buildAndTest = (name, expected) => async () => {
   });
   injected += "};";
 
-  const result = code + injected;
-  eval(result);
-
-  expect(out).toEqual(expected);
+  eval(code + injected);
+  tests(out); // 'out' variable is introduced to local scope when eval is run
 };
 
 describe("Kythera integration tests", () => {
-  // test("int", buildAndTest("int", {}));
+  test(
+    "Arithmetic",
+    buildAndTest("num", (out) => {
+      expect(out.sum.value).toBe(15);
+    })
+  );
 });
