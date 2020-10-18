@@ -16,7 +16,8 @@ console.info("Make sure latest Jar has been built!");
 
 const buildAndTest = (name, tests) => async () => {
   execSync(
-    `java -jar ${KYTHERA_JAR_PATH} ${TEST_DIR}/${name} -o out/${name}.js`
+    `java -jar ${KYTHERA_JAR_PATH} ${TEST_DIR}/${name} -o out/${name}.js`,
+    { stdio: "inherit" }
   );
 
   // extract global variables from raw
@@ -55,6 +56,10 @@ describe("Kythera integration tests", () => {
     "Arithmetic",
     buildAndTest("num", (out) => {
       expect(out.sum.value).toBe(15);
+      expect(out.difference.value).toBe(5);
+      expect(out.product.value).toBe(50);
+      expect(out.quotient.value).toBe(2);
+      expect(out.remainder.value).toBe(0);
     })
   );
 });

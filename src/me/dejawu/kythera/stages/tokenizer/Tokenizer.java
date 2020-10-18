@@ -74,6 +74,11 @@ public final class Tokenizer {
             return Tokenizer.isDigit(c);
         });
 
+        // if the minus sign is alone, return it as an operator
+        if(number.equals("-")) {
+            return new Token("-", TokenType.OP);
+        }
+
         return new Token(number, TokenType.NUM);
     }
 

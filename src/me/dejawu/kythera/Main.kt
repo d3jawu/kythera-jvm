@@ -31,7 +31,7 @@ fun main(args: Array<String>) {
     val outputPath = if (argMap["-o"] != null) {
         argMap["-o"]?.joinToString(" ")
     } else {
-        when(targetPlatform) {
+        when (targetPlatform) {
             "js" -> "js/out/out.js"
             "jvm" -> "out/production/kythera/$entryPoint.class"
             else -> {
@@ -81,11 +81,14 @@ fun main(args: Array<String>) {
         val generator: Generator = when (targetPlatform) {
             "js" -> JsGenerator(ast)
             "jvm" -> JvmGenerator(ast, entryPoint)
+            "none" -> {
+                println("Done.")
+                exitProcess(0)
+            }
             else -> {
                 System.err.println("Invalid platform: $targetPlatform")
                 exitProcess(1)
             }
-
         }
 
         val output = generator.compile()

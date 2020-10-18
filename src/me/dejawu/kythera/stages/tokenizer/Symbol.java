@@ -1,13 +1,7 @@
 package me.dejawu.kythera.stages.tokenizer;
 
-/**
- * operators are named after their symbols, not their function (e.g. PLUS
- * instead of ADD)
- * because they could later be overloaded to do anything
- */
 public enum Symbol {
-    // assignments, see here: https://introcs.cs.princeton
-    // .edu/java/11precedence/
+    // assignments, see here: https://introcs.cs.princeton.edu/java/11precedence/
     EQUALS("=", 1, SymbolKind.ASSIGN, TokenType.OP),
     PLUS_EQUALS("+=", 1, SymbolKind.ASSIGN, TokenType.OP),
     MINUS_EQUALS("-=", 1, SymbolKind.ASSIGN, TokenType.OP),
@@ -47,8 +41,8 @@ public enum Symbol {
     OPEN_PAREN("(", 16, SymbolKind.ACCESS, TokenType.PUNC),
     CLOSE_PAREN(")", 16, SymbolKind.ACCESS, TokenType.PUNC),
     OPEN_BRACKET("[", 16, SymbolKind.ACCESS, TokenType.PUNC),
-    CLOSE_BRACKET("]", 16, SymbolKind.ACCESS, TokenType.PUNC), // TODO maybe the braces should have precedence 13 since they are used
-    //  for object creation, not access?
+    CLOSE_BRACKET("]", 16, SymbolKind.ACCESS, TokenType.PUNC),
+    // TODO maybe the braces should have precedence 13 since they are used for object creation, not access?
     OPEN_BRACE("{", 16, SymbolKind.ACCESS, TokenType.PUNC),
     CLOSE_BRACE("}", 16, SymbolKind.ACCESS, TokenType.PUNC),
 

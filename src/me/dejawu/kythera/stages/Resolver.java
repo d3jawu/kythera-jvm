@@ -191,10 +191,6 @@ public class Resolver extends Visitor {
         // TODO define fields for builtin types, eg int.+ (this may take some thinking)
 
         target.typeExp.print(0, System.out);
-        System.out.println(dotAccessNode.key);
-        System.out.println(((TypeLiteralNode) target.typeExp)
-            .entryTypes
-            .get(dotAccessNode.key));
 
         ExpressionNode typeExp = this.visitExpression(
             ((TypeLiteralNode) target.typeExp)

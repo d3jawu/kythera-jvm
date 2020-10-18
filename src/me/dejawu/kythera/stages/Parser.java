@@ -285,6 +285,8 @@ public final class Parser {
         }
         statements.add(st);
 
+        st.print(0, System.out);
+
         // TODO optional semi
         if (this.tokenizer.confirm(Symbol.SEMICOLON.token) == null) {
             System.err.println("Expected semicolon but got " + this.tokenizer.peek());
