@@ -25,7 +25,7 @@ const buildAndTest = (name, tests) => async () => {
 
   const globals = [];
   parseModule(raw)
-    .body.filter(({ type }) => type === "VariableDeclaration") // picks up levels at top-level scope only
+    .body.filter(({ type }) => type === "VariableDeclaration") // picks up variables at top-level scope only
     .forEach(({ declarations }) => {
       declarations.forEach(({ id }) => {
         const { name } = id;
@@ -62,4 +62,26 @@ describe("Kythera integration tests", () => {
       expect(out.remainder.value).toBe(0);
     })
   );
+
+  
+  test(
+    "AST nodes",
+    buildAndTest("nodes", (out) => {
+      expect(out.letNode.value).toBe(1);
+    })
+  );
+
+  /*
+  test(
+    "Functions",
+    buildAndTest("fn", (out) => {
+      // currying
+      // proper scoping
+    })
+  );
+
+  test(
+    "Syntax",
+  )
+  */
 });

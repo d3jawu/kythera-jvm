@@ -1,6 +1,7 @@
 let x = 10;
 let y = 5;
 
+// basic arithmetic
 let sum = x + y;
 let difference = x - y;
 let product = x * y;

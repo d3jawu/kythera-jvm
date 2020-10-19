@@ -47,6 +47,11 @@ public final class InputStream {
         return this.input.charAt(this.pos);
     }
 
+    // yes, this is kind of cheating
+    public char peekTwo() {
+        return this.input.charAt(Math.min(input.length() - 1, this.pos + 1));
+    }
+
     public boolean eof() {
         return this.pos == this.input.length();
     }

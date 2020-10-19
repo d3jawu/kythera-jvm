@@ -75,7 +75,7 @@ public final class Tokenizer {
         });
 
         // if the minus sign is alone, return it as an operator
-        if(number.equals("-")) {
+        if (number.equals("-")) {
             return new Token("-", TokenType.OP);
         }
 
@@ -97,7 +97,36 @@ public final class Tokenizer {
 
         char c = this.inputStream.peek();
 
-        // TODO skip // comment
+        while (c == '/') { // use a while loop to handle consecutive comments
+            final char next = this.inputStream.peekTwo();
+
+            if (next == '/') { // skip "//" comment
+                // read until newline
+                while (this.inputStream.peek() != '\n') {
+                    this.inputStream.next();
+                }
+                // read until character
+                this.readWhile(Tokenizer::isWhitespace);
+
+                c = this.inputStream.peek();
+            } else if (next == '*') { // skip "/* */" comment
+                while (!this.inputStream.eof()) {
+                    this.inputStream.next();
+
+                    if(this.inputStream.peek() == '*' && this.inputStream.peekTwo() == '/') {
+                        this.inputStream.next();
+                        this.inputStream.next();
+                        break;
+                    }
+                }
+
+                this.readWhile(Tokenizer::isWhitespace);
+
+                c = this.inputStream.peek();
+            } else {
+                break;
+            }
+        }
 
         // TODO skip /**/ comment
 
