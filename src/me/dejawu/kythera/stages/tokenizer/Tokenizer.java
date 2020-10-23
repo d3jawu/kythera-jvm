@@ -296,6 +296,6 @@ public final class Tokenizer {
     }
 
     private static boolean isWhitespace(char c) {
-        return " \t\n".indexOf(c) >= 0;
+        return " \t\r\n".indexOf(c) >= 0;
     }
 }
