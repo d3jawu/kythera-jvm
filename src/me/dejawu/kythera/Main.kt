@@ -25,7 +25,7 @@ fun main(args: Array<String>) {
     val targetPlatform = if (argMap["-p"] != null) {
         argMap["-p"]?.joinToString(" ")
     } else {
-        "js"
+        "js" // js, jvm, or none
     }
 
     val outputPath = if (argMap["-o"] != null) {
@@ -34,6 +34,7 @@ fun main(args: Array<String>) {
         when (targetPlatform) {
             "js" -> "js/out/out.js"
             "jvm" -> "out/production/kythera/$entryPoint.class"
+            "none" -> ""
             else -> {
                 System.err.println("Invalid target platform: $targetPlatform")
                 exitProcess(1)
@@ -79,9 +80,9 @@ fun main(args: Array<String>) {
         // TODO optimize bytecode
         println("Generating output")
         val generator: Generator = when (targetPlatform) {
-            "js" -> JsGenerator(ast)
-            "jvm" -> JvmGenerator(ast, entryPoint)
-            "none" -> {
+            "js" -> JsGenerator(ast) // generate JS script to be bundled with JS runtime
+            "jvm" -> JvmGenerator(ast, entryPoint) // emits JVM Class file
+            "none" -> { // generates an AST then stops.
                 println("Done.")
                 exitProcess(0)
             }

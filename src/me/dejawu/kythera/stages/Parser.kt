@@ -91,8 +91,7 @@ class Parser(input: String?) {
             // on what comes after
             val firstStatement = parseStatement()
             return if (tokenizer.confirm(Symbol.COLON.token) != null) {
-                // colon: struct literal (first statement must be
-                // IdentifierNode)
+                // colon: struct literal (first statement must be IdentifierNode)
                 if (firstStatement !is IdentifierNode) {
                     System.err.println("Expected IdentifierNode for first " + "entry in struct literal.")
                     exitProcess(1)
@@ -111,10 +110,11 @@ class Parser(input: String?) {
             }
         }
         if (tokenizer.confirm(Symbol.OPEN_BRACKET.token) != null) {
-            // TODO parse list literal
-            System.err.println("Not yet implemented.")
-            exitProcess(1)
+            tokenizer.consume(Symbol.OPEN_BRACKET.token)
+
+
         }
+
         if (tokenizer.confirm(Symbol.BANG.token) != null) {
             tokenizer.consume(Symbol.BANG.token)
             return UnaryNode(Symbol.BANG, parseExpression(false))
@@ -135,17 +135,20 @@ class Parser(input: String?) {
                     val ifBody = this.parseBlock()
                     return if (tokenizer.confirm(Keyword.ELSE.token) != null) {
                         // else block present
-                        val ifElse: ExpressionNode
                         tokenizer.consume(Keyword.ELSE.token)
-                        ifElse = if (tokenizer.confirm(Symbol.OPEN_BRACE.token) != null) {
-                            // else only, block follows
-                            this.parseBlock()
-                        } else if (tokenizer.confirm(Keyword.IF.token) != null) {
-                            // else-if, if follows
-                            parseExpression(true)
-                        } else {
-                            System.err.println(tokenizer.peek().toString() + " is not valid after 'else'.")
-                            exitProcess(1)
+                        val ifElse: ExpressionNode = when {
+                            tokenizer.confirm(Symbol.OPEN_BRACE.token) != null -> {
+                                // else only, block follows
+                                this.parseBlock()
+                            }
+                            tokenizer.confirm(Keyword.IF.token) != null -> {
+                                // else-if, if follows
+                                parseExpression(true)
+                            }
+                            else -> {
+                                System.err.println(tokenizer.peek().toString() + " is not valid after 'else'.")
+                                exitProcess(1)
+                            }
                         }
                         IfNode(ifCondition, ifBody, ifElse)
                     } else {
@@ -157,6 +160,10 @@ class Parser(input: String?) {
                     val whileCondition = parseExpression(true)
                     val whileBody = this.parseBlock()
                     return WhileNode(whileCondition, whileBody)
+                }
+                else -> {
+                    System.err.println("Unexpected keyword: ${nextToken.value}")
+                    exitProcess(1);
                 }
             }
         }
@@ -179,6 +186,7 @@ class Parser(input: String?) {
                 else -> IdentifierNode(nextToken.value)
             }
         }
+
         System.err.println("Unexpected token: $nextToken")
         exitProcess(1)
     }

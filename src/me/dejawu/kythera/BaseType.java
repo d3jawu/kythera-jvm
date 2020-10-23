@@ -20,7 +20,7 @@ public enum BaseType {
     // MAP,
     LIST,
     // TUPLE,
-    // STR,
+    STR,
     FN,
     TYPE;
 }
