@@ -16,7 +16,7 @@ console.info("Make sure latest Jar has been built!");
 
 const buildAndTest = (name, tests) => async () => {
   execSync(
-    `java -jar ${KYTHERA_JAR_PATH} ${TEST_DIR}/${name} -o out/${name}.js`,
+    `java -jar ${KYTHERA_JAR_PATH} ${TEST_DIR}/${name} -p js -o out/${name}.js`,
     { stdio: "inherit" }
   );
 
@@ -63,7 +63,6 @@ describe("Kythera integration tests", () => {
     })
   );
 
-  
   test(
     "AST nodes",
     buildAndTest("nodes", (out) => {
@@ -72,6 +71,13 @@ describe("Kythera integration tests", () => {
   );
 
   /*
+  test(
+    "Literals",
+    buildAndTest("literals", (out) => {
+      expect(out.intLiteral.value).toBe(15)
+    })
+  )
+
   test(
     "Functions",
     buildAndTest("fn", (out) => {
@@ -82,6 +88,14 @@ describe("Kythera integration tests", () => {
 
   test(
     "Syntax",
+    buildAndTest("syntax", (out) => {
+      // function block vs scope block vs struct literal vs struct type literal
+    })
+  )
+
+  // test typeof on an instance of every type
+  test(
+    "Typeof",
   )
   */
 });

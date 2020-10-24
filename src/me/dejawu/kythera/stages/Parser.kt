@@ -47,10 +47,8 @@ class Parser(input: String?) {
                 // can start binary
                 tokenizer.confirm(Symbol.OPEN_PAREN.token) != null ||  // can start call
                 tokenizer.confirm(Keyword.AS.toString(), TokenType.KW) != null ||  // can make as
-                tokenizer.confirm(Symbol.DOT.token) != null // can
-        // make dot access
-        //                      || (canSplit && this.tokenizer.confirm(Symbol
-        //                      .OPEN_BRACKET.token) != null) // can make bracket access
+                tokenizer.confirm(Symbol.DOT.token) != null // can make dot access
+                // || (canSplit && this.tokenizer.confirm(Symbol.OPEN_BRACKET.token) != null) // can make bracket access
         ) {
             if (canSplit && tokenizer.confirm(TokenType.OP) != null) {
                 exp = makeBinary(exp, 0)
@@ -110,9 +108,7 @@ class Parser(input: String?) {
             }
         }
         if (tokenizer.confirm(Symbol.OPEN_BRACKET.token) != null) {
-            tokenizer.consume(Symbol.OPEN_BRACKET.token)
-
-
+            return this.parseListLiteral();
         }
 
         if (tokenizer.confirm(Symbol.BANG.token) != null) {
@@ -257,8 +253,7 @@ class Parser(input: String?) {
                 body)
     }
 
-    // sometimes parseStructLiteral is called with the first identifier
-    // already consumed
+    // sometimes parseStructLiteral is called with the first identifier already consumed
     private fun parseStructLiteral(firstIdentifier: String): StructLiteralNode {
         val structType = StructTypeLiteralNode()
         val structResult = StructLiteralNode(structType)
@@ -317,6 +312,35 @@ class Parser(input: String?) {
         tokenizer.consume(Symbol.OPEN_BRACE.token)
         val firstTypeExp = parseExpression(true)
         return this.parseStructTypeLiteral(firstTypeExp)
+    }
+
+    private fun parseListLiteral(): ListLiteralNode {
+        tokenizer.consume(Symbol.OPEN_BRACKET.token)
+
+        var firstRun = true
+        var containedType: ExpressionNode = TypeLiteralNode.UNIT
+
+        val contents = ArrayList<ExpressionNode>()
+
+        while (tokenizer.confirm(Symbol.CLOSE_BRACKET.token) == null) {
+            val entry = this.parseExpression(true)
+            if(firstRun) {
+                containedType = entry.typeExp
+                firstRun = false
+            }
+
+            contents.add(entry)
+
+            // TODO allow optional final comma
+            tokenizer.consume(Symbol.COMMA.token)
+        }
+
+        tokenizer.consume(Symbol.CLOSE_BRACKET.token)
+
+        val listType = ListTypeLiteralNode(containedType)
+        val listNode = ListLiteralNode(listType, contents);
+
+        return listNode
     }
 
     private fun makeBinary(left: ExpressionNode, currentPrecedence: Int): ExpressionNode {

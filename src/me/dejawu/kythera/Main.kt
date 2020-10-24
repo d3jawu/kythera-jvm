@@ -25,7 +25,7 @@ fun main(args: Array<String>) {
     val targetPlatform = if (argMap["-p"] != null) {
         argMap["-p"]?.joinToString(" ")
     } else {
-        "js" // js, jvm, or none
+        "none" // js, jvm, or none
     }
 
     val outputPath = if (argMap["-o"] != null) {
@@ -83,7 +83,7 @@ fun main(args: Array<String>) {
             "js" -> JsGenerator(ast) // generate JS script to be bundled with JS runtime
             "jvm" -> JvmGenerator(ast, entryPoint) // emits JVM Class file
             "none" -> { // generates an AST then stops.
-                println("Done.")
+                println("No target platform specified, exiting.")
                 exitProcess(0)
             }
             else -> {
