@@ -7,8 +7,6 @@ const numNumToNumFnType= new TypeValue("FN", {
   returnType: NUM,
 });
 
-const fn = () => new Value();
-
 // declare member functions outside initializer so they can be reused
 const add = new Value(
   (self, other) => num(self.value + other.value),
@@ -47,5 +45,4 @@ const num= (val) =>
 export default {
   bool: (val) => (val ? TRUE : FALSE),
   num,
-  fn,
 };

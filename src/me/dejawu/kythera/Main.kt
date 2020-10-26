@@ -51,6 +51,8 @@ fun main(args: Array<String>) {
         val desugarer = Desugarer(ast)
         ast = desugarer.visit()
 
+        // TODO if platform is JS, resolve all number types to Num, warning about int behavior which may differ (eg integer vs decimal division)
+
         // typeExps on ExpressionNodes may still be null at this point
 
         // TODO link types to expressions (no null typeExps)

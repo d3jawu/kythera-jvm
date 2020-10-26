@@ -70,13 +70,15 @@ describe("Kythera integration tests", () => {
     })
   );
 
-  /*
   test(
     "Literals",
     buildAndTest("literals", (out) => {
-      expect(out.intLiteral.value).toBe(15)
+      expect(out.intNumLiteral.value).toBe(2)
+      expect(out.floatNumLiteral.value).toBe(2.01);
     })
   )
+
+  /*
 
   test(
     "Functions",

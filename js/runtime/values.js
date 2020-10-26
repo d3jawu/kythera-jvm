@@ -12,11 +12,13 @@ class TypeValue {
   constructor(baseType, typeMeta = {
     // every TypeValue has a fieldTypes entry which lists the fields that instances of that type will have
     fieldTypes: {},
-    // fn values have param types and a return type
+    // fn type values have param types and a return type
     // paramTypes: [],
     // returnType: [],
-    // list values have a list type
-    // listType: null,
+    // list type values have a contained type
+    // containedType: null,
+    // struct type values have an entryTypes object that contains entry names and their types
+    // entryTypes: {},
   }) {
     this.baseType = baseType; // see BaseType.java for valid basetypes; JS implementation uses NUM for all numbers
     this.typeMeta = typeMeta; // additional info needed to distinguish non-primitive types, e.g. function parameters to tell a fn(int) from an fn(char)

@@ -22,6 +22,7 @@ public class TypeLiteralNode extends LiteralNode {
 
     public static final TypeLiteralNode INT;
     public static final TypeLiteralNode FLOAT;
+    public static final TypeLiteralNode DOUBLE;
 
     static {
         TYPE = new TypeLiteralNode();
@@ -31,6 +32,8 @@ public class TypeLiteralNode extends LiteralNode {
         BOOL = new TypeLiteralNode(BaseType.BOOL);
 
         INT = new TypeLiteralNode(BaseType.INT);
+
+        DOUBLE = new TypeLiteralNode(BaseType.DOUBLE);
 
         final FnTypeLiteralNode intIntToIntFnType = new FnTypeLiteralNode(new ArrayList<>() {
             {

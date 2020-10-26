@@ -179,6 +179,8 @@ class Parser(input: String?) {
                 "false" -> BooleanLiteral.FALSE
                 "unit" -> UnitLiteral.UNIT
                 "int" -> TypeLiteralNode.INT
+                "float" -> TypeLiteralNode.FLOAT
+                "double" -> TypeLiteralNode.DOUBLE
                 else -> IdentifierNode(nextToken.value)
             }
         }
