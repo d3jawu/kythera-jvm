@@ -4,7 +4,7 @@
   "description": "JS runtime for Kythera",
   "main": "out.js",
   "scripts": {
-    "test": "npx jest ./kythera.test.js",
+    "test": "npx jest ./tests/",
     "exec": "java -jar ../out/artifacts/kythera_jar/kythera.jar",
     "start": "node out.bundle.js",
     "dev": "npx rollup -i ./out/out.js -o ./out/out.bundle.js -w",
@@ -23,10 +23,13 @@
   "type": "module",
   "dependencies": {
     "esprima": "^4.0.1",
-    "jest": "^26.5.3",
+    "jest": "^26.6.1",
     "prettier": "^2.1.2",
     "rollup": "^2.29.0",
     "rollup-plugin-prettier": "^2.1.0",
     "rollup-plugin-terser": "^7.0.2"
+  },
+  "jest": {
+    "testEnvironment": "node"
   }
 }

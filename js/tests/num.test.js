@@ -4,21 +4,20 @@ let res;
 
 describe("Numbers", () => {
   beforeAll((done) => {
-    buildAndEval("num").then(
-      (value) => {
+    buildAndEval("num")
+      .then((value) => {
         res = value;
         done();
-      },
-      (reason) => {
+      })
+      .catch((reason) => {
         done(reason);
-      }
-    );
+      });
   });
 
   test("Assignment", () => {
     expect(res.x.value).toEqual(10);
     expect(res.y.value).toEqual(5);
-  })
+  });
 
   test("Addition", () => {
     expect(res.sum.value).toEqual(15);
@@ -38,5 +37,5 @@ describe("Numbers", () => {
 
   test("Modulo", () => {
     expect(res.remainder.value).toEqual(0);
-  })
+  });
 });

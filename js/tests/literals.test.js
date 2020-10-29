@@ -11,9 +11,6 @@ describe("Literals", () => {
       })
       .catch((reason) => {
         done(reason);
-      })
-      .finally(() => {
-        done();
       });
   });
 

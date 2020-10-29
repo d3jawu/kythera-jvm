@@ -6,5 +6,7 @@ out/
 
 main.ky
 
+src/META-INF
+
 js/out*
 js/node_modules
