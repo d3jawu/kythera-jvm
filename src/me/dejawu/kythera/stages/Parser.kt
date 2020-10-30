@@ -47,8 +47,9 @@ class Parser(input: String?) {
                 // can start binary
                 tokenizer.confirm(Symbol.OPEN_PAREN.token) != null ||  // can start call
                 tokenizer.confirm(Keyword.AS.toString(), TokenType.KW) != null ||  // can make as
-                tokenizer.confirm(Symbol.DOT.token) != null // can make dot access
-                // || (canSplit && this.tokenizer.confirm(Symbol.OPEN_BRACKET.token) != null) // can make bracket access
+                tokenizer.confirm(Symbol.DOT.token) != null || // can make dot access
+                tokenizer.confirm(Symbol.OPEN_BRACKET.token) != null // can make bracket access
+//                (canSplit && this.tokenizer.confirm(Symbol.OPEN_BRACKET.token) != null) // can make bracket access
         ) {
             if (canSplit && tokenizer.confirm(TokenType.OP) != null) {
                 exp = makeBinary(exp, 0)
@@ -61,6 +62,10 @@ class Parser(input: String?) {
             }
             if (tokenizer.confirm(Symbol.DOT.token) != null) {
                 exp = makeDotAccess(exp)
+            }
+            if (tokenizer.confirm(Symbol.OPEN_BRACKET.token) != null) {
+                System.err.println("Bracket access not yet implemented.");
+                exitProcess(1)
             }
         }
         return exp

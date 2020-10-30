@@ -4,7 +4,7 @@
   "description": "JS runtime for Kythera",
   "main": "out.js",
   "scripts": {
-    "test": "npx jest ./tests/",
+    "test": "npx jest ./tests/ --verbose",
     "exec": "java -jar ../out/artifacts/kythera_jar/kythera.jar",
     "start": "node out.bundle.js",
     "dev": "npx rollup -i ./out/out.js -o ./out/out.bundle.js -w",

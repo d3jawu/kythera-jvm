@@ -38,4 +38,9 @@ describe("Numbers", () => {
   test("Modulo", () => {
     expect(res.remainder.value).toEqual(0);
   });
+
+  test("Compound Expressions", () => {
+    expect(res.compound1.value).toEqual(11);
+    expect(res.compound2.value).toBeCloseTo(0.6);
+  })
 });

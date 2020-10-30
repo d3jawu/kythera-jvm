@@ -165,59 +165,63 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
     }
 
     override fun visitLiteral(literalNode: LiteralNode): ExpressionNode {
-        return if (literalNode is StructLiteralNode) {
-            System.err.println("Struct literal node not yet implemented in resolver")
-            exitProcess(0)
-        } else if (literalNode is FnLiteralNode) {
-            val fnLiteralNode = literalNode
-            scope = Scope(scope)
+        return when (literalNode) {
+            is StructLiteralNode -> {
+                val resolvedEntries = HashMap<String, ExpressionNode>()
 
-            // each literal should have been associated with a type literal
-            // assert fnLiteralNode.typeExp instanceof FnTypeLiteralNode
-            val paramTypes = ArrayList<ExpressionNode>()
-            var n = 0
-            while (n < fnLiteralNode.parameterNames.size) {
-                val paramTypeExp = visitExpression(
-                        (fnLiteralNode.typeExp as FnTypeLiteralNode).parameterTypeExps[n]
-                )
-                paramTypes.add(paramTypeExp)
-                scope!!.create(
-                        fnLiteralNode.parameterNames[n],
-                        paramTypeExp
-                )
-                n += 1
-            }
-            val body = visitBlock(fnLiteralNode.body) as BlockNode
+                for((key, exp) in literalNode.entries) {
+                    resolvedEntries[key] = this.visitExpression(exp)
+                }
 
-            // assert body.typeExp != null
-            scope = scope!!.parent
-            FnLiteralNode(
-                    FnTypeLiteralNode(paramTypes, body!!.typeExp),
-                    fnLiteralNode.parameterNames,
-                    body)
-        } else if (literalNode is TypeLiteralNode) {
-            val typeLiteralNode = literalNode
-            if (typeLiteralNode is FnTypeLiteralNode) {
-                val fnTypeLiteralNode = typeLiteralNode
-                val paramTypeExps = fnTypeLiteralNode.parameterTypeExps
-                        .stream()
-                        .map { exp: ExpressionNode -> visitExpression(exp!!) }
-                        .collect(Collectors.toList())
-                return FnTypeLiteralNode(
-                        paramTypeExps,
-                        visitExpression(fnTypeLiteralNode.returnTypeExp)
+                StructLiteralNode(
+                        literalNode.typeExp as StructTypeLiteralNode,
+                        resolvedEntries
                 )
             }
-            // other TypeLiteralNodes can just pass through
-            literalNode
+            is FnLiteralNode -> {
+                scope = Scope(scope)
 
-//
-//            System.err.println("Not yet implemented in resolver:");
-//            typeLiteralNode.print(0, System.err);
-//            exitProcess(1);
-//            return null;
-        } else {
-            literalNode
+                // each literal should have been associated with a type literal
+                // assert fnLiteralNode.typeExp instanceof FnTypeLiteralNode
+                val paramTypes = ArrayList<ExpressionNode>()
+                var n = 0
+                while (n < literalNode.parameterNames.size) {
+                    val paramTypeExp = visitExpression(
+                            (literalNode.typeExp as FnTypeLiteralNode).parameterTypeExps[n]
+                    )
+                    paramTypes.add(paramTypeExp)
+                    scope!!.create(
+                            literalNode.parameterNames[n],
+                            paramTypeExp
+                    )
+                    n += 1
+                }
+                val body = visitBlock(literalNode.body) as BlockNode
+
+                // assert body.typeExp != null
+                scope = scope!!.parent
+                FnLiteralNode(
+                        FnTypeLiteralNode(paramTypes, body!!.typeExp),
+                        literalNode.parameterNames,
+                        body)
+            }
+            is TypeLiteralNode -> {
+                if (literalNode is FnTypeLiteralNode) {
+                    val paramTypeExps = literalNode.parameterTypeExps
+                            .stream()
+                            .map { exp: ExpressionNode -> visitExpression(exp!!) }
+                            .collect(Collectors.toList())
+                    return FnTypeLiteralNode(
+                            paramTypeExps,
+                            visitExpression(literalNode.returnTypeExp)
+                    )
+                }
+                literalNode
+            }
+            else -> {
+                // other literalNodes can just pass through
+                literalNode
+            }
         }
     }
 

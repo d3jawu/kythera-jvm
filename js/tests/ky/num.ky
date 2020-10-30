@@ -9,3 +9,7 @@ let difference = x - y;
 let product = x * y;
 let quotient = x / y;
 let remainder = x % y;
+
+// compound expressions
+let compound1 = 1 + 2 * 3 + 4;
+let compound2 = 1 + 2 - 3 * 4 / 5 % 6;
