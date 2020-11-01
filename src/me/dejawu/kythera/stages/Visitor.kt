@@ -124,7 +124,7 @@ abstract class Visitor(protected val input: List<StatementNode>) {
             }
             StructLiteralNode(visitExpression(structLiteralNode.typeExp) as StructTypeLiteralNode?, entries)
         } else if (literalNode is TypeLiteralNode) {
-            println("Warning: desugaring for type literal nodes not yet implemented")
+            println("Warning: visitor for type literal nodes not yet implemented")
             literalNode
         } else {
             literalNode

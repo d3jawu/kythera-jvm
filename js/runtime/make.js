@@ -1,8 +1,11 @@
 import { TypeValue, Value } from "./values";
-import { NUM, TRUE, FALSE } from "./consts";
+import { TYPE, NUM, TRUE, FALSE } from "./consts";
+
+// factories for built-in types
 
 // reuse type values
-const numNumToNumFnType= new TypeValue("FN", {
+// TODO: intern this type
+const numNumToNumFnType = new TypeValue("FN", {
   paramTypes: [NUM],
   returnType: NUM,
 });
@@ -33,7 +36,7 @@ const modulo = new Value(
   numNumToNumFnType
 );
 
-const num= (val) =>
+const num = (val) =>
   new Value(val, NUM, {
     "+": add,
     "-": subtract,
@@ -42,7 +45,29 @@ const num= (val) =>
     "%": modulo,
   });
 
+// takes a JS object with members as keys
+const struct = (val, type) =>
+  new Value(
+    val,
+    type,
+    val // uniquely for structs, their fields are simply a pointer to their value (or vice versa)
+  );
+
+const type = (fieldTypes) =>
+  new Value(
+    new TypeValue(
+      "STRUCT", // only structs are user-creatable types, so this is always a struct
+      { fieldTypes }
+    ),
+    TYPE,
+    {
+      // TODO implementation of subtype/supertype
+    }
+  );
+
 export default {
   bool: (val) => (val ? TRUE : FALSE),
   num,
+  struct,
+  type,
 };

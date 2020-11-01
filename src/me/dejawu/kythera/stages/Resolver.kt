@@ -129,15 +129,13 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
         val target = visitExpression(callNode.target)
         val arguments = callNode.arguments
                 .stream()
-                .map { arg: ExpressionNode -> visitExpression(arg!!) }
+                .map { arg: ExpressionNode -> visitExpression(arg) }
                 .collect(Collectors.toList())
 
         // TODO this assertion is no longer true once type values come into play
         // assert target.typeExp instanceof FnTypeLiteralNode
-        val typeExp = (target!!.typeExp as FnTypeLiteralNode).returnTypeExp
+        val typeExp = (target.typeExp as FnTypeLiteralNode).returnTypeExp
 
-//        target.print(0, System.out);
-//        typeExp.print(0, System.out);
         return CallNode(
                 target,
                 arguments,

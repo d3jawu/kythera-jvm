@@ -96,7 +96,8 @@ fun main(args: Array<String>) {
 
         val output = generator.compile()
 
-        println("Writing to: $entryPoint.class")
+        println("Writing to output file: $outputPath")
+
         val fos = FileOutputStream(outputPath)
         fos.write(output)
         fos.close()

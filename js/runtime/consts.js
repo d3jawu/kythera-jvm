@@ -4,7 +4,7 @@ import { Value, TypeValue } from "./values";
 const TYPE = new Value(
   new TypeValue("TYPE", {}),
   null, // filled in after initialization
-  { // implementations of subtype/supertype functions
+  { // TODO: implementations of subtype/supertype functions
     ">:": null,
     "<:": null
   }

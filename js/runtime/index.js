@@ -1,9 +1,9 @@
-import get from "./get";
+import make from "./make";
 import * as consts from "./consts";
 import { Value } from "./values";
 
 export default {
-  get,
+  make,
   consts,
   value: Value,
 };
