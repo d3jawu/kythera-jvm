@@ -2,7 +2,7 @@
 class Value {
   constructor(value, typeValue, fieldValues = {}) {
     this.value = value;
-    this.typeValue = typeValue;
+    this.typeValue = typeValue; // points to another Value (capital V)
     this.fieldValues = fieldValues;
   }
 }

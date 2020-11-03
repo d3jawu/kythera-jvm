@@ -1,5 +1,6 @@
 package me.dejawu.kythera.stages.generators
 
+import me.dejawu.kythera.BaseType
 import me.dejawu.kythera.ast.*
 import kotlin.system.exitProcess
 
@@ -69,16 +70,27 @@ class JsGenerator(program: List<StatementNode>) : Generator {
 
         is StructLiteralNode -> "($RUNTIME_VAR_PREFIX.make.struct({\n" +
                 node.entries.map { "${it.key}: ${visitExpression(it.value)}" }.joinToString(",\n") +
-                "})" +
-                ")" // TODO insert type as well
+                "}," +
+                this.visitExpression(node.typeExp) +
+                "))"
 
         is ListLiteralNode -> "<list literal placeholder>"
 
         is FnLiteralNode -> "<fn literal placeholder"
 
-        is TypeLiteralNode -> "<type literal placeholder>"
+        is TypeLiteralNode ->
+            when(node.baseType) {
+                BaseType.INT, BaseType.FLOAT, BaseType.DOUBLE -> "${RUNTIME_VAR_PREFIX}.consts.NUM"
+                else -> {
+                    "($RUNTIME_VAR_PREFIX.make.type({" +
+                            node.entryTypes.map { "'${it.key}': ${this.visitExpression(it.value)}" }.joinToString(",\n") +
+                            "}))"
+
+                }
+            }
+
         else -> {
-            System.err.println("Unimplemented literal node: ${node}")
+            System.err.println("Unimplemented literal node: $node")
             exitProcess(1)
         }
     }
@@ -103,7 +115,7 @@ class JsGenerator(program: List<StatementNode>) : Generator {
         }
 
         // add parameters
-        for(exp in node.arguments) {
+        for (exp in node.arguments) {
             result.append(visitExpression(exp))
             result.append(',')
         }
@@ -118,7 +130,7 @@ class JsGenerator(program: List<StatementNode>) : Generator {
     private fun visitBlock(node: BlockNode): String {
         val res = StringBuilder("(() => {\n")
 
-        for(st in node.body) {
+        for (st in node.body) {
             res.append(visitStatement(st))
         }
 

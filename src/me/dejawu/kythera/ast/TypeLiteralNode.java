@@ -6,6 +6,7 @@ import me.dejawu.kythera.Main;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class TypeLiteralNode extends LiteralNode {
     public final BaseType baseType;
@@ -67,6 +68,14 @@ public class TypeLiteralNode extends LiteralNode {
         this.entryTypes = new HashMap<>();
     }
 
+    // for user-defined types
+    public TypeLiteralNode(HashMap<String, ExpressionNode> entryTypes) {
+        super(TYPE);
+
+        this.baseType = BaseType.STRUCT;
+        this.entryTypes = entryTypes;
+    }
+
     // for type values, equals means an *exact* match
     // remember, values in Kythera must be cast to exactly the type they are
     // to be used as (?)
@@ -85,14 +94,15 @@ public class TypeLiteralNode extends LiteralNode {
     public void print(int indent, PrintStream stream) {
         Main.printlnWithIndent("TypeLiteralNode {", indent, stream);
         Main.printlnWithIndent("\tbasetype: " + this.baseType, indent, stream);
-//        Main.printlnWithIndent("\tentries:", indent, stream);
+        Main.printlnWithIndent("\tentries:", indent, stream);
 
         // printing can cause stack overflow when other types are printed
-//        for (Map.Entry<String, ExpressionNode> entry : entryTypes.entrySet()) {
-//            Main.printlnWithIndent("\t\t" + entry.getKey() + ":", indent, stream);
-//            Main.printlnWithIndent("\t\t\ttypeExp:", indent, stream);
+        for (Map.Entry<String, ExpressionNode> entry : entryTypes.entrySet()) {
+            Main.printlnWithIndent("\t\t" + entry.getKey() + ":", indent, stream);
+            Main.printlnWithIndent("\t\t\ttypeExp:", indent, stream);
 //            entry.getValue().print(indent + 3, stream);
-//        }
+            Main.printlnWithIndent("\t\t\t" + entry.getValue().toString(), indent, stream);
+        }
 
         Main.printlnWithIndent("} TypeLiteralNode", indent, stream);
     }

@@ -10,12 +10,12 @@ public class StructLiteralNode extends LiteralNode {
     public final HashMap<String, ExpressionNode> entries;
 
     // struct type exp is built separately from struct literal
-    public StructLiteralNode(StructTypeLiteralNode typeExp) {
+    public StructLiteralNode(TypeLiteralNode typeExp) {
         super(typeExp);
         this.entries = new HashMap<>();
     }
 
-    public StructLiteralNode(StructTypeLiteralNode typeExp, HashMap<String, ExpressionNode> entries) {
+    public StructLiteralNode(TypeLiteralNode typeExp, HashMap<String, ExpressionNode> entries) {
         super(typeExp);
         this.entries = entries;
     }

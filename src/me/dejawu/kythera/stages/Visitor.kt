@@ -122,7 +122,7 @@ abstract class Visitor(protected val input: List<StatementNode>) {
             for ((key, value) in structLiteralNode.entries) {
                 entries[key] = visitExpression(value)
             }
-            StructLiteralNode(visitExpression(structLiteralNode.typeExp) as StructTypeLiteralNode?, entries)
+            StructLiteralNode(visitExpression(structLiteralNode.typeExp) as TypeLiteralNode, entries)
         } else if (literalNode is TypeLiteralNode) {
             println("Warning: visitor for type literal nodes not yet implemented")
             literalNode

@@ -172,7 +172,7 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
                 }
 
                 StructLiteralNode(
-                        literalNode.typeExp as StructTypeLiteralNode,
+                        literalNode.typeExp as TypeLiteralNode,
                         resolvedEntries
                 )
             }

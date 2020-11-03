@@ -1,9 +1,11 @@
 package me.dejawu.kythera.stages
 
+import me.dejawu.kythera.BaseType
 import me.dejawu.kythera.ast.*
 import me.dejawu.kythera.stages.tokenizer.*
 import me.dejawu.kythera.stages.tokenizer.Symbol.SymbolKind
 import java.util.*
+import kotlin.collections.HashMap
 import kotlin.system.exitProcess
 
 class Parser(input: String?) {
@@ -93,23 +95,27 @@ class Parser(input: String?) {
             // consume first statement; what kind of expression it is depends
             // on what comes after
             val firstStatement = parseStatement()
-            return if (tokenizer.confirm(Symbol.COLON.token) != null) {
-                // colon: struct literal (first statement must be IdentifierNode)
-                if (firstStatement !is IdentifierNode) {
-                    System.err.println("Expected IdentifierNode for first " + "entry in struct literal.")
-                    exitProcess(1)
+            return when {
+                tokenizer.confirm(Symbol.COLON.token) != null -> {
+                    // colon: struct literal (first statement must be IdentifierNode)
+                    if (firstStatement !is IdentifierNode) {
+                        System.err.println("Expected IdentifierNode for first " + "entry in struct literal.")
+                        exitProcess(1)
+                    }
+                    this.parseStructLiteral(firstStatement.name)
                 }
-                this.parseStructLiteral(firstStatement.name)
-            } else if (tokenizer.confirm(Symbol.SEMICOLON.token) != null) {
-                // semicolon: code block
-                this.parseBlock(firstStatement)
-            } else {
-                // another expression: struct type literal
-                if (firstStatement !is ExpressionNode) {
-                    System.err.println("Expected expression for first type in" + " struct type literal.")
-                    exitProcess(1)
+                tokenizer.confirm(Symbol.SEMICOLON.token) != null -> {
+                    // semicolon: code block
+                    this.parseBlock(firstStatement)
                 }
-                this.parseStructTypeLiteral(firstStatement as ExpressionNode)
+                else -> {
+                    // another expression: struct type literal
+                    if (firstStatement !is ExpressionNode) {
+                        System.err.println("Expected expression for first type in" + " struct type literal.")
+                        exitProcess(1)
+                    }
+                    this.parseStructTypeLiteral(firstStatement as ExpressionNode)
+                }
             }
         }
         if (tokenizer.confirm(Symbol.OPEN_BRACKET.token) != null) {
@@ -171,6 +177,7 @@ class Parser(input: String?) {
 
         // from this point forward, nodes are generated directly, not dispatched
         tokenizer.next()
+        println("Using token directly: ${nextToken.value}")
         when (nextToken.tokentype) {
             TokenType.NUM -> return if (nextToken.value.contains(".")) {
                 // TODO implement trailing 'f' syntax for floating points
@@ -262,10 +269,7 @@ class Parser(input: String?) {
 
     // sometimes parseStructLiteral is called with the first identifier already consumed
     private fun parseStructLiteral(firstIdentifier: String): StructLiteralNode {
-        val structType = StructTypeLiteralNode()
-        val structResult = StructLiteralNode(structType)
-        val typeContents = structType.entryTypes
-        val resultContents = structResult.entries
+        val resultContents = HashMap<String, ExpressionNode>()
         var firstRun = true
         while (tokenizer.confirm(Symbol.CLOSE_BRACE.token) == null) {
             var entryKey: String
@@ -278,9 +282,12 @@ class Parser(input: String?) {
             tokenizer.consume(Symbol.COLON.token)
             val entryValue = parseExpression(true)
             tokenizer.consume(Symbol.COMMA.token)
-            typeContents[entryKey] = entryValue!!.typeExp
             resultContents[entryKey] = entryValue
         }
+
+        // type information is populated later at the resolver
+        val structResult = StructLiteralNode(TypeLiteralNode(BaseType.STRUCT), resultContents)
+
         tokenizer.consume(Symbol.CLOSE_BRACE.token)
         return structResult
     }
@@ -295,9 +302,8 @@ class Parser(input: String?) {
         return this.parseStructLiteral(t.value)
     }
 
-    private fun parseStructTypeLiteral(firstTypeExp: ExpressionNode): StructTypeLiteralNode {
-        val structType = StructTypeLiteralNode()
-        val entries = structType.entryTypes
+    private fun parseStructTypeLiteral(firstTypeExp: ExpressionNode): TypeLiteralNode {
+        val entries = HashMap<String, ExpressionNode>()
         var firstRun = true
         while (tokenizer.confirm(Symbol.CLOSE_BRACE.token) == null) {
             var typeExp: ExpressionNode
@@ -311,11 +317,14 @@ class Parser(input: String?) {
             tokenizer.consume(Symbol.COMMA.token)
             entries[entryKey] = typeExp
         }
+
+        val structType = TypeLiteralNode(entries)
+
         tokenizer.consume(Symbol.CLOSE_BRACE.token)
         return structType
     }
 
-    private fun parseStructTypeLiteral(): StructTypeLiteralNode {
+    private fun parseStructTypeLiteral(): TypeLiteralNode{
         tokenizer.consume(Symbol.OPEN_BRACE.token)
         val firstTypeExp = parseExpression(true)
         return this.parseStructTypeLiteral(firstTypeExp)
@@ -332,7 +341,6 @@ class Parser(input: String?) {
         while (tokenizer.confirm(Symbol.CLOSE_BRACKET.token) == null) {
             val entry = this.parseExpression(true)
             if(firstRun) {
-                containedType = entry.typeExp
                 firstRun = false
             }
 
