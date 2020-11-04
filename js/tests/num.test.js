@@ -14,6 +14,11 @@ describe("Numbers", () => {
       });
   });
 
+  test("Literal values", () => {
+    expect(res.intVal.value).toEqual(1);
+    expect(res.fpVal.value).toBeCloseTo(1.01);
+  });
+
   test("Assignment", () => {
     expect(res.x.value).toEqual(10);
     expect(res.y.value).toEqual(5);
@@ -42,5 +47,10 @@ describe("Numbers", () => {
   test("Compound Expressions", () => {
     expect(res.compound1.value).toEqual(11);
     expect(res.compound2.value).toBeCloseTo(0.6);
-  })
+  });
+
+  test("Number types", () => {
+    expect(res.numType1.value.baseType).toEqual("NUM");
+    expect(res.numType2.value.baseType).toEqual("NUM");
+  });
 });

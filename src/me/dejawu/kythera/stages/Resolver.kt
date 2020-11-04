@@ -4,6 +4,7 @@ import me.dejawu.kythera.ast.*
 import me.dejawu.kythera.stages.tokenizer.Symbol
 import java.util.*
 import java.util.stream.Collectors
+import kotlin.collections.HashMap
 import kotlin.system.exitProcess
 
 // associates types with identifiers, registers parameter variables, resolves struct field types, etc
@@ -65,7 +66,8 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
     private var scope: Scope?
     override fun visitLet(letNode: LetNode): StatementNode {
         val valueExp = visitExpression(letNode.value)
-        scope!!.create(letNode.identifier, valueExp!!.typeExp)
+        println(valueExp)
+        scope!!.create(letNode.identifier, valueExp.typeExp)
         return LetNode(
                 letNode.identifier,
                 valueExp
@@ -166,13 +168,17 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
         return when (literalNode) {
             is StructLiteralNode -> {
                 val resolvedEntries = HashMap<String, ExpressionNode>()
+                val resolvedTypes = HashMap<String, ExpressionNode>()
 
                 for((key, exp) in literalNode.entries) {
-                    resolvedEntries[key] = this.visitExpression(exp)
+                    val entry = this.visitExpression(exp)
+                    // at this stage, type exp for the expression must have been populated
+                    resolvedEntries[key] = entry
+                    resolvedTypes[key] = entry.typeExp
                 }
 
                 StructLiteralNode(
-                        literalNode.typeExp as TypeLiteralNode,
+                        TypeLiteralNode(resolvedTypes),
                         resolvedEntries
                 )
             }

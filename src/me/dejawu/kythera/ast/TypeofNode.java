@@ -10,6 +10,7 @@ public class TypeofNode extends ExpressionNode {
     public TypeofNode(ExpressionNode target) {
         super(NodeKind.TYPEOF);
         this.target = target;
+        this.typeExp = TypeLiteralNode.TYPE;
     }
 
     @Override

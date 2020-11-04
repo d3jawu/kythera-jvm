@@ -131,7 +131,7 @@ abstract class Visitor(protected val input: List<StatementNode>) {
         }
     }
 
-    protected fun visitTypeof(typeofNode: TypeofNode): ExpressionNode {
+    protected open fun visitTypeof(typeofNode: TypeofNode): ExpressionNode {
         return TypeofNode(visitExpression(typeofNode.target))
     }
 
