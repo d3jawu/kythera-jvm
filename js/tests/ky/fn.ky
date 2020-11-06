@@ -1,3 +1,12 @@
 let noParamFn = () => {
     return 2;
 };
+
+let noParamFnResult = noParamFn();
+
+let oneParamFn = (int x,) => {
+    let result = x * 2;
+    return result;
+};
+
+let oneParamFnResult = oneParamFn(3);

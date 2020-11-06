@@ -89,9 +89,16 @@ class JsGenerator(program: List<StatementNode>) : Generator {
                 this.visitExpression(node.typeExp) +
                 "))"
 
-        is ListLiteralNode -> "<list literal placeholder>"
+        is ListLiteralNode -> "('list literal placeholder')"
 
-        is FnLiteralNode -> "<fn literal placeholder>"
+        is FnLiteralNode -> "$RUNTIME_VAR_PREFIX.make.fn(" +
+                "(${node.parameterNames.joinToString(",")}) =>" +
+                    this.visitExpression(node.body) + // block nodes already evaluate to a value, just return that directly
+                "," +
+                this.visitExpression(node.typeExp) +
+                ")"
+
+        is FnTypeLiteralNode -> "('fn type literal node placeholder')"
 
         is TypeLiteralNode ->
             when(node.baseType) {

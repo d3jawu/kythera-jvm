@@ -65,9 +65,17 @@ const type = (fieldTypes) =>
     }
   );
 
+const fn = (lambda, fnType) => 
+  new Value(
+    lambda,
+    fnType,
+    {} // function values have no struct entries
+  );
+
 export default {
   bool: (val) => (val ? TRUE : FALSE),
   num,
   struct,
   type,
+  fn,
 };

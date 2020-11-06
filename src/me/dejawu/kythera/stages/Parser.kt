@@ -291,7 +291,7 @@ class Parser(input: String?) {
 
         val body = this.parseBlock()
         return FnLiteralNode(
-                FnTypeLiteralNode(paramTypes, null),
+                FnTypeLiteralNode(paramTypes, null), // resolver will fill in return type
                 paramNames,
                 body)
     }
