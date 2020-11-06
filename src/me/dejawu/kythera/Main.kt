@@ -51,7 +51,7 @@ fun main(args: Array<String>) {
         val desugarer = Desugarer(ast)
         ast = desugarer.visit()
 
-        // TODO if platform is JS, resolve all number types to Num, warning about int behavior which may differ (eg integer vs decimal division)
+        // TODO if platform is JS, resolve all number types to double, warning about int behavior which may differ (eg integer vs decimal division)
 
         // typeExps on ExpressionNodes may still be null at this point
 
@@ -65,7 +65,7 @@ fun main(args: Array<String>) {
         val typeChecker = TypeChecker(ast)
         ast = typeChecker.visit()
 
-        // TODO check and verify scopes; identify capturing lambdas
+        // TODO check and verify scopes; identify capturing lambdas (JVM only)
 
         // TODO attach struct as first parameter to member methods
         println("Final AST:")

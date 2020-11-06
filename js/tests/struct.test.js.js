@@ -4,7 +4,7 @@ let res;
 
 describe("Structs", () => {
   beforeAll((done) => {
-    buildAndEval("structs")
+    buildAndEval("struct")
       .then((value) => {
         res = value;
         done();

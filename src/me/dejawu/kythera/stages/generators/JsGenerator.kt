@@ -63,10 +63,25 @@ class JsGenerator(program: List<StatementNode>) : Generator {
             "($RUNTIME_VAR_PREFIX.make.bool(${node.value}))"
         }
         // JS only has one number type, so all numbers map to "Num".
-        // unfortunately with the way smart casts work we can't combine these into one case
-        is IntLiteralNode -> "($RUNTIME_VAR_PREFIX.make.num(${node.value}))"
-        is FloatLiteralNode -> "($RUNTIME_VAR_PREFIX.make.num(${node.value}))"
-        is DoubleLiteralNode -> "($RUNTIME_VAR_PREFIX.make.num(${node.value}))"
+        is IntLiteralNode, is FloatLiteralNode, is DoubleLiteralNode -> {
+            // unfortunately with the way smart casts work we can't combine these into one case
+
+            if(node !is DoubleLiteralNode) {
+               println("Warning: JS only has a double number type. Replace usages of other number types with double to remove this message.")
+            }
+
+            val nodeVal: String = when(node) {
+                is IntLiteralNode -> "${node.value}"
+                is FloatLiteralNode -> "${node.value}"
+                is DoubleLiteralNode -> "${node.value}"
+                else -> {
+                    System.err.println("How did you get here?")
+                    exitProcess(1)
+                }
+            }
+
+            "($RUNTIME_VAR_PREFIX.make.num(${nodeVal}))"
+        }
 
         is StructLiteralNode -> "($RUNTIME_VAR_PREFIX.make.struct({\n" +
                 node.entries.map { "${it.key}: ${visitExpression(it.value)}" }.joinToString(",\n") +
@@ -76,7 +91,7 @@ class JsGenerator(program: List<StatementNode>) : Generator {
 
         is ListLiteralNode -> "<list literal placeholder>"
 
-        is FnLiteralNode -> "<fn literal placeholder"
+        is FnLiteralNode -> "<fn literal placeholder>"
 
         is TypeLiteralNode ->
             when(node.baseType) {

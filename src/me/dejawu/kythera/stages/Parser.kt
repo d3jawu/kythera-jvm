@@ -5,6 +5,7 @@ import me.dejawu.kythera.ast.*
 import me.dejawu.kythera.stages.tokenizer.*
 import me.dejawu.kythera.stages.tokenizer.Symbol.SymbolKind
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.system.exitProcess
 
@@ -76,14 +77,37 @@ class Parser(input: String?) {
     private fun parseExpressionAtom(): ExpressionNode {
         if (tokenizer.confirm(Symbol.OPEN_PAREN.token) != null) {
             tokenizer.consume(Symbol.OPEN_PAREN.token)
-            val contents = parseExpression(true)
-            if (tokenizer.confirm(TokenType.VAR) != null) {
-                // if the next token is a var value, it's the beginning of a
-                // fn literal
-                return parseFnLiteral(contents)
+
+            // check for immediate close-paren, which indicates a fn with no params
+            if(tokenizer.confirm(")", TokenType.PUNC) != null) {
+                // TODO this is ambiguous, it also could be the start of an fn type literal
+                // potential solution: all fn literals require {} bodies?
+                return parseFnLiteral()
+            } else { // beginning of fn literal or fn type literal
+                // parse the first expression
+                val contents = parseExpression(true)
+
+                when {
+                    tokenizer.confirm(TokenType.VAR) != null -> {
+                        // if the next token is a var value, it's the beginning of a fn literal because
+                        // we're picking up the identifier name after the type expression, e.g. (int x) => {}
+                        return parseFnLiteral(arrayListOf(contents))
+                    }
+                    tokenizer.confirm(",", TokenType.PUNC) != null -> {
+                        // a comma immediately after means we just picked up the first type expression, e.g. (int, int,) => {}
+                        System.err.println("fn type literals not yet implemented.")
+                        exitProcess(1)
+                    }
+                    tokenizer.confirm(")", TokenType.PUNC) != null -> {
+                        // paren-wrapped expression, just return contents
+                        return contents;
+                    }
+                    else -> {
+                        System.err.println("Unexpected token: ${tokenizer.peek()}")
+                        exitProcess(1)
+                    }
+                }
             }
-            tokenizer.consume(Symbol.CLOSE_PAREN.token)
-            return contents
         }
 
         // hang on to this for later
@@ -195,10 +219,11 @@ class Parser(input: String?) {
                 "double" -> TypeLiteralNode.DOUBLE
                 else -> IdentifierNode(nextToken.value)
             }
+            else -> {
+                System.err.println("Unexpected token: $nextToken")
+                exitProcess(1)
+            }
         }
-
-        System.err.println("Unexpected token: $nextToken")
-        exitProcess(1)
     }
 
     // sometimes parseBlock will be called with the first statement already
@@ -235,22 +260,22 @@ class Parser(input: String?) {
         tokenizer.consume(Symbol.SEMICOLON.token)
     }
 
-    private fun parseFnLiteral(firstTypeExpression: ExpressionNode): FnLiteralNode {
-        // because of the way functions are read in, the parser has already
-        // consumed the first type expression and can just pass it in here.
-        var firstRun = true
+    // the parser should have already consumed the opening paren
+    // if there are one or more parameters, the ExpressionNode of the first (i.e. the type of the first argument)
+    // should be preloaded in the paramTypes argument, along with
+    private fun parseFnLiteral(paramTypes: ArrayList<ExpressionNode> = ArrayList()): FnLiteralNode {
         val paramNames = ArrayList<String>()
-        val paramTypes = ArrayList<ExpressionNode>()
 
-        // opening parentheses and first type expression have already been consumed
+        // if paramTypes is pre-populated, grab the next param name as well.
+        if(paramTypes.size == 1) {
+            val name = tokenizer.confirm(TokenType.VAR).value
+            tokenizer.consume(TokenType.VAR)
+            paramNames.add(name)
+            tokenizer.consume(",", TokenType.PUNC)
+        }
+
         while (tokenizer.confirm(Symbol.CLOSE_PAREN.token) == null) {
-            var paramTypeExp: ExpressionNode
-            if (firstRun) { // handle already-consumed type exp
-                paramTypeExp = firstTypeExpression
-                firstRun = false
-            } else {
-                paramTypeExp = parseExpression(true)
-            }
+            val paramTypeExp = parseExpression(true)
             val paramName = tokenizer.confirm(TokenType.VAR).value
             tokenizer.consume(TokenType.VAR)
             paramNames.add(paramName)
@@ -259,7 +284,11 @@ class Parser(input: String?) {
                 tokenizer.consume(Symbol.COMMA.token)
             }
         }
+
         tokenizer.consume(Symbol.CLOSE_PAREN.token)
+
+        tokenizer.consume("=>", TokenType.OP)
+
         val body = this.parseBlock()
         return FnLiteralNode(
                 FnTypeLiteralNode(paramTypes, null),
@@ -324,7 +353,7 @@ class Parser(input: String?) {
         return structType
     }
 
-    private fun parseStructTypeLiteral(): TypeLiteralNode{
+    private fun parseStructTypeLiteral(): TypeLiteralNode {
         tokenizer.consume(Symbol.OPEN_BRACE.token)
         val firstTypeExp = parseExpression(true)
         return this.parseStructTypeLiteral(firstTypeExp)
@@ -340,7 +369,7 @@ class Parser(input: String?) {
 
         while (tokenizer.confirm(Symbol.CLOSE_BRACKET.token) == null) {
             val entry = this.parseExpression(true)
-            if(firstRun) {
+            if (firstRun) {
                 firstRun = false
             }
 
