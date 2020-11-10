@@ -32,9 +32,31 @@ public class TypeLiteralNode extends LiteralNode {
 
         BOOL = new TypeLiteralNode(BaseType.BOOL);
 
+        final FnTypeLiteralNode boolBoolToBoolType = new FnTypeLiteralNode(new ArrayList<>() {
+            {
+                add(BOOL);
+                add(BOOL);
+            }
+        }, BOOL);
+        BOOL.entryTypes.put("||", boolBoolToBoolType);
+        BOOL.entryTypes.put("&&", boolBoolToBoolType);
+
         INT = new TypeLiteralNode(BaseType.INT);
 
         DOUBLE = new TypeLiteralNode(BaseType.DOUBLE);
+
+        final FnTypeLiteralNode doubleDoubleToDoubleType = new FnTypeLiteralNode(new ArrayList<>() {
+            {
+                add(DOUBLE);
+                add(DOUBLE);
+            }
+        }, DOUBLE);
+        DOUBLE.entryTypes.put("+", doubleDoubleToDoubleType);
+        DOUBLE.entryTypes.put("-", doubleDoubleToDoubleType);
+        DOUBLE.entryTypes.put("*", doubleDoubleToDoubleType);
+        DOUBLE.entryTypes.put("/", doubleDoubleToDoubleType);
+        DOUBLE.entryTypes.put("%", doubleDoubleToDoubleType);
+
 
         final FnTypeLiteralNode intIntToIntFnType = new FnTypeLiteralNode(new ArrayList<>() {
             {

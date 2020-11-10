@@ -152,8 +152,6 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
         // TODO this assertion is no longer true once type values come into play
         // assert target.typeExp instanceof StructTypeLiteralNode
 
-        // TODO define fields for builtin types, eg int.+ (this may take some thinking)
-        target.typeExp.print(0, System.out)
         val typeExp = visitExpression(
                 (target.typeExp as TypeLiteralNode).entryTypes[dotAccessNode.key]!!
         )
