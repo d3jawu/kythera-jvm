@@ -60,7 +60,7 @@ class JsGenerator(program: List<StatementNode>) : Generator {
     // TODO interning
     private fun visitLiteral(node: LiteralNode): String = when (node) {
         is BooleanLiteral.BooleanLiteralNode -> {
-            "($RUNTIME_VAR_PREFIX.make.bool(${node.value}))"
+            "($RUNTIME_VAR_PREFIX.consts.${node.value.toString().toUpperCase()})"
         }
         // JS only has one number type, so all numbers map to "Num".
         is IntLiteralNode, is FloatLiteralNode, is DoubleLiteralNode -> {

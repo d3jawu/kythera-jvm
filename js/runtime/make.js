@@ -1,12 +1,10 @@
-import { TypeValue, Value } from "./values";
-import { TYPE, NUM, TRUE, FALSE } from "./consts";
-
-// factories for built-in types
+import { TypeValue, Value } from "./value";
+import { TYPE, BOOL, NUM, TRUE, FALSE } from "./consts";
 
 // reuse type values
 // TODO: intern this type
 const numNumToNumFnType = new TypeValue("FN", {
-  paramTypes: [NUM],
+  paramTypes: [NUM, NUM],
   returnType: NUM,
 });
 
@@ -36,6 +34,8 @@ const modulo = new Value(
   numNumToNumFnType
 );
 
+// factories for built-in types
+
 const num = (val) =>
   new Value(val, NUM, {
     "+": add,
@@ -53,6 +53,7 @@ const struct = (val, type) =>
     val // uniquely for structs, their fields are simply a pointer to their value (or vice versa)
   );
 
+// TODO intern types
 const type = (fieldTypes) =>
   new Value(
     new TypeValue(
@@ -65,7 +66,7 @@ const type = (fieldTypes) =>
     }
   );
 
-const fn = (lambda, fnType) => 
+const fn = (lambda, fnType) =>
   new Value(
     lambda,
     fnType,

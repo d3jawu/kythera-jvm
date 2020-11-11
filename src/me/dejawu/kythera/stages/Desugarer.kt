@@ -33,7 +33,16 @@ class Desugarer(program: List<StatementNode>) : Visitor(program) {
         }
     }
 
-    // TODO desugar unary into not()
+    override fun visitUnary(unaryNode: UnaryNode): ExpressionNode {
+        return CallNode(
+                DotAccessNode(
+                        visitExpression(unaryNode.target),
+                        unaryNode.operator.symbol,
+                ),
+                emptyList<ExpressionNode>()
+        )
+    }
+
     // binary infix becomes function call
     override fun visitBinary(binaryNode: BinaryNode): ExpressionNode {
         return CallNode(

@@ -40,6 +40,11 @@ public class TypeLiteralNode extends LiteralNode {
         }, BOOL);
         BOOL.entryTypes.put("||", boolBoolToBoolType);
         BOOL.entryTypes.put("&&", boolBoolToBoolType);
+        BOOL.entryTypes.put("!", new FnTypeLiteralNode(new ArrayList<>() {
+            {
+                add(BOOL);
+            }
+        }, BOOL));
 
         INT = new TypeLiteralNode(BaseType.INT);
 

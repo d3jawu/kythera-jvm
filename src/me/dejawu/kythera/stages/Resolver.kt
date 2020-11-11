@@ -66,7 +66,6 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
     private var scope: Scope?
     override fun visitLet(letNode: LetNode): StatementNode {
         val valueExp = visitExpression(letNode.value)
-        println(valueExp)
         scope!!.create(letNode.identifier, valueExp.typeExp)
         return LetNode(
                 letNode.identifier,

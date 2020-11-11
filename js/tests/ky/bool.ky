@@ -1,0 +1,7 @@
+let myTrue = true;
+let myFalse = false;
+
+let notResult1 = !myTrue;
+let notResult2 = !myFalse;
+let orResult = myTrue || myFalse;
+let andResult = myTrue && myFalse;
