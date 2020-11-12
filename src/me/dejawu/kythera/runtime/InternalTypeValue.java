@@ -86,11 +86,4 @@ public class InternalTypeValue {
             put("%", IntIntToIntFnType);
         }
     });
-
-    public static InternalTypeValue FLOAT = new InternalTypeValue(BaseType.FLOAT, new HashMap<>() {
-
-    });
-    public static InternalTypeValue CHAR = new InternalTypeValue(BaseType.CHAR, new HashMap<>() {
-
-    });
 }

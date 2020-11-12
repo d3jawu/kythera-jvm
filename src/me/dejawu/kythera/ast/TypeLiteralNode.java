@@ -22,7 +22,6 @@ public class TypeLiteralNode extends LiteralNode {
     public static final TypeLiteralNode BOOL;
 
     public static final TypeLiteralNode INT;
-    public static final TypeLiteralNode FLOAT;
     public static final TypeLiteralNode DOUBLE;
 
     static {
@@ -74,8 +73,6 @@ public class TypeLiteralNode extends LiteralNode {
         INT.entryTypes.put("*", intIntToIntFnType);
         INT.entryTypes.put("/", intIntToIntFnType);
         INT.entryTypes.put("%", intIntToIntFnType);
-
-        FLOAT = new TypeLiteralNode(BaseType.FLOAT);
     }
 
     // used for creating root type only

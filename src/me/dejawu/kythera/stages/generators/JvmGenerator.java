@@ -280,14 +280,6 @@ public class JvmGenerator implements Generator {
             this.symbolTable.mv.visitMethodInsn(INVOKESTATIC, KYTHERAVALUE_PATH, "getIntValue", "(I)Lme/dejawu/kythera/runtime/KytheraValue;", false);
 
             return;
-        } else if (literalNode instanceof FloatLiteralNode) {
-            /*FloatLiteralNode floatLiteralNode = (FloatLiteralNode) literalNode;
-
-            pushFloat(floatLiteralNode.value);
-
-            this.mv.visitMethodInsn
-            */
-            return;
         } else if (literalNode instanceof DoubleLiteralNode) {
         } else if (literalNode instanceof StructLiteralNode) {
         } else if (literalNode instanceof FnLiteralNode) {

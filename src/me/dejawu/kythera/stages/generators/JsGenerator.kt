@@ -63,7 +63,7 @@ class JsGenerator(program: List<StatementNode>) : Generator {
             "($RUNTIME_VAR_PREFIX.consts.${node.value.toString().toUpperCase()})"
         }
         // JS only has one number type, so all numbers map to "Num".
-        is IntLiteralNode, is FloatLiteralNode, is DoubleLiteralNode -> {
+        is IntLiteralNode, is DoubleLiteralNode -> {
             // unfortunately with the way smart casts work we can't combine these into one case
 
             if(node !is DoubleLiteralNode) {
@@ -72,7 +72,6 @@ class JsGenerator(program: List<StatementNode>) : Generator {
 
             val nodeVal: String = when(node) {
                 is IntLiteralNode -> "${node.value}"
-                is FloatLiteralNode -> "${node.value}"
                 is DoubleLiteralNode -> "${node.value}"
                 else -> {
                     System.err.println("How did you get here?")
@@ -102,7 +101,7 @@ class JsGenerator(program: List<StatementNode>) : Generator {
 
         is TypeLiteralNode ->
             when(node.baseType) {
-                BaseType.INT, BaseType.FLOAT, BaseType.DOUBLE -> "${RUNTIME_VAR_PREFIX}.consts.NUM"
+                BaseType.INT, BaseType.DOUBLE -> "${RUNTIME_VAR_PREFIX}.consts.NUM"
                 else -> {
                     "($RUNTIME_VAR_PREFIX.make.type({" +
                             node.entryTypes.map { "'${it.key}': ${this.visitExpression(it.value)}" }.joinToString(",\n") +
