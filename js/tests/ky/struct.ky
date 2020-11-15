@@ -7,3 +7,8 @@ let structType = typeof myStruct;
 
 let structMember1 = myStruct.x;
 let structMember2 = myStruct.y;
+
+let myStruct2 = {
+    y: 2.01,
+    x: 2,
+};

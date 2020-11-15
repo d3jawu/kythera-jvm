@@ -24,6 +24,11 @@ const boolBoolToBoolFnType = new TypeValue("FN", {
   returnType: BOOL,
 });
 
+const boolEquiv = new Value(
+  (self, other) => (self.value == other.value ? TRUE : FALSE),
+  boolBoolToBoolFnType
+)
+
 const boolMembers = {
   "!": new Value(
     (self) => (self.value ? FALSE : TRUE),
@@ -40,6 +45,8 @@ const boolMembers = {
     (self, other) => (self.value && other.value ? TRUE : FALSE),
     boolBoolToBoolFnType
   ),
+  "==": boolEquiv,
+  "===": boolEquiv,
 };
 
 // boolean values

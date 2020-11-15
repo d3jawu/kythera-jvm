@@ -2,7 +2,6 @@ import { TypeValue, Value } from "./value";
 import { TYPE, BOOL, NUM, TRUE, FALSE } from "./consts";
 
 // reuse type values
-// TODO: intern this type
 const numNumToNumFnType = new TypeValue("FN", {
   paramTypes: [NUM, NUM],
   returnType: NUM,
@@ -34,6 +33,10 @@ const modulo = new Value(
   numNumToNumFnType
 );
 
+const numEquiv = new Value(
+  (self, other) => (self.value == other.value) ? TRUE : FALSE
+)
+
 // factories for built-in types
 
 const num = (val) =>
@@ -43,6 +46,8 @@ const num = (val) =>
     "*": multiply,
     "/": divide,
     "%": modulo,
+    "==": numEquiv,
+    "===": numEquiv,
   });
 
 // takes a JS object with members as keys
@@ -53,14 +58,13 @@ const struct = (val, type) =>
     val // uniquely for structs, their fields are simply a pointer to their value (or vice versa)
   );
 
-// TODO intern types
 const type = (fieldTypes) =>
   new Value(
     new TypeValue(
       "STRUCT", // only structs are user-creatable types, so this is always a struct
       { fieldTypes }
     ),
-    TYPE,
+    TYPE, // type of a type value is always TYPE
     {
       // TODO implementation of subtype/supertype
     }

@@ -26,7 +26,7 @@ describe("Structs", () => {
     expect(res.structType.value.typeMeta.fieldTypes.x.value.baseType).toEqual(
       "NUM"
     );
-    expect(res.structType.value.typeMeta.fieldTypes.x.value.baseType).toEqual(
+    expect(res.structType.value.typeMeta.fieldTypes.y.value.baseType).toEqual(
       "NUM"
     );
   });
@@ -34,5 +34,12 @@ describe("Structs", () => {
   test("Dot access", () => {
     expect(res.structMember1.value).toEqual(1);
     expect(res.structMember2.value).toBeCloseTo(1.01);
+  });
+
+  test("Type interning", () => {
+    expect(res.myStruct.typeValue).toEqual(res.myStruct2.typeValue);
+    expect(res.structType.value.typeMeta.fieldTypes.x.value.baseType).toEqual(
+      res.structType.value.typeMeta.fieldTypes.y.value.baseType
+    );
   });
 });
