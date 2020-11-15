@@ -138,7 +138,7 @@ class Parser(input: String?) {
                         System.err.println("Expected expression for first type in" + " struct type literal.")
                         exitProcess(1)
                     }
-                    this.parseStructTypeLiteral(firstStatement as ExpressionNode)
+                    this.parseStructTypeLiteral(firstStatement)
                 }
             }
         }
@@ -204,9 +204,7 @@ class Parser(input: String?) {
         println("Using token directly: ${nextToken.value}")
         when (nextToken.tokentype) {
             TokenType.NUM -> return if (nextToken.value.contains(".")) {
-                // TODO implement trailing 'f' syntax for floating points
-                // return new DoubleLiteralNode(Double.parseDouble(nextToken.value));
-                FloatLiteralNode(nextToken.value.toFloat())
+                DoubleLiteralNode(nextToken.value.toDouble())
             } else {
                 IntLiteralNode(nextToken.value.toInt())
             }
@@ -215,7 +213,6 @@ class Parser(input: String?) {
                 "false" -> BooleanLiteral.FALSE
                 "unit" -> UnitLiteral.UNIT
                 "int" -> TypeLiteralNode.INT
-                "float" -> TypeLiteralNode.FLOAT
                 "double" -> TypeLiteralNode.DOUBLE
                 else -> IdentifierNode(nextToken.value)
             }
