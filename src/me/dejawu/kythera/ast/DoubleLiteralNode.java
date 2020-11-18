@@ -8,9 +8,7 @@ public class DoubleLiteralNode extends LiteralNode {
     public final double value;
 
     public DoubleLiteralNode(double value) {
-        super(null);
-        System.err.println("Double values are temporarily disabled.");
-        System.exit(0);
+        super(TypeLiteralNode.DOUBLE);
         this.value = value;
     }
 

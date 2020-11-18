@@ -25,7 +25,6 @@ class TypeValue {
 
       // list type values have a contained type
       // containedType: null,
-
       // struct type values have an entryTypes object that contains entry names and their types
       // entryTypes: {},
     }
@@ -47,9 +46,8 @@ function serializeType(type) {
       return type.baseType + ";";
     case "FN":
       return `FN(${type.typeMeta.paramTypes
-        .map(({ value }) => serializeType(value)).join(",")})=>${
-        serializeType(type.typeMeta.returnType.value)
-      };`;
+        .map(({ value }) => serializeType(value))
+        .join(",")})=>${serializeType(type.typeMeta.returnType.value)};`;
     case "STRUCT":
       return `STRUCT{${Object.entries(type.typeMeta.fieldTypes)
         .sort(([k1], [k2]) => k1 > k2)
@@ -66,9 +64,11 @@ const InternedTypeValue = new Proxy(TypeValue, {
     const newTypeVal = new TypeValue(...args);
     const key = serializeType(newTypeVal);
 
-    if (typeStore[key]) { // hit
+    if (typeStore[key]) {
+      // hit
       return typeStore[key];
-    } else { // miss
+    } else {
+      // miss
       typeStore[key] = newTypeVal;
       return newTypeVal;
     }
