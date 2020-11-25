@@ -120,8 +120,8 @@ class JsGenerator(program: List<StatementNode>) : Generator {
     private fun visitIdentifier(node: IdentifierNode): String = node.name
 
     private fun visitIf(node: IfNode): String = "${visitExpression(node.condition)}.value ? ${visitBlock(node.body)} : ${visitExpression(node.elseBody)}"
-    private fun visitWhile(node: WhileNode): String = "<while placeholder>"
-    private fun visitAs(node: AsNode): String = "<as placeholder>"
+    private fun visitWhile(node: WhileNode): String = "while(${visitExpression(node.condition)}) {}"
+    private fun visitAs(node: AsNode): String = "'as placeholder'"
 
     private fun visitCall(node: CallNode): String {
         val target = this.visitExpression(node.target)

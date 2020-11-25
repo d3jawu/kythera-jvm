@@ -59,6 +59,13 @@ class Desugarer(program: List<StatementNode>) : Visitor(program) {
         )
     }
 
+    override fun visitWhile(whileNode: WhileNode): ExpressionNode {
+        return WhileNode(
+                visitExpression(whileNode.condition),
+                visitBlock(whileNode.body) as BlockNode?
+        )
+    }
+
     // TODO desugar block into fn()unit
     override fun visitBlock(blockNode: BlockNode): ExpressionNode {
         val desugared: MutableList<StatementNode> = ArrayList()

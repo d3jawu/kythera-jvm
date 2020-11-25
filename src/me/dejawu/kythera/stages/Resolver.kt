@@ -246,9 +246,10 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
     }
 
     override fun visitWhile(whileNode: WhileNode): ExpressionNode {
-        // evaluate body and attach type
-        System.err.println("while is not yet implemented at the Resolver stage")
-        exitProcess(1)
+        return WhileNode(
+                visitExpression(whileNode.condition),
+                visitBlock(whileNode.body) as BlockNode?
+        )
     }
 
     init {

@@ -1,19 +1,16 @@
 package me.dejawu.kythera.stages.tokenizer;
 
 public enum Keyword {
+    CONST(),
     LET(),
     IF(),
     ELSE(),
     WHILE(),
     EACH(),
-    SWITCH(),
-    CASE(),
-    FALLTHROUGH(),
-    DEFAULT(),
+    WHEN(),
     BREAK(),
     RETURN(),
     CONTINUE(),
-    TYPE(),
     TYPEOF(),
     AS(),
     IMPORT(),

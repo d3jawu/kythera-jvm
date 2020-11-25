@@ -60,14 +60,8 @@ fun main(args: Array<String>) {
         val resolver = Resolver(ast)
         ast = resolver.visit()
 
-        // TODO mark types as dynamic or statically known
-        println("Type-checking")
-        val typeChecker = TypeChecker(ast)
-        ast = typeChecker.visit()
+        // type checking would happen here, but that won't be implemented in this version
 
-        // TODO check and verify scopes; identify capturing lambdas (JVM only)
-
-        // TODO attach struct as first parameter to member methods
         println("Final AST:")
         for (st in ast) {
             st.print(0, System.out)
@@ -80,6 +74,7 @@ fun main(args: Array<String>) {
         // TODO optimize KytheraValues for primitives into JVM primitives
 
         // TODO optimize bytecode
+
         println("Generating output")
         val generator: Generator = when (targetPlatform) {
             "js" -> JsGenerator(ast) // generate JS script to be bundled with JS runtime
