@@ -99,6 +99,7 @@ class Parser(input: String?) {
                         exitProcess(1)
                     }
                     tokenizer.confirm(")", TokenType.PUNC) != null -> {
+                        tokenizer.consume(")", TokenType.PUNC)
                         // paren-wrapped expression, just return contents
                         return contents;
                     }
@@ -214,6 +215,7 @@ class Parser(input: String?) {
                 "unit" -> UnitLiteral.UNIT
                 "int" -> TypeLiteralNode.INT
                 "double" -> TypeLiteralNode.DOUBLE
+                "bool" -> TypeLiteralNode.BOOL
                 else -> IdentifierNode(nextToken.value)
             }
             else -> {

@@ -102,6 +102,8 @@ class JsGenerator(program: List<StatementNode>) : Generator {
         is TypeLiteralNode ->
             when(node.baseType) {
                 BaseType.INT, BaseType.DOUBLE -> "${RUNTIME_VAR_PREFIX}.consts.NUM"
+                BaseType.BOOL -> "${RUNTIME_VAR_PREFIX}.consts.BOOL"
+                BaseType.TYPE -> "${RUNTIME_VAR_PREFIX}.consts.TYPE"
                 else -> {
                     "($RUNTIME_VAR_PREFIX.make.type({" +
                             node.entryTypes.map { "'${it.key}': ${this.visitExpression(it.value)}" }.joinToString(",\n") +
