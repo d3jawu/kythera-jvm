@@ -1,10 +1,9 @@
 import { terser } from "rollup-plugin-terser";
 
-// config for dev
 export default {
-  input: "out.js",
+  input: "out/out.js",
   output: {
-    file: "out.bundle.js",
+    file: "out/out.bundle.js",
     compact: true,
   },
   plugins: [terser()],

@@ -128,24 +128,38 @@ class JsGenerator(program: List<StatementNode>) : Generator {
     private fun visitCall(node: CallNode): String {
         val target = this.visitExpression(node.target)
 
-        val result = StringBuilder("$target.value(")
+        if (node.target is DotAccessNode) { // since the expression is used twice we assign it to a temporary __self variable
+            val self = this.visitExpression(node.target.target)
 
-        // bind "self" variable
-        if (node.target is DotAccessNode) {
-            // TODO is this okay? If target is an anonymous struct, the instance that the fn is pulled from and the instance used as "self" will not be the same
-            result.append(this.visitExpression(node.target.target))
-            result.append(',')
+            val result = StringBuilder("(() => {")
+
+            result.append("const __self = $self;\n")
+
+            result.append("return __self.fieldValues['${node.target.key}'].value(__self,")
+
+            for (exp in node.arguments) {
+                result.append(visitExpression(exp))
+                result.append(',')
+            }
+
+            result.append(")")
+
+            result.append("})()")
+
+            return result.toString()
+        } else {
+            val result = StringBuilder("$target.value(")
+
+            // add parameters
+            for (exp in node.arguments) {
+                result.append(visitExpression(exp))
+                result.append(',')
+            }
+
+            result.append(')')
+
+            return result.toString();
         }
-
-        // add parameters
-        for (exp in node.arguments) {
-            result.append(visitExpression(exp))
-            result.append(',')
-        }
-
-        result.append(')')
-
-        return result.toString()
     }
 
     private fun visitTypeof(node: TypeofNode): String = "(${visitExpression(node.target)}.typeValue)"
