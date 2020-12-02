@@ -121,7 +121,7 @@ class JsGenerator(program: List<StatementNode>) : Generator {
     // misused identifiers have been caught at Resolver stage
     private fun visitIdentifier(node: IdentifierNode): String = node.name
 
-    private fun visitIf(node: IfNode): String = "${visitExpression(node.condition)}.value ? ${visitBlock(node.body)} : ${visitExpression(node.elseBody)}"
+    private fun visitIf(node: IfNode): String = "${visitExpression(node.condition)}.value ? ${visitBlock(node.body)} : ${if(node.elseBody != null) visitExpression(node.elseBody) else "(()=>{})()"}"
     private fun visitWhile(node: WhileNode): String = "while(${visitExpression(node.condition)}) {}"
     private fun visitAs(node: AsNode): String = "'as placeholder'"
 
