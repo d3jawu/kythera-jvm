@@ -49,16 +49,12 @@ class Parser(input: String?) {
         while (canSplit && tokenizer.confirm(TokenType.OP) != null ||  //
                 // can start binary
                 tokenizer.confirm(Symbol.OPEN_PAREN.token) != null ||  // can start call
-                tokenizer.confirm(Keyword.AS.toString(), TokenType.KW) != null ||  // can make as
                 tokenizer.confirm(Symbol.DOT.token) != null || // can make dot access
                 tokenizer.confirm(Symbol.OPEN_BRACKET.token) != null // can make bracket access
 //                (canSplit && this.tokenizer.confirm(Symbol.OPEN_BRACKET.token) != null) // can make bracket access
         ) {
             if (canSplit && tokenizer.confirm(TokenType.OP) != null) {
                 exp = makeBinary(exp, 0)
-            }
-            if (tokenizer.confirm(Keyword.AS.toString(), TokenType.KW) != null) {
-                exp = makeAs(exp)
             }
             if (tokenizer.confirm(Symbol.OPEN_PAREN.token) != null) {
                 exp = makeCall(exp)
@@ -403,11 +399,6 @@ class Parser(input: String?) {
             }
         }
         return left
-    }
-
-    private fun makeAs(exp: ExpressionNode): ExpressionNode {
-        tokenizer.consume(Keyword.AS.token)
-        return AsNode(exp, parseExpression(true))
     }
 
     private fun makeCall(exp: ExpressionNode): ExpressionNode {

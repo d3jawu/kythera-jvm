@@ -32,7 +32,6 @@ abstract class Visitor(protected val input: List<StatementNode>) {
             } else {
                 visitBracketAccess(exp as BracketAccessNode)
             }
-            NodeKind.AS -> visitAs(exp as AsNode)
             NodeKind.ASSIGN -> visitAssign(exp as AssignNode)
             NodeKind.BINARY -> visitBinary(exp as BinaryNode)
             NodeKind.BLOCK -> visitBlock(exp as BlockNode)
@@ -57,10 +56,6 @@ abstract class Visitor(protected val input: List<StatementNode>) {
 
     protected fun visitReturn(returnNode: ReturnNode): StatementNode {
         return ReturnNode(visitExpression(returnNode.exp))
-    }
-
-    protected fun visitAs(asNode: AsNode): ExpressionNode {
-        return AsNode(visitExpression(asNode.from), visitExpression(asNode.to))
     }
 
     protected open fun visitAssign(assignNode: AssignNode): ExpressionNode {

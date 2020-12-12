@@ -175,12 +175,6 @@ public class JvmGenerator implements Generator {
             case IDENTIFIER:
                 this.visitIdentifier((IdentifierNode) node);
                 return;
-            case IF:
-                break;
-            case WHILE:
-                break;
-            case AS:
-                break;
             case CALL:
                 this.visitCall((CallNode) node);
                 return;
@@ -195,6 +189,9 @@ public class JvmGenerator implements Generator {
                     this.visitDotAccess((DotAccessNode) node);
                     return;
                 }
+            case IF:
+            case WHILE:
+                break;
         }
 
         System.err.println("Unsupported or not implemented: " + node.kind.name());
@@ -415,9 +412,6 @@ public class JvmGenerator implements Generator {
         System.err.println("Unimplemented literal: ");
         literalNode.print(0, System.err);
         System.exit(1);
-    }
-
-    public void visitAs(AsNode literalNode) {
     }
 
     // ... value to be assigned => ...

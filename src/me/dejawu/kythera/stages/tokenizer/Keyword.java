@@ -12,7 +12,6 @@ public enum Keyword {
     RETURN(),
     CONTINUE(),
     TYPEOF(),
-    AS(),
     IMPORT(),
     EXPORT(),
     INCLUDE(),

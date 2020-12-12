@@ -35,7 +35,6 @@ class JsGenerator(program: List<StatementNode>) : Generator {
         NodeKind.IDENTIFIER -> visitIdentifier(node as IdentifierNode)
         NodeKind.IF -> visitIf(node as IfNode)
         NodeKind.WHILE -> visitWhile(node as WhileNode)
-        NodeKind.AS -> visitAs(node as AsNode)
         NodeKind.CALL -> visitCall(node as CallNode)
         NodeKind.TYPEOF -> visitTypeof(node as TypeofNode)
         NodeKind.BLOCK -> visitBlock(node as BlockNode)
@@ -107,7 +106,6 @@ class JsGenerator(program: List<StatementNode>) : Generator {
 
     private fun visitIf(node: IfNode): String = "${visitExpression(node.condition)}.value ? ${visitBlock(node.body)} : ${if (node.elseBody != null) visitExpression(node.elseBody) else "(()=>{})()"}"
     private fun visitWhile(node: WhileNode): String = "while(${visitExpression(node.condition)}) {}"
-    private fun visitAs(node: AsNode): String = "'as placeholder'"
 
     private fun visitCall(node: CallNode): String {
         val target = this.visitExpression(node.target)

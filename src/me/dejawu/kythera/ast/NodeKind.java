@@ -2,7 +2,6 @@ package me.dejawu.kythera.ast;
 
 public enum NodeKind {
     ACCESS,
-    AS,
     ASSIGN,
     BINARY,
     BLOCK,
