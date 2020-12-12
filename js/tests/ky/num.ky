@@ -16,6 +16,30 @@ let remainder = x % y;
 let compound1 = 1 + 2 * 3 + 4;
 let compound2 = 1 + 2 - 3 * 4 / 5 % 6;
 
+// comparison
+let ltT = 0 < 1;
+let ltF1 = 0 < 0;
+let ltF2 = 1 < 0;
+let lteT1 = 0 <= 1;
+let lteT2 = 1 <= 1;
+let lteF = 1 <= 0;
+
+let gtT = 1 > 0;
+let gtF1 = 1 > 1;
+let gtF2 = 0 > 1;
+let gteT1 = 1 >= 0;
+let gteT2 = 1 >= 1;
+let gteF = 0 >= 1;
+
+let eqT = 0 == 0;
+let eqF = 0 == 1;
+let eqdT = 0 === 0;
+let eqdF = 0 === 1;
+let neqT = 0 != 1;
+let neqF = 0 != 0;
+let neqdT = 0 !== 1;
+let neqdF = 0 !== 0;
+
 // type
 let numType1 = typeof numVal1;
 let numType2 = typeof numVal2;

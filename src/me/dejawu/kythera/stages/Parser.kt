@@ -206,8 +206,10 @@ class Parser(input: String?) {
                 "true" -> BooleanLiteral.TRUE
                 "false" -> BooleanLiteral.FALSE
                 "unit" -> UnitLiteral.UNIT
-                "num" -> TypeLiteralNode.NUM
-                "bool" -> TypeLiteralNode.BOOL
+
+                "Unit" -> TypeLiteralNode.UNIT
+                "Num" -> TypeLiteralNode.NUM
+                "Bool" -> TypeLiteralNode.BOOL
                 else -> IdentifierNode(nextToken.value)
             }
             else -> {

@@ -37,6 +37,23 @@ const numEquiv = new Value(
   (self, other) => (self.value == other.value) ? TRUE : FALSE
 )
 
+const numNotEquiv = new Value(
+  (self, other) => (self.value != other.value) ? TRUE : FALSE
+)
+
+const numLt = new Value(
+  (self, other) => (self.value < other.value) ? TRUE : FALSE
+)
+const numLte = new Value(
+  (self, other) => (self.value <= other.value) ? TRUE : FALSE
+)
+const numGt = new Value(
+  (self, other) => (self.value > other.value) ? TRUE : FALSE
+)
+const numGte = new Value(
+  (self, other) => (self.value >= other.value) ? TRUE : FALSE
+)
+
 // factories for built-in types
 
 const num = (val) =>
@@ -48,6 +65,12 @@ const num = (val) =>
     "%": modulo,
     "==": numEquiv,
     "===": numEquiv,
+    "!=": numNotEquiv,
+    "!==": numNotEquiv,
+    "<": numLt,
+    "<=": numLte,
+    ">": numGt,
+    ">=": numGte,
   });
 
 // takes a JS object with members as keys

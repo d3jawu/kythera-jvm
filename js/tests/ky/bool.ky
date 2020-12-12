@@ -1,7 +1,19 @@
 let myTrue = true;
 let myFalse = false;
 
-let notResult1 = !myTrue;
-let notResult2 = !myFalse;
+let notTrue = !true;
+let notFalse = !false;
+let notMyTrue = !myTrue;
+let notMyFalse = !myFalse;
+
 let orResult = myTrue || myFalse;
 let andResult = myTrue && myFalse;
+
+let testDeMorgans = (Bool a, Bool b,) => {
+    return (!(a || b) == (!a && !b)) && (!(a && b) == (!a || !b));
+};
+
+let dmTT = testDeMorgans(true, true);
+let dmTF = testDeMorgans(true, false);
+let dmFF = testDeMorgans(false, false);
+let dmFT = testDeMorgans(false, true);

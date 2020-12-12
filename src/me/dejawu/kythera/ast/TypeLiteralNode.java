@@ -30,6 +30,12 @@ public class TypeLiteralNode extends LiteralNode {
 
         BOOL = new TypeLiteralNode(BaseType.BOOL);
 
+        BOOL.entryTypes.put("!", new FnTypeLiteralNode(new ArrayList<>() {
+            {
+                add(BOOL);
+            }
+        }, BOOL));
+
         final FnTypeLiteralNode boolBoolToBoolType = new FnTypeLiteralNode(new ArrayList<>() {
             {
                 add(BOOL);
@@ -38,11 +44,10 @@ public class TypeLiteralNode extends LiteralNode {
         }, BOOL);
         BOOL.entryTypes.put("||", boolBoolToBoolType);
         BOOL.entryTypes.put("&&", boolBoolToBoolType);
-        BOOL.entryTypes.put("!", new FnTypeLiteralNode(new ArrayList<>() {
-            {
-                add(BOOL);
-            }
-        }, BOOL));
+        BOOL.entryTypes.put("==", boolBoolToBoolType);
+        BOOL.entryTypes.put("===", boolBoolToBoolType);
+        BOOL.entryTypes.put("!=", boolBoolToBoolType);
+        BOOL.entryTypes.put("!==", boolBoolToBoolType);
 
         NUM = new TypeLiteralNode(BaseType.NUM);
 
@@ -57,6 +62,21 @@ public class TypeLiteralNode extends LiteralNode {
         NUM.entryTypes.put("*", numNumToNumFnType);
         NUM.entryTypes.put("/", numNumToNumFnType);
         NUM.entryTypes.put("%", numNumToNumFnType);
+
+        final FnTypeLiteralNode numNumToBoolFnType = new FnTypeLiteralNode(new ArrayList<>() {
+            {
+                add(NUM);
+                add(NUM);
+            }
+        }, BOOL);
+        NUM.entryTypes.put("==", numNumToBoolFnType);
+        NUM.entryTypes.put("===", numNumToBoolFnType);
+        NUM.entryTypes.put("!=", numNumToBoolFnType);
+        NUM.entryTypes.put("!==", numNumToBoolFnType);
+        NUM.entryTypes.put(">=", numNumToBoolFnType);
+        NUM.entryTypes.put("<=", numNumToBoolFnType);
+        NUM.entryTypes.put(">", numNumToBoolFnType);
+        NUM.entryTypes.put("<", numNumToBoolFnType);
     }
 
     // used for creating root type only
