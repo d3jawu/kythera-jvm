@@ -63,24 +63,8 @@ class JsGenerator(program: List<StatementNode>) : Generator {
             "($RUNTIME_VAR_PREFIX.consts.${node.value.toString().toUpperCase()})"
         }
         // JS only has one number type, so all numbers map to "Num".
-        is IntLiteralNode, is DoubleLiteralNode -> {
-            // unfortunately with the way smart casts work we can't combine these into one case
-
-            if(node !is DoubleLiteralNode) {
-               println("Warning: JS only has a double number type. Replace usages of other number types with double to remove this message.")
-            }
-
-            val nodeVal: String = when(node) {
-                is IntLiteralNode -> "${node.value}"
-                is DoubleLiteralNode -> "${node.value}"
-                else -> {
-                    System.err.println("How did you get here?")
-                    exitProcess(1)
-                }
-            }
-
-            "($RUNTIME_VAR_PREFIX.make.num(${nodeVal}))"
-        }
+        is NumLiteralNode ->
+            "($RUNTIME_VAR_PREFIX.make.num(${node.value}))"
 
         is StructLiteralNode -> "($RUNTIME_VAR_PREFIX.make.struct({\n" +
                 node.entries.map { "${it.key}: ${visitExpression(it.value)}" }.joinToString(",\n") +
@@ -92,7 +76,7 @@ class JsGenerator(program: List<StatementNode>) : Generator {
 
         is FnLiteralNode -> "$RUNTIME_VAR_PREFIX.make.fn(" +
                 "(${node.parameterNames.joinToString(",")}) =>" +
-                    this.visitExpression(node.body) + // block nodes already evaluate to a value, just return that directly
+                this.visitExpression(node.body) + // block nodes already evaluate to a value, just return that directly
                 "," +
                 this.visitExpression(node.typeExp) +
                 ")"
@@ -100,8 +84,8 @@ class JsGenerator(program: List<StatementNode>) : Generator {
         is FnTypeLiteralNode -> "('fn type literal node placeholder')"
 
         is TypeLiteralNode ->
-            when(node.baseType) {
-                BaseType.INT, BaseType.DOUBLE -> "${RUNTIME_VAR_PREFIX}.consts.NUM"
+            when (node.baseType) {
+                BaseType.NUM -> "${RUNTIME_VAR_PREFIX}.consts.NUM"
                 BaseType.BOOL -> "${RUNTIME_VAR_PREFIX}.consts.BOOL"
                 BaseType.TYPE -> "${RUNTIME_VAR_PREFIX}.consts.TYPE"
                 else -> {
@@ -121,7 +105,7 @@ class JsGenerator(program: List<StatementNode>) : Generator {
     // misused identifiers have been caught at Resolver stage
     private fun visitIdentifier(node: IdentifierNode): String = node.name
 
-    private fun visitIf(node: IfNode): String = "${visitExpression(node.condition)}.value ? ${visitBlock(node.body)} : ${if(node.elseBody != null) visitExpression(node.elseBody) else "(()=>{})()"}"
+    private fun visitIf(node: IfNode): String = "${visitExpression(node.condition)}.value ? ${visitBlock(node.body)} : ${if (node.elseBody != null) visitExpression(node.elseBody) else "(()=>{})()"}"
     private fun visitWhile(node: WhileNode): String = "while(${visitExpression(node.condition)}) {}"
     private fun visitAs(node: AsNode): String = "'as placeholder'"
 

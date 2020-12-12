@@ -271,16 +271,7 @@ public class JvmGenerator implements Generator {
         } else if (literalNode.equals(BooleanLiteral.FALSE)) {
             this.symbolTable.mv.visitFieldInsn(GETSTATIC, KYTHERAVALUE_PATH, "FALSE", "L" + KYTHERAVALUE_PATH + ";");
             return;
-        } else if (literalNode instanceof IntLiteralNode) {
-            IntLiteralNode intLiteralNode = (IntLiteralNode) literalNode;
-
-            // push int value on local stack
-            this.pushInt(intLiteralNode.value);
-
-            this.symbolTable.mv.visitMethodInsn(INVOKESTATIC, KYTHERAVALUE_PATH, "getIntValue", "(I)Lme/dejawu/kythera/runtime/KytheraValue;", false);
-
-            return;
-        } else if (literalNode instanceof DoubleLiteralNode) {
+        } else if (literalNode instanceof NumLiteralNode) {
         } else if (literalNode instanceof StructLiteralNode) {
         } else if (literalNode instanceof FnLiteralNode) {
             // TODO distinguish capturing and non-capturing
@@ -383,8 +374,8 @@ public class JvmGenerator implements Generator {
             TypeLiteralNode typeLiteralNode = (TypeLiteralNode) literalNode;
 
             switch (typeLiteralNode.baseType) {
-                case INT:
-                    this.symbolTable.mv.visitFieldInsn(GETSTATIC, KYTHERAVALUE_PATH, "INT", "L" + KYTHERAVALUE_PATH + ";");
+                case NUM:
+                    this.symbolTable.mv.visitFieldInsn(GETSTATIC, KYTHERAVALUE_PATH, "NUM", "L" + KYTHERAVALUE_PATH + ";");
                     return;
                 case FN:
                     FnTypeLiteralNode fnTypeLiteralNode = (FnTypeLiteralNode) typeLiteralNode;

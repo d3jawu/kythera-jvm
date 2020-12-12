@@ -1,6 +1,6 @@
 // tests for number operations
-let intVal = 1;
-let fpVal = 1.01;
+let numVal1 = 1;
+let numVal2 = 1.01;
 
 let x = 10;
 let y = 5;
@@ -17,5 +17,5 @@ let compound1 = 1 + 2 * 3 + 4;
 let compound2 = 1 + 2 - 3 * 4 / 5 % 6;
 
 // type
-let numType1 = typeof intVal;
-let numType2 = typeof fpVal;
+let numType1 = typeof numVal1;
+let numType2 = typeof numVal2;

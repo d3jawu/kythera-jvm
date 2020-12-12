@@ -21,8 +21,7 @@ public class TypeLiteralNode extends LiteralNode {
 
     public static final TypeLiteralNode BOOL;
 
-    public static final TypeLiteralNode INT;
-    public static final TypeLiteralNode DOUBLE;
+    public static final TypeLiteralNode NUM;
 
     static {
         TYPE = new TypeLiteralNode();
@@ -45,34 +44,19 @@ public class TypeLiteralNode extends LiteralNode {
             }
         }, BOOL));
 
-        INT = new TypeLiteralNode(BaseType.INT);
+        NUM = new TypeLiteralNode(BaseType.NUM);
 
-        DOUBLE = new TypeLiteralNode(BaseType.DOUBLE);
-
-        final FnTypeLiteralNode doubleDoubleToDoubleType = new FnTypeLiteralNode(new ArrayList<>() {
+        final FnTypeLiteralNode numNumToNumFnType = new FnTypeLiteralNode(new ArrayList<>() {
             {
-                add(DOUBLE);
-                add(DOUBLE);
+                add(NUM);
+                add(NUM);
             }
-        }, DOUBLE);
-        DOUBLE.entryTypes.put("+", doubleDoubleToDoubleType);
-        DOUBLE.entryTypes.put("-", doubleDoubleToDoubleType);
-        DOUBLE.entryTypes.put("*", doubleDoubleToDoubleType);
-        DOUBLE.entryTypes.put("/", doubleDoubleToDoubleType);
-        DOUBLE.entryTypes.put("%", doubleDoubleToDoubleType);
-
-
-        final FnTypeLiteralNode intIntToIntFnType = new FnTypeLiteralNode(new ArrayList<>() {
-            {
-                add(INT);
-                add(INT);
-            }
-        }, INT);
-        INT.entryTypes.put("+", intIntToIntFnType);
-        INT.entryTypes.put("-", intIntToIntFnType);
-        INT.entryTypes.put("*", intIntToIntFnType);
-        INT.entryTypes.put("/", intIntToIntFnType);
-        INT.entryTypes.put("%", intIntToIntFnType);
+        }, NUM);
+        NUM.entryTypes.put("+", numNumToNumFnType);
+        NUM.entryTypes.put("-", numNumToNumFnType);
+        NUM.entryTypes.put("*", numNumToNumFnType);
+        NUM.entryTypes.put("/", numNumToNumFnType);
+        NUM.entryTypes.put("%", numNumToNumFnType);
     }
 
     // used for creating root type only

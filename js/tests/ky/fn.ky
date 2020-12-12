@@ -4,7 +4,7 @@ let noParamFn = () => {
 
 let noParamFnResult = noParamFn();
 
-let oneParamFn = (int x,) => {
+let oneParamFn = (num x,) => {
     let result = x * 2;
     return result;
 };

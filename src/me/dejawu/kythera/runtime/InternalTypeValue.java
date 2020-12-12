@@ -58,32 +58,32 @@ public class InternalTypeValue {
 
     });
 
-    public static InternalTypeValue INT = new InternalTypeValue(BaseType.INT, new HashMap<>() {
+    public static InternalTypeValue NUM = new InternalTypeValue(BaseType.NUM, new HashMap<>() {
         {
             // TODO get these fields from type literal instead of redefining them here
 
-            final KytheraValue<InternalTypeValue> IntIntToIntFnType = KytheraValue.getFnTypeValue(
-                new KytheraValue[]{KytheraValue.INT, KytheraValue.INT}, KytheraValue.INT
+            final KytheraValue<InternalTypeValue> NumNumToNumFnType = KytheraValue.getFnTypeValue(
+                new KytheraValue[]{KytheraValue.NUM, KytheraValue.NUM}, KytheraValue.NUM
             );
 
-            final KytheraValue<InternalTypeValue> IntIntToBoolFnType = KytheraValue.getFnTypeValue(
-                new KytheraValue[]{KytheraValue.INT, KytheraValue.INT}, KytheraValue.BOOL
+            final KytheraValue<InternalTypeValue> NumNumToBoolFnType = KytheraValue.getFnTypeValue(
+                new KytheraValue[]{KytheraValue.NUM, KytheraValue.NUM}, KytheraValue.BOOL
             );
 
             // no deep equivalence operations for INT
-            put("==", IntIntToBoolFnType);
-            put("!=", IntIntToBoolFnType);
+            put("==", NumNumToBoolFnType);
+            put("!=", NumNumToBoolFnType);
 
             // <= is implemented as x < y || x == y, likewise for >=
-            put("<", IntIntToBoolFnType);
-            put(">", IntIntToBoolFnType);
+            put("<", NumNumToBoolFnType);
+            put(">", NumNumToBoolFnType);
 
             // arithmetic assignment (eg +=) is also handled by the operation given here
-            put("+", IntIntToIntFnType);
-            put("-", IntIntToIntFnType);
-            put("*", IntIntToIntFnType);
-            put("/", IntIntToIntFnType);
-            put("%", IntIntToIntFnType);
+            put("+", NumNumToNumFnType);
+            put("-", NumNumToNumFnType);
+            put("*", NumNumToNumFnType);
+            put("/", NumNumToNumFnType);
+            put("%", NumNumToNumFnType);
         }
     });
 }

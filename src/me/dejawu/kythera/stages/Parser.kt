@@ -79,7 +79,7 @@ class Parser(input: String?) {
             tokenizer.consume(Symbol.OPEN_PAREN.token)
 
             // check for immediate close-paren, which indicates a fn with no params
-            if(tokenizer.confirm(")", TokenType.PUNC) != null) {
+            if (tokenizer.confirm(")", TokenType.PUNC) != null) {
                 // TODO this is ambiguous, it also could be the start of an fn type literal
                 // potential solution: all fn literals require {} bodies?
                 return parseFnLiteral()
@@ -204,17 +204,13 @@ class Parser(input: String?) {
         tokenizer.next()
         println("Using token directly: ${nextToken.value}")
         when (nextToken.tokentype) {
-            TokenType.NUM -> return if (nextToken.value.contains(".")) {
-                DoubleLiteralNode(nextToken.value.toDouble())
-            } else {
-                IntLiteralNode(nextToken.value.toInt())
-            }
+            TokenType.NUM ->
+                return NumLiteralNode(nextToken.value.toDouble())
             TokenType.VAR -> return when (nextToken.value) {
                 "true" -> BooleanLiteral.TRUE
                 "false" -> BooleanLiteral.FALSE
                 "unit" -> UnitLiteral.UNIT
-                "int" -> TypeLiteralNode.INT
-                "double" -> TypeLiteralNode.DOUBLE
+                "num" -> TypeLiteralNode.NUM
                 "bool" -> TypeLiteralNode.BOOL
                 else -> IdentifierNode(nextToken.value)
             }
@@ -266,7 +262,7 @@ class Parser(input: String?) {
         val paramNames = ArrayList<String>()
 
         // if paramTypes is pre-populated, grab the next param name as well.
-        if(paramTypes.size == 1) {
+        if (paramTypes.size == 1) {
             val name = tokenizer.confirm(TokenType.VAR).value
             tokenizer.consume(TokenType.VAR)
             paramNames.add(name)

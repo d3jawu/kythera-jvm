@@ -4,16 +4,16 @@ import me.dejawu.kythera.Main;
 
 import java.io.PrintStream;
 
-public class DoubleLiteralNode extends LiteralNode {
+public class NumLiteralNode extends LiteralNode {
     public final double value;
 
-    public DoubleLiteralNode(double value) {
-        super(TypeLiteralNode.DOUBLE);
+    public NumLiteralNode(double value) {
+        super(TypeLiteralNode.NUM);
         this.value = value;
     }
 
     @Override
     public void print(int indent, PrintStream stream) {
-        Main.printlnWithIndent("DoubleLiteralNode { " + value + " }", indent, stream);
+        Main.printlnWithIndent("NumLiteralNode { " + value + " }", indent, stream);
     }
 }

@@ -80,7 +80,7 @@ public class KytheraValue<T> {
     );
 
     // literals for scalar types (any type for which one type value can describe all instances of that type)
-    public static KytheraValue<InternalTypeValue> INT = wrapInternalTypeValue(InternalTypeValue.INT);
+    public static KytheraValue<InternalTypeValue> NUM = wrapInternalTypeValue(InternalTypeValue.NUM);
     public static KytheraValue<InternalTypeValue> BOOL = wrapInternalTypeValue(InternalTypeValue.BOOL);
 
     // unit literal
@@ -89,39 +89,6 @@ public class KytheraValue<T> {
     // boolean literals
     public static KytheraValue<Boolean> TRUE = new KytheraValue<>(true, BOOL);
     public static KytheraValue<Boolean> FALSE = new KytheraValue<>(false, BOOL);
-
-    // generates int literals with function implementations attached
-    public static KytheraValue<Integer> getIntValue(int val) {
-        return new KytheraValue<>(
-            val,
-            INT,
-            new HashMap<>() {
-                {
-                    put("+", getFnValue((KytheraValue<?>[] args) -> getIntValue((Integer) args[0].value + (Integer) args[1].value), (InternalTypeValue) INT.value.instanceFields.get("+").value));
-                    put("-", getFnValue((KytheraValue<?>[] args) -> getIntValue((Integer) args[0].value - (Integer) args[1].value), (InternalTypeValue) INT.value.instanceFields.get("-").value));
-                    put("*", getFnValue((KytheraValue<?>[] args) -> getIntValue((Integer) args[0].value * (Integer) args[1].value), (InternalTypeValue) INT.value.instanceFields.get("*").value));
-                    put("/", getFnValue((KytheraValue<?>[] args) -> getIntValue((Integer) args[0].value / (Integer) args[1].value), (InternalTypeValue) INT.value.instanceFields.get("/").value));
-                    put("%", getFnValue((KytheraValue<?>[] args) -> getIntValue((Integer) args[0].value - (Integer) args[1].value), (InternalTypeValue) INT.value.instanceFields.get("%").value));
-
-                    //        // temporary method to help with debugging, not in spec
-                    put("print", getFnValue((KytheraValue<?>[] args) -> {
-                        System.out.println(args[0]);
-                        return UNIT_VAL;
-                    }, new InternalTypeValue(
-                        BaseType.FN,
-                        new HashMap<>() {{
-                            put("paramTypes", getListValue(
-                                new ArrayList<>() {{
-                                }},
-                                KytheraValue.getListTypeValue(KytheraValue.TYPE).value
-                            ));
-                            put("returnType", ROOT_TYPE);
-                        }}
-                    )));
-                }
-            }
-        );
-    }
 
     public static KytheraValue<ArrayList<KytheraValue<?>>> getListValue(ArrayList<KytheraValue<?>> list, InternalTypeValue listType) {
         return new KytheraValue<ArrayList<KytheraValue<?>>>(

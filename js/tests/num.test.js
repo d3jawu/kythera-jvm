@@ -15,8 +15,8 @@ describe("Numbers", () => {
   });
 
   test("Literal values", () => {
-    expect(res.intVal.value).toEqual(1);
-    expect(res.fpVal.value).toBeCloseTo(1.01);
+    expect(res.numVal1.value).toEqual(1);
+    expect(res.numVal2.value).toBeCloseTo(1.01);
   });
 
   test("Assignment", () => {
