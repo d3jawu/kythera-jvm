@@ -19,6 +19,7 @@ abstract class Visitor(protected val input: List<StatementNode>) {
 
     protected fun visitStatement(st: StatementNode): StatementNode {
         return when (st.kind) {
+            NodeKind.CONST -> visitConst(st as ConstNode)
             NodeKind.LET -> visitLet(st as LetNode)
             NodeKind.RETURN -> visitReturn(st as ReturnNode)
             else -> visitExpression(st as ExpressionNode)
@@ -54,7 +55,11 @@ abstract class Visitor(protected val input: List<StatementNode>) {
         return LetNode(letNode.identifier, visitExpression(letNode.value))
     }
 
-    protected fun visitReturn(returnNode: ReturnNode): StatementNode {
+    protected open fun visitConst(constNode: ConstNode): StatementNode {
+        return ConstNode(constNode.identifier, visitExpression(constNode.value))
+    }
+
+    protected open fun visitReturn(returnNode: ReturnNode): StatementNode {
         return ReturnNode(visitExpression(returnNode.exp))
     }
 

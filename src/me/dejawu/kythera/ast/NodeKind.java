@@ -9,6 +9,7 @@ public enum NodeKind {
     IDENTIFIER,
     IF,
     LET,
+    CONST,
     LITERAL,
     RETURN,
     TYPEOF,

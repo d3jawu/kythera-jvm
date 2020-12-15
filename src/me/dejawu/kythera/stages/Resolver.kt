@@ -4,6 +4,7 @@ import me.dejawu.kythera.ast.*
 import me.dejawu.kythera.stages.tokenizer.Symbol
 import java.util.*
 import java.util.stream.Collectors
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.system.exitProcess
 
@@ -14,6 +15,7 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
     private class Scope {
         val parent: Scope?
         private val symbols = HashMap<String, ExpressionNode>()
+        private val consts = ArrayList<String>()
 
         // root scope
         constructor() {
@@ -26,12 +28,15 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
         }
 
         // Initialize variable, associating it with a type expression. Throws error if already declared (and cannot be overridden by a more local scope).
-        fun create(name: String, typeExp: ExpressionNode) {
+        fun create(name: String, typeExp: ExpressionNode, isConst: Boolean = false) {
             if (symbols.containsKey(name)) {
                 System.err.println("$name is already bound in this scope.")
                 exitProcess(1)
             }
             symbols[name] = typeExp
+            if(isConst) {
+                consts.add(name)
+            }
         }
 
         // Get type of variable
@@ -48,29 +53,24 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
             }
         }
 
-        // true if variable is accessible in this scope (including its parents),
-        // false otherwise
-        fun has(name: String): Boolean {
-            return if (symbols.containsKey(name)) {
-                true
-            } else {
-                if (parent == null) {
-                    false
-                } else {
-                    parent.has(name)
-                }
-            }
-        }
+        fun isConst(name: String): Boolean = consts.contains(name)
     }
 
-    private var scope: Scope?
+    private var scope: Scope
+
     override fun visitLet(letNode: LetNode): StatementNode {
         val valueExp = visitExpression(letNode.value)
-        scope!!.create(letNode.identifier, valueExp.typeExp)
+        scope.create(letNode.identifier, valueExp.typeExp)
         return LetNode(
                 letNode.identifier,
                 valueExp
         )
+    }
+
+    override fun visitConst(constNode: ConstNode): StatementNode {
+        val valueExp = visitExpression(constNode.value)
+        scope.create(constNode.identifier, valueExp.typeExp, isConst = true)
+        return super.visitConst(constNode)
     }
 
     override fun visitAssign(assignNode: AssignNode): ExpressionNode {
@@ -78,6 +78,15 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
             System.err.println("Compound assignment should not be present at resolution stage.")
             exitProcess(1)
         }
+
+        if(
+                assignNode.left is IdentifierNode &&
+                this.scope?.get(assignNode.left.name) != null &&
+                this.scope?.isConst(assignNode.left.name)) {
+            System.err.println("Cannot reassign to const value: ${assignNode.left.name}")
+            exitProcess(1)
+        }
+
         return AssignNode(
                 Symbol.EQUALS,
                 visitExpression(assignNode.left),
@@ -94,7 +103,7 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
         // child node of fn literal, if/else, or while
         val returnStatements: MutableList<ReturnNode> = ArrayList()
         val newBody = blockNode.body.stream().map { node: StatementNode ->
-            val newNode = visitStatement(node!!)
+            val newNode = visitStatement(node)
             if (newNode is ReturnNode) {
                 returnStatements.add(newNode)
             }
@@ -191,7 +200,7 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
                             (literalNode.typeExp as FnTypeLiteralNode).parameterTypeExps[n]
                     )
                     paramTypes.add(paramTypeExp)
-                    scope!!.create(
+                    scope.create(
                             literalNode.parameterNames[n],
                             paramTypeExp
                     )
@@ -200,7 +209,11 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
                 val body = visitBlock(literalNode.body) as BlockNode
 
                 // assert body.typeExp != null
-                scope = scope!!.parent
+                if(scope.parent == null) {
+                    System.err.println("Function scope must always have a parent scope.")
+                    exitProcess(1)
+                }
+                scope = scope.parent as Scope
                 FnLiteralNode(
                         FnTypeLiteralNode(paramTypes, body!!.typeExp),
                         literalNode.parameterNames,
@@ -228,7 +241,7 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
 
     override fun visitIdentifier(identifierNode: IdentifierNode): ExpressionNode {
 //        assert identifierNode != null;
-        return IdentifierNode(identifierNode.name, scope!![identifierNode.name])
+        return IdentifierNode(identifierNode.name, scope[identifierNode.name])
     }
 
     /*

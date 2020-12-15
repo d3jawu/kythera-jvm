@@ -20,12 +20,15 @@ class JsGenerator(program: List<StatementNode>) : Generator {
     private fun visitStatement(st: StatementNode): String = when (st.kind) {
         NodeKind.LET -> visitLet(st as LetNode)
         NodeKind.RETURN -> visitReturn(st as ReturnNode)
+        NodeKind.CONST -> visitConst(st as ConstNode)
         else -> visitExpression(st as ExpressionNode) + ";\n"
     }
 
     // variable conflicts should have been caught by the Resolver stage
     // keep original variable names, let the JS toolchain minify them
     private fun visitLet(node: LetNode): String = "let ${node.identifier} = ${visitExpression(node.value)};\n"
+
+    private fun visitConst(node: ConstNode): String = "const ${node.identifier} = ${visitExpression(node.value)};\n"
 
     private fun visitReturn(node: ReturnNode): String = "return ${visitExpression(node.exp)};\n"
 

@@ -24,7 +24,7 @@ class Parser(input: String?) {
 
         // let and return are the only non-expression nodes
         if (nextToken.tokentype == TokenType.KW) {
-            if (nextToken.value == Keyword.LET.toString()) {
+            if (nextToken.value == Keyword.LET.toString() || nextToken.value == Keyword.CONST.toString()) {
                 tokenizer.consume(nextToken)
                 val identifierToken = tokenizer.confirm(TokenType.VAR)
                 if (identifierToken == null) {
@@ -34,7 +34,14 @@ class Parser(input: String?) {
                 tokenizer.consume(TokenType.VAR)
                 tokenizer.consume(Symbol.EQUALS.token)
                 val value = parseExpression(true)
-                return LetNode(identifierToken.value, value)
+                return when(nextToken.value) {
+                    Keyword.LET.toString() -> LetNode(identifierToken.value, value)
+                    Keyword.CONST.toString() -> ConstNode(identifierToken.value, value)
+                    else -> {
+                        System.err.println("How did you get here?")
+                        exitProcess(1)
+                    }
+                }
             }
             if (nextToken.value == Keyword.RETURN.toString()) {
                 tokenizer.consume(Keyword.RETURN.toString(), TokenType.KW)
