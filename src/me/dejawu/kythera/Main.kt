@@ -3,8 +3,6 @@
 package me.dejawu.kythera
 
 import me.dejawu.kythera.stages.*
-import me.dejawu.kythera.stages.generators.*
-import java.io.FileOutputStream
 import java.io.PrintStream
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -25,7 +23,7 @@ fun main(args: Array<String>) {
     val targetPlatform = if (argMap["-p"] != null) {
         argMap["-p"]?.joinToString(" ")
     } else {
-        "none" // js, jvm, or none
+        "none"
     }
 
     val outputPath = if (argMap["-o"] != null) {
@@ -35,6 +33,7 @@ fun main(args: Array<String>) {
             "js" -> "js/out/out.js"
             "jvm" -> "out/production/kythera/$entryPoint.class"
             "none" -> ""
+            "json" -> "out.json"
             else -> {
                 System.err.println("Invalid target platform: $targetPlatform")
                 exitProcess(1)
@@ -47,11 +46,19 @@ fun main(args: Array<String>) {
         println("Generating initial AST")
         val parser = Parser(content)
         var ast = parser.parse()
+
+        for (st in ast) {
+            st.print(0, System.out)
+        }
+
+        return
+
+        /*
         println("Desugaring")
         val desugarer = Desugarer(ast)
         ast = desugarer.visit()
 
-        // typeExps on ExpressionNodes may still be null at this point
+        // typeExps on AstNodes may still be null at this point
 
         // TODO link types to expressions (no null typeExps)
         println("Resolving types")
@@ -75,8 +82,8 @@ fun main(args: Array<String>) {
 
         println("Generating output")
         val generator: Generator = when (targetPlatform) {
-            "js" -> JsGenerator(ast) // generate JS script to be bundled with JS runtime
-            "jvm" -> JvmGenerator(ast, entryPoint) // emits JVM Class file
+//            "js" -> JsGenerator(ast) // generate JS script to be bundled with JS runtime
+//            "jvm" -> JvmGenerator(ast, entryPoint) // emits JVM Class file
             "none" -> { // generates an AST then stops.
                 println("No target platform specified, exiting.")
                 exitProcess(0)
@@ -87,13 +94,15 @@ fun main(args: Array<String>) {
             }
         }
 
-        val output = generator.compile()
+        val output = generator.generate()
 
         println("Writing to output file: $outputPath")
 
         val fos = FileOutputStream(outputPath)
         fos.write(output)
         fos.close()
+
+         */
     } catch (e: Exception) {
         e.printStackTrace()
         exitProcess(1)

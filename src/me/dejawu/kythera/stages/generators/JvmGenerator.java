@@ -1,5 +1,6 @@
 package me.dejawu.kythera.stages.generators;
 
+import me.dejawu.kythera.*;
 import me.dejawu.kythera.ast.*;
 import org.objectweb.asm.*;
 import org.objectweb.asm.util.TraceClassVisitor;
@@ -81,9 +82,9 @@ public class JvmGenerator implements Generator {
     // used for output class name
     private String outputName;
 
-    protected final List<StatementNode> input;
+    protected final List<AstNode> input;
 
-    public JvmGenerator(List<StatementNode> program, String outputName) {
+    public JvmGenerator(List<AstNode> program, String outputName) {
         this.input = program;
 
         this.outputName = outputName;
@@ -116,10 +117,10 @@ public class JvmGenerator implements Generator {
 
     // kick off compilation process
     @Override
-    public byte[] compile() {
+    public byte[] generate() {
         this.symbolTable.mv.visitCode();
 
-        for (StatementNode st : this.input) {
+        for (AstNode st : this.input) {
             this.visitStatement(st);
         }
 
@@ -137,7 +138,7 @@ public class JvmGenerator implements Generator {
 
     }*/
 
-    public void visitStatement(StatementNode st) {
+    public void visitStatement(AstNode st) {
         switch (st.kind) {
             case LET:
                 visitLet((LetNode) st);
@@ -146,7 +147,7 @@ public class JvmGenerator implements Generator {
                 visitReturn((ReturnNode) st);
                 break;
             default:
-                visitExpression((ExpressionNode) st);
+                visitExpression((AstNode) st);
         }
     }
 
@@ -164,7 +165,7 @@ public class JvmGenerator implements Generator {
     }
 
     // Generally speaking: ... => ... expression result
-    public void visitExpression(ExpressionNode node) {
+    public void visitExpression(AstNode node) {
         switch (node.kind) {
             case ASSIGN:
                 this.visitAssign((AssignNode) node);
@@ -224,7 +225,7 @@ public class JvmGenerator implements Generator {
         }
 
         int n = 0;
-        for (ExpressionNode arg : callNode.arguments) {
+        for (AstNode arg : callNode.arguments) {
             // array reference is consumed by AASTORE, so keep a copy
             this.symbolTable.mv.visitInsn(DUP);
             // set position in arg array
@@ -352,7 +353,7 @@ public class JvmGenerator implements Generator {
             }
 
             // parse block
-            for (StatementNode st : fnLiteralNode.body.body) {
+            for (AstNode st : fnLiteralNode.body.body) {
                 this.visitStatement(st);
             }
 
@@ -382,7 +383,7 @@ public class JvmGenerator implements Generator {
                     this.symbolTable.mv.visitTypeInsn(ANEWARRAY, KYTHERAVALUE_PATH);
 
                     int n = 0;
-                    for (ExpressionNode exp : fnTypeLiteralNode.parameterTypeExps) {
+                    for (AstNode exp : fnTypeLiteralNode.parameterTypeExps) {
                         this.symbolTable.mv.visitInsn(DUP); // array ref is consumed on AASTORE, so keep a copy
                         this.pushInt(n);
                         this.visitExpression(exp);

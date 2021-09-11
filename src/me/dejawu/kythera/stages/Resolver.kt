@@ -1,7 +1,8 @@
 package me.dejawu.kythera.stages
 
+import me.dejawu.kythera.*
 import me.dejawu.kythera.ast.*
-import me.dejawu.kythera.stages.tokenizer.Symbol
+import me.dejawu.kythera.stages.lexer.Symbol
 import java.util.*
 import java.util.stream.Collectors
 import kotlin.collections.ArrayList
@@ -10,11 +11,11 @@ import kotlin.system.exitProcess
 
 // associates types with identifiers, registers parameter variables, resolves struct field types, etc
 // TODO resolve and inline constants here too?
-class Resolver(input: List<StatementNode>) : Visitor(input) {
+class Resolver(input: List<AstNode>) : Visitor(input) {
     // simple scope concept used to keep track of variable types
     private class Scope {
         val parent: Scope?
-        private val symbols = HashMap<String, ExpressionNode>()
+        private val symbols = HashMap<String, AstNode>()
         private val consts = ArrayList<String>()
 
         // root scope
@@ -28,7 +29,7 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
         }
 
         // Initialize variable, associating it with a type expression. Throws error if already declared (and cannot be overridden by a more local scope).
-        fun create(name: String, typeExp: ExpressionNode, isConst: Boolean = false) {
+        fun create(name: String, typeExp: AstNode, isConst: Boolean = false) {
             if (symbols.containsKey(name)) {
                 System.err.println("$name is already bound in this scope.")
                 exitProcess(1)
@@ -40,7 +41,7 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
         }
 
         // Get type of variable
-        operator fun get(name: String): ExpressionNode {
+        operator fun get(name: String): AstNode {
             return if (symbols.containsKey(name)) {
                 symbols[name] ?: exitProcess(1)  // HashMap can theoretically contain a null, but never should in practice
             } else {
@@ -58,7 +59,7 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
 
     private var scope: Scope
 
-    override fun visitLet(letNode: LetNode): StatementNode {
+    override fun visitLet(letNode: LetNode): AstNode {
         val valueExp = visitExpression(letNode.value)
         scope.create(letNode.identifier, valueExp.typeExp)
         return LetNode(
@@ -67,14 +68,14 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
         )
     }
 
-    override fun visitConst(constNode: ConstNode): StatementNode {
+    override fun visitConst(constNode: ConstNode): AstNode {
         val valueExp = visitExpression(constNode.value)
         scope.create(constNode.identifier, valueExp.typeExp, isConst = true)
         return super.visitConst(constNode)
     }
 
-    override fun visitAssign(assignNode: AssignNode): ExpressionNode {
-        if (assignNode.operator != Symbol.EQUALS) {
+    override fun visitAssign(assignNode: AssignNode): AstNode {
+        if (assignNode.operator != Symbol.EQUAL) {
             System.err.println("Compound assignment should not be present at resolution stage.")
             exitProcess(1)
         }
@@ -88,30 +89,30 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
         }
 
         return AssignNode(
-                Symbol.EQUALS,
+                Symbol.EQUAL,
                 visitExpression(assignNode.left),
                 visitExpression(assignNode.right))
     }
 
-    override fun visitBinary(binaryNode: BinaryNode): ExpressionNode {
+    override fun visitBinary(binaryNode: BinaryNode): AstNode {
         System.err.println("Binary expression should not be present at resolution stage")
         exitProcess(1)
     }
 
-    override fun visitBlock(blockNode: BlockNode): ExpressionNode {
+    override fun visitBlock(blockNode: BlockNode): AstNode {
         // standalone block should not exist here - it should only appear as a
         // child node of fn literal, if/else, or while
         val returnStatements: MutableList<ReturnNode> = ArrayList()
-        val newBody = blockNode.body.stream().map { node: StatementNode ->
+        val newBody = blockNode.body.stream().map { node: AstNode ->
             val newNode = visitStatement(node)
             if (newNode is ReturnNode) {
                 returnStatements.add(newNode)
             }
             newNode
         }.collect(Collectors.toList())
-        var typeExp: ExpressionNode? = null
+        var typeExp: AstNode? = null
         val lastNode = blockNode.body[blockNode.body.size - 1]
-        if (lastNode.kind != NodeKind.RETURN && lastNode !is ExpressionNode) {
+        if (lastNode.kind != NodeKind.RETURN && lastNode !is AstNode) {
             System.err.println("Last statement in block must be a return or an expression.")
             exitProcess(1)
         }
@@ -124,22 +125,22 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
         }
         if (typeExp == null) {
             // if no return statements, use last expression as value
-            typeExp = (lastNode as ExpressionNode).typeExp
+            typeExp = (lastNode as AstNode).typeExp
         }
         return BlockNode(newBody, typeExp)
     }
 
-    override fun visitBracketAccess(bracketAccessNode: BracketAccessNode): ExpressionNode {
+    override fun visitBracketAccess(bracketAccessNode: BracketAccessNode): AstNode {
         System.err.println("Bracket access node should not be present at resolution stage.")
         exitProcess(1)
     }
 
-    override fun visitCall(callNode: CallNode): ExpressionNode {
+    override fun visitCall(callNode: CallNode): AstNode {
         // look up signature of target fn and attach return type expression to node
         val target = visitExpression(callNode.target)
         val arguments = callNode.arguments
                 .stream()
-                .map { arg: ExpressionNode -> visitExpression(arg) }
+                .map { arg: AstNode -> visitExpression(arg) }
                 .collect(Collectors.toList())
 
         // TODO this assertion is no longer true once type values come into play
@@ -153,7 +154,7 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
         )
     }
 
-    override fun visitDotAccess(dotAccessNode: DotAccessNode): ExpressionNode {
+    override fun visitDotAccess(dotAccessNode: DotAccessNode): AstNode {
         // look up fields of target struct and attach type expression
         val target = visitExpression(dotAccessNode.target)
 
@@ -170,11 +171,11 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
         )
     }
 
-    override fun visitLiteral(literalNode: LiteralNode): ExpressionNode {
+    override fun visitLiteral(literalNode: LiteralNode): AstNode {
         return when (literalNode) {
             is StructLiteralNode -> {
-                val resolvedEntries = HashMap<String, ExpressionNode>()
-                val resolvedTypes = HashMap<String, ExpressionNode>()
+                val resolvedEntries = HashMap<String, AstNode>()
+                val resolvedTypes = HashMap<String, AstNode>()
 
                 for((key, exp) in literalNode.entries) {
                     val entry = this.visitExpression(exp)
@@ -193,7 +194,7 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
 
                 // each literal should have been associated with a type literal
                 // assert fnLiteralNode.typeExp instanceof FnTypeLiteralNode
-                val paramTypes = ArrayList<ExpressionNode>()
+                val paramTypes = ArrayList<AstNode>()
                 var n = 0
                 while (n < literalNode.parameterNames.size) {
                     val paramTypeExp = visitExpression(
@@ -223,7 +224,7 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
                 if (literalNode is FnTypeLiteralNode) {
                     val paramTypeExps = literalNode.parameterTypeExps
                             .stream()
-                            .map { exp: ExpressionNode -> visitExpression(exp!!) }
+                            .map { exp: AstNode -> visitExpression(exp!!) }
                             .collect(Collectors.toList())
                     return FnTypeLiteralNode(
                             paramTypeExps,
@@ -239,26 +240,26 @@ class Resolver(input: List<StatementNode>) : Visitor(input) {
         }
     }
 
-    override fun visitIdentifier(identifierNode: IdentifierNode): ExpressionNode {
+    override fun visitIdentifier(identifierNode: IdentifierNode): AstNode {
 //        assert identifierNode != null;
         return IdentifierNode(identifierNode.name, scope[identifierNode.name])
     }
 
     /*
     @Override
-    protected ExpressionNode visitIf(IfNode ifNode) {
+    protected AstNode visitIf(IfNode ifNode) {
         // evaluate if/else bodies and attach types
         System.err.println("if/else is not yet implemented at the Resolver stage");
         exitProcess(1);
         return null;
     }
      */
-    override fun visitUnary(unaryNode: UnaryNode): ExpressionNode {
+    override fun visitUnary(unaryNode: UnaryNode): AstNode {
         System.err.println("Unary node should not be present at Resolver stage.")
         exitProcess(1)
     }
 
-    override fun visitWhile(whileNode: WhileNode): ExpressionNode {
+    override fun visitWhile(whileNode: WhileNode): AstNode {
         return WhileNode(
                 visitExpression(whileNode.condition),
                 visitBlock(whileNode.body) as BlockNode?

@@ -1,14 +1,14 @@
 package me.dejawu.kythera.stages.generators
 
-import me.dejawu.kythera.BaseType
+import me.dejawu.kythera.*
 import me.dejawu.kythera.ast.*
 import kotlin.system.exitProcess
 
-class JsGenerator(program: List<StatementNode>) : Generator {
-    private val input: List<StatementNode> = program
+class JsGenerator(program: List<AstNode>) : Generator {
+    private val input: List<AstNode> = program
     private val RUNTIME_VAR_PREFIX = "_KY"
 
-    override fun compile(): ByteArray {
+    override fun generate(): ByteArray {
         // initialize runtime
         val out = StringBuilder("import $RUNTIME_VAR_PREFIX from '../runtime/index.js';\n")
         for (st in input) {
@@ -17,11 +17,11 @@ class JsGenerator(program: List<StatementNode>) : Generator {
         return out.toString().toByteArray()
     }
 
-    private fun visitStatement(st: StatementNode): String = when (st.kind) {
+    private fun visitStatement(st: AstNode): String = when (st.kind) {
         NodeKind.LET -> visitLet(st as LetNode)
         NodeKind.RETURN -> visitReturn(st as ReturnNode)
         NodeKind.CONST -> visitConst(st as ConstNode)
-        else -> visitExpression(st as ExpressionNode) + ";\n"
+        else -> visitExpression(st as AstNode) + ";\n"
     }
 
     // variable conflicts should have been caught by the Resolver stage
@@ -32,7 +32,7 @@ class JsGenerator(program: List<StatementNode>) : Generator {
 
     private fun visitReturn(node: ReturnNode): String = "return ${visitExpression(node.exp)};\n"
 
-    private fun visitExpression(node: ExpressionNode): String = when (node.kind) {
+    private fun visitExpression(node: AstNode): String = when (node.kind) {
         NodeKind.ASSIGN -> visitAssign(node as AssignNode)
         NodeKind.LITERAL -> visitLiteral(node as LiteralNode)
         NodeKind.IDENTIFIER -> visitIdentifier(node as IdentifierNode)
