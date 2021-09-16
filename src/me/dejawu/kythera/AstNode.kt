@@ -2,10 +2,27 @@ package me.dejawu.kythera
 
 import me.dejawu.kythera.stages.lexer.Keyword
 import me.dejawu.kythera.stages.lexer.Symbol
-import java.io.PrintStream
+import kotlin.text.StringBuilder
+
+fun String.tab(n: Int): String = "\t".repeat(0.coerceAtLeast(n)) + this
 
 abstract class AstNode {
-    abstract fun print(indent: Int, stream: PrintStream?)
+    override fun toString() = toString(0)
+    abstract fun toString(indent: Int): String;
+}
+
+class AssignNode(val op: Symbol, val id: String, val value: AstNode) : AstNode() {
+    override fun toString(indent: Int): String {
+        val sb = StringBuilder()
+        sb.appendLine("AssignNode {".tab(indent))
+        sb.appendLine("\top: ${op.symbol}".tab(indent))
+        sb.appendLine("\tid: $id".tab(indent))
+        sb.appendLine("\tvalue:".tab(indent))
+        sb.appendLine(value.toString(indent + 2))
+        sb.appendLine("} AssignNode")
+
+        return sb.toString()
+    }
 }
 
 class BlockNode(val body: List<AstNode>) : AstNode() {
@@ -15,25 +32,33 @@ class BlockNode(val body: List<AstNode>) : AstNode() {
         }
     }
 
-    override fun print(indent: Int, stream: PrintStream?) {
-        printlnWithIndent("BlockNode {", indent, stream!!)
-        printlnWithIndent("\tbody:", indent, stream)
+    override fun toString(indent: Int): String {
+        val sb = StringBuilder()
+        sb.appendLine("BlockNode {".tab(indent))
+        sb.appendLine("\tbody:".tab(indent))
         for (st in body) {
-            st.print(indent + 2, stream)
+            sb.appendLine(st.toString(indent + 2))
         }
-        printlnWithIndent("} BlockNode", indent, stream)
+        sb.appendLine("} BlockNode".tab(indent))
+
+        return sb.toString()
     }
 }
 
 class BinaryNode(val operator: Symbol, val left: AstNode, val right: AstNode) : AstNode() {
-    override fun print(indent: Int, stream: PrintStream?) {
-        printlnWithIndent("BinaryNode {", indent, stream!!)
-        printlnWithIndent("\top: " + operator.symbol, indent, stream)
-        printlnWithIndent("\tleft:", indent, stream)
-        left.print(indent + 1, stream)
-        printlnWithIndent("\tright:", indent, stream)
-        right.print(indent + 1, stream)
-        printlnWithIndent("} BinaryNode", indent, stream)
+    override fun toString(indent: Int): String {
+        val sb = StringBuilder()
+
+        sb.appendLine("BinaryNode {".tab(indent))
+        sb.appendLine("\top: ${operator.symbol}".tab(indent))
+        sb.appendLine("\tleft:".tab(indent))
+        sb.appendLine(left.toString(indent + 1))
+        sb.appendLine("\tright:".tab(indent))
+        sb.appendLine(right.toString(indent + 1))
+        sb.appendLine("} BinaryNode".tab(indent))
+
+
+        return sb.toString()
     }
 }
 
@@ -44,14 +69,27 @@ object BooleanLiteral {
     var FALSE: BooleanLiteralNode = BooleanLiteralNode(false)
 
     class BooleanLiteralNode constructor(val value: Boolean) : AstNode() {
-        override fun print(indent: Int, stream: PrintStream?) {
-            printlnWithIndent("BooleanLiteralNode { $value }", indent, stream!!)
+        override fun toString(indent: Int): String {
+            val sb = StringBuilder()
+            sb.appendLine("BooleanLiteralNode { $value }".tab(indent))
+            return sb.toString()
         }
     }
 
 }
+
 class BracketAccessNode(val target: AstNode, val key: AstNode) : AstNode() {
-    override fun print(indent: Int, stream: PrintStream?) {}
+    override fun toString(indent: Int): String {
+        val sb = StringBuilder()
+        sb.appendLine("BracketAccessNode {".tab(indent))
+        sb.appendLine("\ttarget:")
+        sb.appendLine(target.toString(indent + 2))
+        sb.appendLine("\t key:")
+        sb.appendLine(key.toString(indent + 2))
+        sb.appendLine("} BracketAccessNode".tab(indent))
+
+        return sb.toString()
+    }
 }
 
 class CallNode : AstNode {
@@ -69,29 +107,35 @@ class CallNode : AstNode {
         this.arguments = arguments
     }
 
-    override fun print(indent: Int, stream: PrintStream?) {
-        printlnWithIndent("CallNode {", indent, stream!!)
-        printlnWithIndent("\ttarget:", indent, stream)
-        target.print(indent + 2, stream)
-        printlnWithIndent("\targuments:", indent, stream)
+    override fun toString(indent: Int): String {
+        val sb = StringBuilder()
+
+        sb.appendLine("CallNode {".tab(indent))
+        sb.appendLine("\ttarget:".tab(indent))
+        sb.appendLine(target.toString(indent + 2))
+        sb.appendLine("\targuments:".tab(indent))
         var n = 0
         for (ex in arguments) {
-            printlnWithIndent("\t\targ $n:", indent, stream)
-            ex.print(indent + 3, stream)
+            sb.appendLine("\t\targ $n:".tab(indent))
+            sb.appendLine(ex.toString(indent + 3))
             n += 1
         }
-        printlnWithIndent("} CallNode", indent, stream)
+        sb.appendLine("} CallNode".tab(indent))
+        return sb.toString()
     }
 }
 
 class DeclarationNode(val identifier: String, val value: AstNode, val op: Keyword) : AstNode() {
-    override fun print(indent: Int, stream: PrintStream?) {
-        printlnWithIndent("DeclarationNode {", indent, stream!!)
-        printlnWithIndent("\tidentifier: $identifier", indent, stream)
-        printlnWithIndent("\top:$op", indent, stream)
-        printlnWithIndent("\tvalue:", indent, stream)
-        value.print(indent + 1, stream)
-        printlnWithIndent("} LetNode", indent, stream)
+    override fun toString(indent: Int): String {
+        val sb = StringBuilder()
+
+        sb.appendLine("DeclarationNode {".tab(indent))
+        sb.appendLine("\tidentifier: $identifier".tab(indent))
+        sb.appendLine("\top:$op".tab(indent))
+        sb.appendLine("\tvalue:".tab(indent))
+        sb.appendLine(value.toString(indent + 1))
+        sb.appendLine("} LetNode".tab(indent))
+        return sb.toString()
     }
 }
 
@@ -109,12 +153,15 @@ class DotAccessNode : AstNode {
         this.key = key
     }
 
-    override fun print(indent: Int, stream: PrintStream?) {
-        printlnWithIndent("DotAccessNode {", indent, stream!!)
-        printlnWithIndent("\ttarget:", indent, stream)
-        target.print(indent + 1, stream)
-        printlnWithIndent("\tkey: $key", indent, stream)
-        printlnWithIndent("} DotAccessNode", indent, stream)
+    override fun toString(indent: Int): String {
+        val sb = StringBuilder()
+
+        sb.appendLine("DotAccessNode {".tab(indent))
+        sb.appendLine("\ttarget:".tab(indent))
+        target.toString(indent + 1)
+        sb.appendLine("\tkey: $key".tab(indent))
+        sb.appendLine("} DotAccessNode".tab(indent))
+        return sb.toString()
     }
 }
 
@@ -123,40 +170,48 @@ class FnLiteralNode(
     val parameterNames: List<String>, val body: BlockNode
 ) :
     AstNode() {
-    override fun print(indent: Int, stream: PrintStream?) {
-        printlnWithIndent("FnLiteralNode {", indent, stream!!)
-        printlnWithIndent("\tparameters:", indent, stream)
+    override fun toString(indent: Int): String {
+        val sb = StringBuilder()
+
+        sb.appendLine("FnLiteralNode {".tab(indent))
+        sb.appendLine("\tparameters:".tab(indent))
         var n = 0
         for (param in parameterNames) {
-            printlnWithIndent("\t\tparam $n: $param", indent, stream)
+            sb.appendLine("\t\tparam $n: $param".tab(indent))
             n += 1
         }
-        printlnWithIndent("\tbody:", indent, stream)
-        body.print(indent + 2, stream)
-        printlnWithIndent("} FnLiteralNode", indent, stream)
+        sb.appendLine("\tbody:".tab(indent))
+        sb.appendLine(body.toString(indent + 2))
+        sb.appendLine("} FnLiteralNode".tab(indent))
+        return sb.toString()
     }
 }
 
 class FnTypeLiteralNode(val parameterTypeExps: List<AstNode>, val returnTypeExp: AstNode) :
     TypeLiteralNode(BaseType.FN) {
-    override fun print(indent: Int, stream: PrintStream?) {
-        printlnWithIndent("FnTypeLiteralNode {", indent, stream!!)
-        printlnWithIndent("\tparams:", indent, stream)
+    override fun toString(indent: Int): String {
+        val sb = StringBuilder()
+
+        sb.appendLine("FnTypeLiteralNode {".tab(indent))
+        sb.appendLine("\tparams:".tab(indent))
         val n = 0
         for (exp in parameterTypeExps) {
-            printlnWithIndent("\t\t$n:", indent, stream)
-            exp.print(indent + 2, stream)
+            sb.appendLine("\t\t$n:".tab(indent))
+            exp.toString(indent + 2)
         }
-        printlnWithIndent("\treturn type:", indent, stream)
-        returnTypeExp.print(indent + 2, stream)
-        printlnWithIndent("} FnTypeLiteralNode", indent, stream)
+        sb.appendLine("\treturn type:".tab(indent))
+        sb.appendLine(returnTypeExp.toString(indent + 2))
+        sb.appendLine("} FnTypeLiteralNode".tab(indent))
+        return sb.toString()
     }
 }
 
 class IdentifierNode(val name: String) : AstNode() {
+    override fun toString(indent: Int): String {
+        val sb = StringBuilder()
 
-    override fun print(indent: Int, stream: PrintStream?) {
-        printlnWithIndent("IdentifierNode { name: $name }", indent, stream!!)
+        sb.appendLine("IdentifierNode { name: $name }".tab(indent))
+        return sb.toString()
     }
 }
 
@@ -181,57 +236,57 @@ class IfNode : AstNode {
         this.elseBody = elseBody
     }
 
-    override fun print(indent: Int, stream: PrintStream?) {
-        printlnWithIndent("IfNode {", indent, stream!!)
-        printlnWithIndent("\tcondition:", indent, stream)
-        condition.print(indent + 2, stream)
-        printlnWithIndent("\tbody:", indent, stream)
-        body.print(indent + 2, stream)
+    override fun toString(indent: Int): String {
+        val sb = StringBuilder()
+
+        sb.appendLine("IfNode {".tab(indent))
+        sb.appendLine("\tcondition:".tab(indent))
+        sb.appendLine(condition.toString(indent + 2))
+        sb.appendLine("\tbody:".tab(indent))
+        sb.appendLine(body.toString(indent + 2))
         if (elseBody != null) {
-            printlnWithIndent("\telse body:", indent, stream)
-            elseBody.print(indent + 2, stream)
+            sb.appendLine("\telse body:".tab(indent))
+            sb.appendLine(elseBody.toString(indent + 2))
         }
-        printlnWithIndent("} IfNode", indent, stream)
+        sb.appendLine("} IfNode".tab(indent))
+        return sb.toString()
     }
 }
 
 class JumpNode(val result: AstNode?, val op: Keyword) : AstNode() {
-    override fun print(indent: Int, stream: PrintStream?) {
-        printlnWithIndent("ReturnNode {", indent, stream!!)
-        printlnWithIndent("\top:$op", indent, stream)
+    override fun toString(indent: Int): String {
+        val sb = StringBuilder()
 
-        if(result != null) {
-            printlnWithIndent("\tresult:", indent, stream)
-            result.print(indent + 1, stream)
+        sb.appendLine("ReturnNode {".tab(indent))
+        sb.appendLine("\top:$op".tab(indent))
+
+        if (result != null) {
+            sb.appendLine("\tresult:".tab(indent))
+            sb.appendLine(result.toString(indent + 1))
 
         }
 
-        printlnWithIndent("} ReturnNode", indent, stream)
+        sb.appendLine("} ReturnNode".tab(indent))
+        return sb.toString()
     }
 }
 
 
-class ListLiteralNode : AstNode {
-    val entries: List<AstNode>
+class ListLiteralNode(val entries: List<AstNode>) : AstNode() {
+    override fun toString(indent: Int): String {
+        val sb = StringBuilder()
 
-    constructor() {
-        entries = ArrayList()
-    }
-
-    constructor(entries: List<AstNode>) {
-        this.entries = entries
-    }
-
-    override fun print(indent: Int, stream: PrintStream?) {
-        printlnWithIndent("ListLiteralNode {", indent, stream!!)
-        printlnWithIndent("\tentries:", indent, stream)
+        sb.appendLine("ListLiteralNode {".tab(indent))
+        sb.appendLine("\tentries:".tab(indent))
         var i = 0
         for (exp in entries) {
-            printlnWithIndent("\t\t$i:", indent, stream)
-            exp.print(indent + 3, stream)
+            sb.appendLine("\t\t$i:".tab(indent))
+            sb.appendLine(exp.toString(indent + 3))
             i += 1
         }
-        printlnWithIndent("} ListLiteralNode", indent, stream)
+        sb.appendLine("} ListLiteralNode".tab(indent))
+
+        return sb.toString()
     }
 }
 
@@ -269,41 +324,32 @@ open class TypeLiteralNode : AstNode {
         this.entryTypes = entryTypes
     }
 
-    // for type values, equals means an *exact* match
-    // remember, values in Kythera must be cast to exactly the type they are
-    // to be used as (?)
-    override fun equals(o: Any?): Boolean {
-        if (o !is TypeLiteralNode) {
-            return false
-        }
-        return baseType == o.baseType
-    }
+    override fun toString(indent: Int): String {
+        val sb = StringBuilder()
 
-    override fun print(indent: Int, stream: PrintStream?) {
-        printlnWithIndent("TypeLiteralNode {", indent, stream!!)
-        printlnWithIndent("\tbasetype: $baseType", indent, stream)
-        printlnWithIndent("\tentries:", indent, stream)
+        sb.appendLine("TypeLiteralNode {".tab(indent))
+        sb.appendLine("\tbasetype: $baseType".tab(indent))
+        sb.appendLine("\tentries:".tab(indent))
 
-        printlnWithIndent("} TypeLiteralNode", indent, stream)
+        sb.appendLine("} TypeLiteralNode".tab(indent))
+        return sb.toString()
     }
 }
 
 class DoubleLiteralNode(val value: Double) : AstNode() {
-    override fun print(indent: Int, stream: PrintStream?) {
-        printlnWithIndent("DoubleLiteralNode { $value }", indent, stream!!)
+    override fun toString(indent: Int): String {
+        val sb = StringBuilder()
+        sb.appendLine("DoubleLiteralNode { $value }".tab(indent))
+        return sb.toString()
     }
 }
 
 class IntLiteralNode(val value: Int) : AstNode() {
-    override fun print(indent: Int, stream: PrintStream?) {
-        printlnWithIndent("IntLiteralNode { $value }", indent, stream!!)
-    }
+    override fun toString(indent: Int): String = "IntLiteralNode { $value }".tab(indent)
 }
 
 class StrLiteralNode(val value: String) : AstNode() {
-    override fun print(indent: Int, stream: PrintStream?) {
-        printlnWithIndent("StrLiteralNode { $value }", indent, stream!!)
-    }
+    override fun toString(indent: Int): String  ="StrLiteralNode { $value }".tab(indent)
 }
 
 class StructLiteralNode : AstNode {
@@ -318,32 +364,41 @@ class StructLiteralNode : AstNode {
         this.entries = entries
     }
 
-    override fun print(indent: Int, stream: PrintStream?) {
-        printlnWithIndent("StructLiteralNode {", indent, stream!!)
-        printlnWithIndent("\tentries:", indent, stream)
+    override fun toString(indent: Int): String {
+        val sb = StringBuilder()
 
-        printlnWithIndent("} StructLiteralNode", indent, stream)
+        sb.appendLine("StructLiteralNode {".tab(indent))
+        sb.appendLine("\tentries:".tab(indent))
+
+        sb.appendLine("} StructLiteralNode".tab(indent))
+        return sb.toString()
     }
 }
 
 class TypeofNode(val target: AstNode) : AstNode() {
-    override fun print(indent: Int, stream: PrintStream?) {
-        printlnWithIndent("TypeofNode {", indent, stream!!)
-        printlnWithIndent("\ttarget:", indent, stream)
-        target.print(indent + 1, stream)
-        printlnWithIndent("} TypeofNode", indent, stream)
+    override fun toString(indent: Int): String {
+        val sb = StringBuilder()
+
+        sb.appendLine("TypeofNode {".tab(indent))
+        sb.appendLine("\ttarget:".tab(indent))
+        sb.appendLine(target.toString(indent + 1))
+        sb.appendLine("} TypeofNode".tab(indent))
+        return sb.toString()
     }
 }
 
 class UnaryNode(op: Symbol, target: AstNode) : AstNode() {
     val operator: Symbol
     val target: AstNode
-    override fun print(indent: Int, stream: PrintStream?) {
-        printlnWithIndent("UnaryNode {", indent, stream!!)
-        printlnWithIndent("\top: " + operator.symbol, indent, stream)
-        printlnWithIndent("\ttarget", indent, stream)
-        target.print(indent + 1, stream)
-        printlnWithIndent("} UnaryNode", indent, stream)
+    override fun toString(indent: Int): String {
+        val sb = StringBuilder()
+
+        sb.appendLine("UnaryNode {".tab(indent))
+        sb.appendLine("\top: ${operator.symbol}".tab(indent))
+        sb.appendLine("\ttarget".tab(indent))
+        sb.appendLine(target.toString(indent + 1))
+        sb.appendLine("} UnaryNode".tab(indent))
+        return sb.toString()
     }
 
     init {
@@ -356,12 +411,16 @@ class UnaryNode(op: Symbol, target: AstNode) : AstNode() {
 }
 
 class WhileNode(val condition: AstNode, val body: BlockNode) : AstNode() {
-    override fun print(indent: Int, stream: PrintStream?) {
-        printlnWithIndent("WhileNode {", indent, stream!!)
-        printlnWithIndent("\t condition:", indent, stream)
-        condition.print(indent + 2, stream)
-        printlnWithIndent("\tbody:", indent, stream)
-        body.print(indent + 2, stream)
-        printlnWithIndent("} WhileNode", indent, stream)
+    override fun toString(indent: Int): String {
+        val sb = StringBuilder()
+
+        sb.appendLine("WhileNode {".tab(indent))
+        sb.appendLine("\t condition:".tab(indent))
+        sb.appendLine(condition.toString(indent + 2))
+        sb.appendLine("\tbody:".tab(indent))
+        sb.appendLine(body.toString(indent + 2))
+        sb.appendLine("} WhileNode".tab(indent))
+
+        return sb.toString()
     }
 }

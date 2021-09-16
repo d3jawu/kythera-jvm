@@ -48,7 +48,7 @@ fun main(args: Array<String>) {
         var ast = parser.parse()
 
         for (st in ast) {
-            st.print(0, System.out)
+            println(st.toString())
         }
 
         return
@@ -107,9 +107,4 @@ fun main(args: Array<String>) {
         e.printStackTrace()
         exitProcess(1)
     }
-}
-
-fun printlnWithIndent(message: String, indent: Int, stream: PrintStream) {
-    val output = "\t".repeat(0.coerceAtLeast(indent)) + message
-    stream.println(output)
 }

@@ -17,7 +17,7 @@ class Parser(input: String) {
                 program.add(parseStatement())
             }
         } catch (e: Exception) {
-           e.printStackTrace()
+            e.printStackTrace()
         }
         return program
     }
@@ -189,7 +189,7 @@ class Parser(input: String) {
             RETURN.token == next || BREAK.token == next || CONTINUE.token == next -> {
                 lexer.consume(next)
 
-                if(lexer.peek() == SEMICOLON.token) {
+                if (lexer.peek() == SEMICOLON.token) {
                     JumpNode(null, Keyword.from(next.value))
                 } else {
                     val result = parseExp(true)
@@ -210,7 +210,15 @@ class Parser(input: String) {
             }
             next.tokenType == TokenType.ID -> {
                 lexer.consume(TokenType.ID)
-                return  IdentifierNode(next.value)
+
+                return if (isAssignOp(Symbol.from(lexer.peek().value))) {
+                    val op = lexer.consume(TokenType.SYM)
+                    val right = parseExp(true)
+
+                    AssignNode(Symbol.from(op.value), next.value, right)
+                } else {
+                    IdentifierNode(next.value)
+                }
             }
             else -> {
                 throw Exception("Unexpected token: ${lexer.peek()} at ${lexer.loc()}")
@@ -244,14 +252,14 @@ class Parser(input: String) {
         val paramTypes = ArrayList<AstNode>()
 
         // if first parameter is provided, handle first type exp as well
-        if(firstParamName != null) {
+        if (firstParamName != null) {
             paramNames.add(firstParamName)
             lexer.consume(COLON.token)
 
             // type exp for first parameter
             paramTypes.add(parseExp(true))
 
-            if(lexer.peek() == COMMA.token) {
+            if (lexer.peek() == COMMA.token) {
                 lexer.consume(COMMA.token)
             }
         }
@@ -265,7 +273,7 @@ class Parser(input: String) {
             paramNames.add(paramName.value)
             paramTypes.add(paramType)
 
-            if(lexer.peek() == COMMA.token) {
+            if (lexer.peek() == COMMA.token) {
                 lexer.consume(COMMA.token)
             }
         }
@@ -363,11 +371,9 @@ class Parser(input: String) {
         val op = Symbol.from(token.value)
         val nextPrecedence = op.precedence
 
-        if(isBinaryOp(op)) {
+        if (isBinaryOp(op)) {
             if (nextPrecedence > currentPrecedence) {
                 lexer.consume(TokenType.SYM)
-
-                left.print(0, System.out)
 
                 val right = makeBinary(parseExp(false), nextPrecedence)
                 val binary = BinaryNode(op, left, right)
@@ -405,25 +411,33 @@ class Parser(input: String) {
     }
 
     private fun isBinaryOp(sym: Symbol): Boolean = arrayOf(
-            BAR,
-            AND,
-            AND_AND,
-            BAR_BAR,
-            EQUAL_EQUAL,
-            BANG_EQUAL,
-            LESS,
-            LESS_EQUAL,
-            GREATER,
-            GREATER_EQUAL,
-            PLUS,
-            MINUS,
-            STAR,
-            SLASH,
-            PERCENT
-        ).contains(sym);
+        BAR,
+        AND,
+        AND_AND,
+        BAR_BAR,
+        EQUAL_EQUAL,
+        BANG_EQUAL,
+        LESS,
+        LESS_EQUAL,
+        GREATER,
+        GREATER_EQUAL,
+        PLUS,
+        MINUS,
+        STAR,
+        SLASH,
+        PERCENT
+    ).contains(sym);
 
+    private fun isAssignOp(sym: Symbol): Boolean = arrayOf(
+        EQUAL,
+        PLUS_EQUAL,
+        MINUS_EQUAL,
+        STAR_EQUAL,
+        SLASH_EQUAL,
+        PERCENT_EQUAL
+    ).contains(sym)
 
-        init {
+    init {
         program = ArrayList()
         val inputStream = InputStream(input)
         lexer = Lexer(inputStream)
