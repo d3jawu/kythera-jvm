@@ -49,23 +49,7 @@ class Parser(input: String) {
                     composed = makeCall(composed)
                 }
                 // check if binary expression
-                arrayOf(
-                    BAR,
-                    AND,
-                    AND_AND,
-                    BAR_BAR,
-                    EQUAL_EQUAL,
-                    BANG_EQUAL,
-                    LESS,
-                    LESS_EQUAL,
-                    GREATER,
-                    GREATER_EQUAL,
-                    PLUS,
-                    MINUS,
-                    STAR,
-                    SLASH,
-                    PERCENT
-                ).contains(Symbol.from(next.value)) -> {
+                isBinaryOp(Symbol.from(next.value)) -> {
                     composed = makeBinary(composed, 0)
                 }
                 next == DOT.token -> {
@@ -332,11 +316,12 @@ class Parser(input: String) {
         lexer.consume(COMMA.token)
 
         while (lexer.peek() != RIGHT_BRACE.token) {
-            var typeExp: AstNode
-
             val entryToken = lexer.consume(TokenType.ID);
 
+            lexer.consume(COLON.token)
+            val typeExp = parseExp(true)
             lexer.consume(COMMA.token)
+
             entries[entryToken.value] = typeExp
         }
 
@@ -377,13 +362,20 @@ class Parser(input: String) {
         val token = lexer.peek()
         val op = Symbol.from(token.value)
         val nextPrecedence = op.precedence
-        if (nextPrecedence > currentPrecedence) {
-            lexer.consume(TokenType.SYM)
-            val right = makeBinary(parseExp(false), nextPrecedence)
-            val binary = BinaryNode(op, left, right)
 
-            return makeBinary(binary, currentPrecedence)
+        if(isBinaryOp(op)) {
+            if (nextPrecedence > currentPrecedence) {
+                lexer.consume(TokenType.SYM)
+
+                left.print(0, System.out)
+
+                val right = makeBinary(parseExp(false), nextPrecedence)
+                val binary = BinaryNode(op, left, right)
+
+                return makeBinary(binary, currentPrecedence)
+            }
         }
+
         return left
     }
 
@@ -412,7 +404,26 @@ class Parser(input: String) {
         TODO("Not yet implemented")
     }
 
-    init {
+    private fun isBinaryOp(sym: Symbol): Boolean = arrayOf(
+            BAR,
+            AND,
+            AND_AND,
+            BAR_BAR,
+            EQUAL_EQUAL,
+            BANG_EQUAL,
+            LESS,
+            LESS_EQUAL,
+            GREATER,
+            GREATER_EQUAL,
+            PLUS,
+            MINUS,
+            STAR,
+            SLASH,
+            PERCENT
+        ).contains(sym);
+
+
+        init {
         program = ArrayList()
         val inputStream = InputStream(input)
         lexer = Lexer(inputStream)

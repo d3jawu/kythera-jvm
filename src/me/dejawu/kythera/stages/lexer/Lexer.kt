@@ -85,6 +85,11 @@ class Lexer(private val inputStream: InputStream) {
 
     // update this.current with the next token in the stream
     private fun advance() {
+        if(eof()) {
+            current = EOF_TOKEN
+            return
+        }
+
         // skip whitespace and comments
         while (true) {
             val nextChar = inputStream.peek()
