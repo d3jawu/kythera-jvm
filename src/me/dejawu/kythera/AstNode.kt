@@ -11,14 +11,14 @@ abstract class AstNode {
     abstract fun toString(indent: Int): String;
 }
 
-class AssignNode(val op: Symbol, val id: String, val value: AstNode) : AstNode() {
+class AssignNode(val operator: Symbol, val id: String, val exp: AstNode) : AstNode() {
     override fun toString(indent: Int): String {
         val sb = StringBuilder()
         sb.appendLine("AssignNode {".tab(indent))
-        sb.appendLine("\top: ${op.symbol}".tab(indent))
+        sb.appendLine("\top: ${operator.symbol}".tab(indent))
         sb.appendLine("\tid: $id".tab(indent))
         sb.appendLine("\tvalue:".tab(indent))
-        sb.appendLine(value.toString(indent + 2))
+        sb.appendLine(exp.toString(indent + 2))
         sb.appendLine("} AssignNode")
 
         return sb.toString()
@@ -52,9 +52,9 @@ class BinaryNode(val operator: Symbol, val left: AstNode, val right: AstNode) : 
         sb.appendLine("BinaryNode {".tab(indent))
         sb.appendLine("\top: ${operator.symbol}".tab(indent))
         sb.appendLine("\tleft:".tab(indent))
-        sb.appendLine(left.toString(indent + 1))
+        sb.appendLine(left.toString(indent + 2))
         sb.appendLine("\tright:".tab(indent))
-        sb.appendLine(right.toString(indent + 1))
+        sb.appendLine(right.toString(indent + 2))
         sb.appendLine("} BinaryNode".tab(indent))
 
 
@@ -101,12 +101,6 @@ class CallNode : AstNode {
         this.arguments = arguments
     }
 
-    // called by Resolver when return type is known
-    constructor(target: AstNode, arguments: List<AstNode>, typeExp: AstNode?) {
-        this.target = target
-        this.arguments = arguments
-    }
-
     override fun toString(indent: Int): String {
         val sb = StringBuilder()
 
@@ -133,32 +127,19 @@ class DeclarationNode(val identifier: String, val value: AstNode, val op: Keywor
         sb.appendLine("\tidentifier: $identifier".tab(indent))
         sb.appendLine("\top:$op".tab(indent))
         sb.appendLine("\tvalue:".tab(indent))
-        sb.appendLine(value.toString(indent + 1))
-        sb.appendLine("} LetNode".tab(indent))
+        sb.appendLine(value.toString(indent + 2))
+        sb.appendLine("} DeclarationNode".tab(indent))
         return sb.toString()
     }
 }
 
-class DotAccessNode : AstNode {
-    val target: AstNode
-    val key: String
-
-    constructor(target: AstNode, key: String) {
-        this.target = target
-        this.key = key
-    }
-
-    constructor(target: AstNode, key: String, typeExp: AstNode?) {
-        this.target = target
-        this.key = key
-    }
-
+class DotAccessNode(val target: AstNode, val key: String) : AstNode() {
     override fun toString(indent: Int): String {
         val sb = StringBuilder()
 
         sb.appendLine("DotAccessNode {".tab(indent))
         sb.appendLine("\ttarget:".tab(indent))
-        target.toString(indent + 1)
+        target.toString(indent + 2)
         sb.appendLine("\tkey: $key".tab(indent))
         sb.appendLine("} DotAccessNode".tab(indent))
         return sb.toString()
@@ -253,7 +234,7 @@ class IfNode : AstNode {
     }
 }
 
-class JumpNode(val result: AstNode?, val op: Keyword) : AstNode() {
+class JumpNode(val op: Keyword, val result: AstNode?) : AstNode() {
     override fun toString(indent: Int): String {
         val sb = StringBuilder()
 
@@ -262,7 +243,7 @@ class JumpNode(val result: AstNode?, val op: Keyword) : AstNode() {
 
         if (result != null) {
             sb.appendLine("\tresult:".tab(indent))
-            sb.appendLine(result.toString(indent + 1))
+            sb.appendLine(result.toString(indent + 2))
 
         }
 
@@ -355,11 +336,6 @@ class StrLiteralNode(val value: String) : AstNode() {
 class StructLiteralNode : AstNode {
     val entries: HashMap<String, AstNode>
 
-    // struct type exp is built separately from struct literal
-    constructor() {
-        entries = java.util.HashMap()
-    }
-
     constructor(entries: HashMap<String, AstNode>) {
         this.entries = entries
     }
@@ -369,6 +345,10 @@ class StructLiteralNode : AstNode {
 
         sb.appendLine("StructLiteralNode {".tab(indent))
         sb.appendLine("\tentries:".tab(indent))
+        for ((key, value) in entries) {
+            sb.appendLine("\t\t'$key':".tab(indent))
+            sb.appendLine(value.toString(indent + 3))
+        }
 
         sb.appendLine("} StructLiteralNode".tab(indent))
         return sb.toString()
@@ -381,7 +361,7 @@ class TypeofNode(val target: AstNode) : AstNode() {
 
         sb.appendLine("TypeofNode {".tab(indent))
         sb.appendLine("\ttarget:".tab(indent))
-        sb.appendLine(target.toString(indent + 1))
+        sb.appendLine(target.toString(indent + 2))
         sb.appendLine("} TypeofNode".tab(indent))
         return sb.toString()
     }
@@ -396,7 +376,7 @@ class UnaryNode(op: Symbol, target: AstNode) : AstNode() {
         sb.appendLine("UnaryNode {".tab(indent))
         sb.appendLine("\top: ${operator.symbol}".tab(indent))
         sb.appendLine("\ttarget".tab(indent))
-        sb.appendLine(target.toString(indent + 1))
+        sb.appendLine(target.toString(indent + 2))
         sb.appendLine("} UnaryNode".tab(indent))
         return sb.toString()
     }

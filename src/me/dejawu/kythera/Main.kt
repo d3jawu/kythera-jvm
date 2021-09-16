@@ -46,6 +46,14 @@ fun main(args: Array<String>) {
         println("Generating initial AST")
         val parser = Parser(content)
         var ast = parser.parse()
+        for (st in ast) {
+            println(st.toString())
+        }
+
+        return
+        println("Desugaring")
+        val desugarer = Desugarer(ast)
+        ast = desugarer.visit()
 
         for (st in ast) {
             println(st.toString())
@@ -54,55 +62,50 @@ fun main(args: Array<String>) {
         return
 
         /*
-        println("Desugaring")
-        val desugarer = Desugarer(ast)
-        ast = desugarer.visit()
 
-        // typeExps on AstNodes may still be null at this point
+// TODO link types to expressions (no null typeExps)
+println("Resolving types")
+val resolver = Resolver(ast)
+ast = resolver.visit()
 
-        // TODO link types to expressions (no null typeExps)
-        println("Resolving types")
-        val resolver = Resolver(ast)
-        ast = resolver.visit()
+// type checking would happen here, but that won't be implemented in this version
 
-        // type checking would happen here, but that won't be implemented in this version
+println("Final AST:")
+for (st in ast) {
+    st.print(0, System.out)
+}
 
-        println("Final AST:")
-        for (st in ast) {
-            st.print(0, System.out)
-        }
+// TODO optimize constants and reuse literals
 
-        // TODO optimize constants and reuse literals
+// TODO optimize statically known types into pre-defined classes
 
-        // TODO optimize statically known types into pre-defined classes
+// TODO optimize KytheraValues for primitives into JVM primitives
 
-        // TODO optimize KytheraValues for primitives into JVM primitives
+// TODO optimize bytecode
 
-        // TODO optimize bytecode
-
-        println("Generating output")
-        val generator: Generator = when (targetPlatform) {
+println("Generating output")
+val generator: Generator = when (targetPlatform) {
 //            "js" -> JsGenerator(ast) // generate JS script to be bundled with JS runtime
 //            "jvm" -> JvmGenerator(ast, entryPoint) // emits JVM Class file
-            "none" -> { // generates an AST then stops.
-                println("No target platform specified, exiting.")
-                exitProcess(0)
-            }
-            else -> {
-                System.err.println("Invalid platform: $targetPlatform")
-                exitProcess(1)
-            }
-        }
+    "none" -> { // generates an AST then stops.
+        println("No target platform specified, exiting.")
+        exitProcess(0)
+    }
+    else -> {
+        System.err.println("Invalid platform: $targetPlatform")
+        exitProcess(1)
+    }
+}
 
-        val output = generator.generate()
+val output = generator.generate()
 
-        println("Writing to output file: $outputPath")
+println("Writing to output file: $outputPath")
 
-        val fos = FileOutputStream(outputPath)
-        fos.write(output)
-        fos.close()
+val fos = FileOutputStream(outputPath)
+fos.write(output)
+fos.close()
 
-         */
+ */
     } catch (e: Exception) {
         e.printStackTrace()
         exitProcess(1)

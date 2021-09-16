@@ -114,11 +114,11 @@ class Parser(input: String) {
 
                 val firstExp = parseExp(true)
                 return when (lexer.peek()) {
-                    EQUAL.token -> {
-                        if (firstExp !is IdentifierNode) {
-                            throw Exception("Expected identifier but got $firstExp for first entry in struct literal.")
+                    COMMA.token -> {
+                        if (firstExp !is AssignNode) {
+                            throw Exception("Expected assignment to stack member but got $firstExp for first entry in struct literal.")
                         }
-                        parseStructLiteral(firstExp.name)
+                        parseStructLiteral(firstExp)
                     }
 
                     COLON.token -> {
@@ -190,10 +190,10 @@ class Parser(input: String) {
                 lexer.consume(next)
 
                 if (lexer.peek() == SEMICOLON.token) {
-                    JumpNode(null, Keyword.from(next.value))
+                    JumpNode(Keyword.from(next.value), null)
                 } else {
                     val result = parseExp(true)
-                    JumpNode(result, Keyword.from(next.value))
+                    JumpNode(Keyword.from(next.value), result)
                 }
             }
             next.tokenType == TokenType.NUM -> {
@@ -290,19 +290,19 @@ class Parser(input: String) {
     }
 
     // sometimes parseStructLiteral is called with the first identifier already consumed
-    private fun parseStructLiteral(firstIdentifier: String): StructLiteralNode {
+    private fun parseStructLiteral(firstEntry: AssignNode): StructLiteralNode {
         val resultContents = HashMap<String, AstNode>()
-        var firstRun = true
+
+        resultContents[firstEntry.id] = firstEntry.exp
+
+        lexer.consume(COMMA.token)
+
         while (lexer.peek() != RIGHT_BRACE.token) {
             var entryKey: String
-            if (firstRun) {
-                entryKey = firstIdentifier
-                firstRun = false
-            } else {
+
                 val keyToken = lexer.consume(TokenType.ID)
 
                 entryKey = keyToken.value
-            }
             lexer.consume(EQUAL.token)
             val entryValue = parseExp(true)
             lexer.consume(COMMA.token)
