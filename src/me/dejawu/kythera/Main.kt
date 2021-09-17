@@ -46,15 +46,12 @@ fun main(args: Array<String>) {
         println("Generating initial AST")
         val parser = Parser(content)
         var ast = parser.parse()
-        for (st in ast) {
-            println(st.toString())
-        }
 
-        return
         println("Desugaring")
         val desugarer = Desugarer(ast)
         ast = desugarer.visit()
 
+        println("Final AST:")
         for (st in ast) {
             println(st.toString())
         }

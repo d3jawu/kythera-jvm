@@ -316,7 +316,7 @@ class Parser(input: String) {
         return structResult
     }
 
-    private fun parseStructTypeLiteral(firstEntryName: String): TypeLiteralNode {
+    private fun parseStructTypeLiteral(firstEntryName: String): StructTypeLiteralNode {
         val entries = HashMap<String, AstNode>()
 
         lexer.consume(COLON.token)
@@ -333,7 +333,7 @@ class Parser(input: String) {
             entries[entryToken.value] = typeExp
         }
 
-        val structType = TypeLiteralNode(entries)
+        val structType = StructTypeLiteralNode(entries)
 
         lexer.consume(RIGHT_BRACE.token)
         return structType

@@ -92,15 +92,7 @@ class BracketAccessNode(val target: AstNode, val key: AstNode) : AstNode() {
     }
 }
 
-class CallNode : AstNode {
-    val target: AstNode
-    val arguments: List<AstNode>
-
-    constructor(target: AstNode, arguments: List<AstNode>) {
-        this.target = target
-        this.arguments = arguments
-    }
-
+class CallNode(val target: AstNode, val arguments: List<AstNode>) : AstNode() {
     override fun toString(indent: Int): String {
         val sb = StringBuilder()
 
@@ -168,8 +160,7 @@ class FnLiteralNode(
     }
 }
 
-class FnTypeLiteralNode(val parameterTypeExps: List<AstNode>, val returnTypeExp: AstNode) :
-    TypeLiteralNode(BaseType.FN) {
+class FnTypeLiteralNode(val parameterTypeExps: List<AstNode>, val returnTypeExp: AstNode) : AstNode() {
     override fun toString(indent: Int): String {
         val sb = StringBuilder()
 
@@ -252,7 +243,6 @@ class JumpNode(val op: Keyword, val result: AstNode?) : AstNode() {
     }
 }
 
-
 class ListLiteralNode(val entries: List<AstNode>) : AstNode() {
     override fun toString(indent: Int): String {
         val sb = StringBuilder()
@@ -271,48 +261,19 @@ class ListLiteralNode(val entries: List<AstNode>) : AstNode() {
     }
 }
 
-class ListTypeLiteralNode(val containedType: AstNode) : TypeLiteralNode(BaseType.LIST)
-
-open class TypeLiteralNode : AstNode {
-    val baseType: BaseType
-
-    // since everything is a struct, an entry type list is needed for all type literals.
-    val entryTypes: HashMap<String, AstNode>
-
-    companion object {
-        // declare built-in type literals
-        val TYPE: TypeLiteralNode? = null
-        val UNIT: TypeLiteralNode? = null
-        val BOOL: TypeLiteralNode? = null
-        val NUM: TypeLiteralNode? = null
-    }
-
-    // used for creating root type only
-    // the root type is a type value that has itself as its type expression.
-    private constructor() {
-        baseType = BaseType.TYPE
-        entryTypes = java.util.HashMap()
-    }
-
-    constructor(baseType: BaseType) {
-        this.baseType = baseType
-        entryTypes = java.util.HashMap()
-    }
-
-    // for user-defined types
-    constructor(entryTypes: HashMap<String, AstNode>) {
-        baseType = BaseType.STRUCT
-        this.entryTypes = entryTypes
-    }
+class StructTypeLiteralNode
+    (val entryTypes: Map<String, AstNode>) : AstNode() {
 
     override fun toString(indent: Int): String {
         val sb = StringBuilder()
 
-        sb.appendLine("TypeLiteralNode {".tab(indent))
-        sb.appendLine("\tbasetype: $baseType".tab(indent))
+        sb.appendLine("StructTypeLiteralNode {".tab(indent))
         sb.appendLine("\tentries:".tab(indent))
-
-        sb.appendLine("} TypeLiteralNode".tab(indent))
+        for(entry in entryTypes) {
+            sb.appendLine("\t\t${entry.key}:".tab(indent))
+            sb.appendLine(entry.value.toString(indent + 3))
+        }
+        sb.appendLine("} StructTypeLiteralNode".tab(indent))
         return sb.toString()
     }
 }
@@ -330,16 +291,10 @@ class IntLiteralNode(val value: Int) : AstNode() {
 }
 
 class StrLiteralNode(val value: String) : AstNode() {
-    override fun toString(indent: Int): String  ="StrLiteralNode { $value }".tab(indent)
+    override fun toString(indent: Int): String = "StrLiteralNode { $value }".tab(indent)
 }
 
-class StructLiteralNode : AstNode {
-    val entries: HashMap<String, AstNode>
-
-    constructor(entries: HashMap<String, AstNode>) {
-        this.entries = entries
-    }
-
+class StructLiteralNode(val entries: Map<String, AstNode>) : AstNode() {
     override fun toString(indent: Int): String {
         val sb = StringBuilder()
 
@@ -383,7 +338,7 @@ class UnaryNode(op: Symbol, target: AstNode) : AstNode() {
 
     init {
         if (op != Symbol.BANG) {
-            System.err.println("Invalid operator: " + op.symbol + " cannot be" + " used as a unary operator.")
+            throw Exception("Invalid operator: " + op.symbol + " cannot be" + " used as a unary operator.")
         }
         operator = op
         this.target = target
