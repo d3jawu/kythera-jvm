@@ -57,7 +57,6 @@ class BinaryNode(val operator: Symbol, val left: AstNode, val right: AstNode) : 
         sb.appendLine(right.toString(indent + 2))
         sb.appendLine("} BinaryNode".tab(indent))
 
-
         return sb.toString()
     }
 }
@@ -75,7 +74,6 @@ object BooleanLiteral {
             return sb.toString()
         }
     }
-
 }
 
 class BracketAccessNode(val target: AstNode, val key: AstNode) : AstNode() {
@@ -137,7 +135,6 @@ class DotAccessNode(val target: AstNode, val key: String) : AstNode() {
         return sb.toString()
     }
 }
-
 
 class FnLiteralNode(
     val parameterNames: List<String>, val body: BlockNode

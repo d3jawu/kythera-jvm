@@ -38,7 +38,6 @@ class InputStream(private val input: String) {
     }
 }
 
-
 enum class TokenType {
     SYM, STR, NUM, KW, ID, EOF
 }

@@ -5,7 +5,7 @@ import me.dejawu.kythera.stages.lexer.Symbol
 import java.util.*
 import java.util.stream.Collectors
 
-class Desugarer(val program: List<AstNode>) {
+class Desugarer(private val program: List<AstNode>) {
     // runs operation on all nodes and returns new AST list
     fun visit(): List<AstNode> {
         val result: MutableList<AstNode> = ArrayList()
@@ -52,7 +52,10 @@ class Desugarer(val program: List<AstNode>) {
         FnLiteralNode(fnLiteralNode.parameterNames, visitBlock(fnLiteralNode.body))
 
     private fun visitFnTypeLiteralNode(fnTypeLiteralNode: FnTypeLiteralNode) =
-        FnTypeLiteralNode(fnTypeLiteralNode.parameterTypeExps.map { visitExpression(it) }, visitExpression(fnTypeLiteralNode.returnTypeExp))
+        FnTypeLiteralNode(
+            fnTypeLiteralNode.parameterTypeExps.map { visitExpression(it) },
+            visitExpression(fnTypeLiteralNode.returnTypeExp)
+        )
 
     private fun visitTypeof(typeofNode: TypeofNode): TypeofNode = TypeofNode(visitExpression(typeofNode.target))
 
@@ -66,7 +69,6 @@ class Desugarer(val program: List<AstNode>) {
             .collect(Collectors.toList())
     )
 
-
     // default implementations pass node on unchanged
     private fun visitDeclaration(declarationNode: DeclarationNode) =
         DeclarationNode(declarationNode.identifier, visitExpression(declarationNode.value), declarationNode.op)
@@ -77,7 +79,7 @@ class Desugarer(val program: List<AstNode>) {
         JumpNode(jumpNode.op, visitExpression(jumpNode.result))
     }
 
-    fun visitAssign(assignNode: AssignNode) =
+    private fun visitAssign(assignNode: AssignNode) =
         if (assignNode.operator == Symbol.EQUAL) {
             AssignNode(
                 Symbol.EQUAL,
@@ -101,7 +103,7 @@ class Desugarer(val program: List<AstNode>) {
             )
         }
 
-    fun visitUnary(unaryNode: UnaryNode) = CallNode(
+    private fun visitUnary(unaryNode: UnaryNode) = CallNode(
         DotAccessNode(
             visitExpression(unaryNode.target),
             unaryNode.operator.symbol,
@@ -110,18 +112,12 @@ class Desugarer(val program: List<AstNode>) {
     )
 
     // binary infix becomes function call
-    fun visitBinary(binaryNode: BinaryNode) = CallNode(
+    private fun visitBinary(binaryNode: BinaryNode) = CallNode(
         DotAccessNode(
             visitExpression(binaryNode.left),
             binaryNode.operator.symbol
         ),
-        object : ArrayList<AstNode>() {
-            init {
-                add(
-                    visitExpression(binaryNode.right)
-                )
-            }
-        }
+        arrayListOf(visitExpression(binaryNode.right))
     )
 
     private fun visitIf(ifNode: IfNode) = if (ifNode.elseBody == null) {
@@ -137,13 +133,12 @@ class Desugarer(val program: List<AstNode>) {
         )
     }
 
-    fun visitWhile(whileNode: WhileNode) = WhileNode(
+    private fun visitWhile(whileNode: WhileNode) = WhileNode(
         visitExpression(whileNode.condition),
-        visitBlock(whileNode.body) as BlockNode
+        visitBlock(whileNode.body)
     )
 
-    // TODO desugar block into fn()unit
-    fun visitBlock(blockNode: BlockNode): BlockNode {
+    private fun visitBlock(blockNode: BlockNode): BlockNode {
         val desugared: MutableList<AstNode> = ArrayList()
         for (st in blockNode.body) {
             desugared.add(visitExpression(st))
@@ -151,10 +146,9 @@ class Desugarer(val program: List<AstNode>) {
         return BlockNode(desugared)
     }
 
-    // TODO desugar into overloaded method call
-    fun visitBracketAccess(bracketAccessNode: BracketAccessNode) = BracketAccessNode(
+    private fun visitBracketAccess(bracketAccessNode: BracketAccessNode) = CallNode(
         visitExpression(bracketAccessNode.target),
-        visitExpression(bracketAccessNode.key)
+        arrayListOf(visitExpression(bracketAccessNode.key))
     )
 
     private fun visitDotAccess(dotAccessNode: DotAccessNode): DotAccessNode =
