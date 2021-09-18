@@ -1,4 +1,4 @@
-package me.dejawu.kythera.stages.tokenizer;
+package me.dejawu.kythera.stages.lexer;
 
 public enum Keyword {
     CONST(),
@@ -6,7 +6,6 @@ public enum Keyword {
     IF(),
     ELSE(),
     WHILE(),
-    EACH(),
     WHEN(),
     BREAK(),
     RETURN(),
@@ -22,6 +21,16 @@ public enum Keyword {
 
     Keyword() {
         this.token = new Token(this.name().toLowerCase(), TokenType.KW);
+    }
+
+    public static Keyword from(String keyword) {
+        for (Keyword o : values()) {
+            if (o.toString().toLowerCase().equals(keyword)) {
+                return o;
+            }
+        }
+
+        return null;
     }
 
     @Override
