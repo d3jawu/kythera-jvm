@@ -67,7 +67,7 @@ object BooleanLiteral {
     var TRUE: BooleanLiteralNode = BooleanLiteralNode(true)
     var FALSE: BooleanLiteralNode = BooleanLiteralNode(false)
 
-    class BooleanLiteralNode constructor(val value: Boolean) : AstNode() {
+    class BooleanLiteralNode constructor(private val value: Boolean) : AstNode() {
         override fun toString(indent: Int): String {
             val sb = StringBuilder()
             sb.appendLine("BooleanLiteralNode { $value }".tab(indent))

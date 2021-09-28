@@ -3,6 +3,7 @@
 package me.dejawu.kythera
 
 import me.dejawu.kythera.stages.*
+import java.io.FileOutputStream
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.system.exitProcess
@@ -52,6 +53,15 @@ fun main(args: Array<String>) {
         println("Final AST:")
         for (st in ast) {
             println(st.toString())
+        }
+
+        val byteCode = Generator(ast).generate()
+        if(byteCode != null) {
+            val outStream = FileOutputStream("out/production/kythera/me/dejawu/kythera/runtime/KMain.class")
+            outStream.write(byteCode)
+            outStream.close()
+        } else {
+            throw Exception("Bytecode generation failed.")
         }
 
         return

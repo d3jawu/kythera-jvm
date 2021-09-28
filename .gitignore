@@ -5,6 +5,11 @@ lib/
 out/
 
 main.ky
+scratch.ky
+
+# Used for studying generated ASM
+src/me/dejawu/kythera/Scratch.java
+src/me/dejawu/kythera/Scratch.kt
 
 src/META-INF
 
