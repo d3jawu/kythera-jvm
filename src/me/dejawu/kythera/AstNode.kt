@@ -129,7 +129,7 @@ class DotAccessNode(val target: AstNode, val key: String) : AstNode() {
 
         sb.appendLine("DotAccessNode {".tab(indent))
         sb.appendLine("\ttarget:".tab(indent))
-        target.toString(indent + 2)
+        sb.appendLine(target.toString(indent + 2))
         sb.appendLine("\tkey: $key".tab(indent))
         sb.appendLine("} DotAccessNode".tab(indent))
         return sb.toString()

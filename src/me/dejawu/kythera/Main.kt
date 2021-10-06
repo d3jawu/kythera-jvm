@@ -46,6 +46,10 @@ fun main(args: Array<String>) {
         val parser = Parser(content)
         var ast = parser.parse()
 
+        for (st in ast) {
+            println(st.toString())
+        }
+
         println("Desugaring")
         val desugarer = Desugarer(ast)
         ast = desugarer.visit()
