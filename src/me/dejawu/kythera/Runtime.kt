@@ -1,6 +1,9 @@
 package me.dejawu.kythera;
 
+import java.util.function.Function
+
 typealias FieldVals = Map<String, KVal<*>>
+typealias FnVal = Function<List<KVal<*>>, KVal<*>>
 typealias FnTypeVal = Pair<List<KVal<*>>, KVal<*>>
 
 class KVal<T> {
@@ -95,7 +98,7 @@ class KVal<T> {
             )
         )
 
-        val intIntToIntType = getType(
+        private val intIntToIntType = getType(
             KVal<FnTypeVal>(
                 Pair(listOf(INT, INT), INT),
                 TYPE,
@@ -103,20 +106,57 @@ class KVal<T> {
             )
         )
 
-        // implementations of int functions
-        val intFields: FieldVals = mapOf(
-            "+" to KVal(
-                fun(a: KVal<Int>, b: KVal<Int>): KVal<Int> {
-                    return makeInt(a.value + b.value);
-                },
-                intIntToIntType,
+        fun makeFnKVal(
+            value: FnVal,
+            typeValue: KVal<*>,
+        ): KVal<*> {
+            return KVal(
+                value,
+                typeValue,
                 mapOf()
             )
+        }
+
+        // implementations of fields of fn values
+        private val fnFields: FieldVals = mapOf()
+
+        // implementations of int functions
+        private val intFields: FieldVals = mapOf(
+            "+" to makeFnKVal(
+                { p: List<KVal<Int>> ->
+                    makeIntKVal(p[0].value + p[1].value)
+                } as (List<KVal<*>>) -> KVal<*>, // at runtime we can behave as though it is safe to assume the '+' method will be available, but here that manifests as an unchecked cast.
+                intIntToIntType,
+            ),
+            "-" to makeFnKVal(
+                { p: List<KVal<Int>> ->
+                    makeIntKVal(p[0].value - p[1].value)
+                } as (List<KVal<*>>) -> KVal<*>,
+                intIntToIntType,
+            ),
+            "*" to makeFnKVal(
+                { p: List<KVal<Int>> ->
+                    makeIntKVal(p[0].value * p[1].value)
+                } as (List<KVal<*>>) -> KVal<*>,
+                intIntToIntType,
+            ),
+            "/" to makeFnKVal(
+                { p: List<KVal<Int>> ->
+                    makeIntKVal(p[0].value / p[1].value)
+                } as (List<KVal<*>>) -> KVal<*>,
+                intIntToIntType,
+            ),
+            "%" to makeFnKVal(
+                { p: List<KVal<Int>> ->
+                    makeIntKVal(p[0].value % p[1].value)
+                } as (List<KVal<*>>) -> KVal<*>,
+                intIntToIntType,
+            ),
         )
 
         // value factories
         @JvmStatic
-        fun makeInt(value: Int): KVal<Int> {
+        fun makeIntKVal(value: Int): KVal<Int> {
             return KVal(
                 value, INT,
                 intFields
