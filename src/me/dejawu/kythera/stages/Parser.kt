@@ -37,10 +37,10 @@ class Parser(input: String) {
         val exp = parseExpAtom()
 
         if (!compose) {
-            return exp;
+            return exp
         }
 
-        var composed = exp;
+        var composed = exp
 
         while (true) {
             val next = lexer.peek()
@@ -92,7 +92,7 @@ class Parser(input: String) {
                     RIGHT_PAREN.token -> {
                         lexer.consume(RIGHT_PAREN.token)
                         // paren-wrapped expression, just return contents
-                        return nextExp;
+                        return nextExp
                     }
                     else -> {
                         throw Exception("Unexpected token: ${lexer.peek()} at ${lexer.loc()}")
@@ -324,7 +324,7 @@ class Parser(input: String) {
         lexer.consume(COMMA.token)
 
         while (lexer.peek() != RIGHT_BRACE.token) {
-            val entryToken = lexer.consume(TokenType.ID);
+            val entryToken = lexer.consume(TokenType.ID)
 
             lexer.consume(COLON.token)
             val typeExp = parseExp(true)
@@ -361,7 +361,7 @@ class Parser(input: String) {
 
         lexer.consume(RIGHT_BRACKET.token)
 
-        val listNode = ListLiteralNode(contents);
+        val listNode = ListLiteralNode(contents)
 
         return listNode
     }
@@ -426,7 +426,7 @@ class Parser(input: String) {
         STAR,
         SLASH,
         PERCENT
-    ).contains(sym);
+    ).contains(sym)
 
     private fun isAssignOp(sym: Symbol): Boolean = arrayOf(
         EQUAL,

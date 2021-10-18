@@ -1,4 +1,4 @@
-package me.dejawu.kythera;
+package me.dejawu.kythera
 
 import java.util.function.Function
 
@@ -9,7 +9,7 @@ typealias FnTypeVal = Pair<List<KVal<*>>, KVal<*>>
 class KVal<T> {
     val value: T
     val typeValue: KVal<*>
-    val fieldVals: FieldVals;
+    val fieldVals: FieldVals
 
     private constructor(value: T, typeValue: KVal<*>, fieldVals: FieldVals) {
         this.value = value
@@ -30,7 +30,7 @@ class KVal<T> {
         this.fieldVals = fieldValsFrom(this)
         this.value = this.fieldVals as T
 
-        this.typeValue = typeValue;
+        this.typeValue = typeValue
     }
 
     companion object {
@@ -40,7 +40,7 @@ class KVal<T> {
         @JvmStatic
         // fetches canonical reference for type-value, creating one in the pool if necessary
         fun getType(value: KVal<*>): KVal<*> {
-            val canonType = typePool[value];
+            val canonType = typePool[value]
 
             return if (canonType == null) {
                 typePool[value] = value
@@ -75,6 +75,34 @@ class KVal<T> {
         })
 
         @JvmField
+        val BOOL: KVal<*> = getType(
+            KVal<FieldVals>(
+                TYPE,
+                fun(BOOL: KVal<*>): FieldVals {
+                    val boolBoolToBoolType = getType(
+                        KVal<FnTypeVal>(
+                            Pair(listOf(BOOL, BOOL), BOOL),
+                            TYPE,
+                            fnTypeFields
+                        )
+                    )
+
+                    return mapOf(
+                        "||" to boolBoolToBoolType,
+                        "&&" to boolBoolToBoolType,
+                        "!" to getType(
+                            KVal<FnTypeVal>(
+                                Pair(listOf(BOOL), BOOL),
+                                TYPE,
+                                fnTypeFields
+                            )
+                        )
+                    )
+                }
+            )
+        )
+
+        @JvmField
         val INT: KVal<*> = getType(
             KVal<FieldVals>(
                 TYPE,
@@ -98,13 +126,9 @@ class KVal<T> {
             )
         )
 
-        private val intIntToIntType = getType(
-            KVal<FnTypeVal>(
-                Pair(listOf(INT, INT), INT),
-                TYPE,
-                fnTypeFields
-            )
-        )
+        // implementations of fields of fn values
+        private val fnFields: FieldVals = mapOf()
+
 
         fun makeFnKVal(
             value: FnVal,
@@ -113,19 +137,70 @@ class KVal<T> {
             return KVal(
                 value,
                 typeValue,
-                mapOf()
+                fnFields
             )
         }
 
-        // implementations of fields of fn values
-        private val fnFields: FieldVals = mapOf()
+        private val boolBoolToBoolType = getType(
+            KVal<FnTypeVal>(
+                Pair(listOf(BOOL, BOOL), BOOL),
+                TYPE,
+                fnTypeFields
+            )
+        )
 
-        // implementations of int functions
+        private val boolToBoolType = getType(
+            KVal<FnTypeVal>(
+                Pair(listOf(BOOL), BOOL),
+                TYPE,
+                fnTypeFields
+            )
+        )
+
+        // boolean value factory
+        private val boolFields: FieldVals = mapOf(
+            "||" to makeFnKVal(
+                { p: List<KVal<Boolean>> ->
+                    makeBoolVal(p[0].value || p[1].value)
+                } as (List<KVal<*>>) -> KVal<*>,
+                boolBoolToBoolType
+            ),
+            "&&" to makeFnKVal(
+                { p: List<KVal<Boolean>> ->
+                    makeBoolVal(p[0].value && p[1].value)
+                } as (List<KVal<*>>) -> KVal<*>,
+                boolBoolToBoolType
+            ),
+            "!" to makeFnKVal(
+                { p: List<KVal<Boolean>> ->
+                    makeBoolVal(!p[0].value)
+                } as (List<KVal<*>>) -> KVal<*>,
+                boolToBoolType
+            ),
+        )
+
+        @JvmStatic
+        fun makeBoolVal(value: Boolean): KVal<Boolean> {
+            return KVal(
+                value, BOOL,
+                boolFields
+            )
+        }
+
+        // int value factory
+        private val intIntToIntType = getType(
+            KVal<FnTypeVal>(
+                Pair(listOf(INT, INT), INT),
+                TYPE,
+                fnTypeFields
+            )
+        )
+
         private val intFields: FieldVals = mapOf(
             "+" to makeFnKVal(
                 { p: List<KVal<Int>> ->
                     makeIntKVal(p[0].value + p[1].value)
-                } as (List<KVal<*>>) -> KVal<*>, // at runtime we can behave as though it is safe to assume the '+' method will be available, but here that manifests as an unchecked cast.
+                } as (List<KVal<*>>) -> KVal<*>, // unfortunately an unchecked cast is needed here; the generated code will never fail it
                 intIntToIntType,
             ),
             "-" to makeFnKVal(
@@ -154,7 +229,6 @@ class KVal<T> {
             ),
         )
 
-        // value factories
         @JvmStatic
         fun makeIntKVal(value: Int): KVal<Int> {
             return KVal(

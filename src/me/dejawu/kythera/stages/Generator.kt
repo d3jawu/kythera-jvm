@@ -5,7 +5,7 @@ import org.objectweb.asm.*
 import org.objectweb.asm.Opcodes.*
 
 class Generator(private val program: List<AstNode>) {
-    private val classWriter: ClassWriter = ClassWriter(ClassWriter.COMPUTE_FRAMES);
+    private val classWriter: ClassWriter = ClassWriter(ClassWriter.COMPUTE_FRAMES)
 
     fun generate(): ByteArray? {
         classWriter.visit(V14, ACC_PUBLIC or ACC_SUPER, "KMain", null, "java/lang/Object", null)

@@ -8,7 +8,7 @@ fun String.tab(n: Int): String = "\t".repeat(0.coerceAtLeast(n)) + this
 
 abstract class AstNode {
     override fun toString() = toString(0)
-    abstract fun toString(indent: Int): String;
+    abstract fun toString(indent: Int): String
 }
 
 class AssignNode(val operator: Symbol, val id: String, val exp: AstNode) : AstNode() {
